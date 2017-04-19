@@ -55,55 +55,82 @@
 int
 main(int argc, char *argv[])
 {
-  /* the multiple sequence structure */
-  mseq_t *prMSeq_ref = NULL;
-  mseq_t *prMSeq_query = NULL;
-  /* for openmp: number of threads to use */
-  int iThreads = 1;
-  /* alignment options to use */
   opts_t rAlnOpts;
-  /* an input file */
-  char *ref_seqs;
-  char *query_seqs;
 
+  mseq_t* references = NULL;
+  mseq_t* queries = NULL;
 
-  /* Must happen first: setup logger */
+  char* refs_fname;
+  char* queries_fname;
+
+  int openmp_threads = 1;
+  int ref_posn = 0;
+  int posn_argv_offset = 0;
+
+  /* loop indices */
+  int cur_query_i = 0;
+  int key_posn_i = 0;
+  int aln_i = 0;
+  int q_i = 0; /* query idx */
+
   LogDefaultSetup(&rLog);
+  /* rLog.iLogLevelEnabled = LOG_DEBUG; */
 
   SetDefaultAlnOpts(&rAlnOpts);
 
-  InitClustalOmega(iThreads);
+  InitClustalOmega(openmp_threads);
 
   /* Get sequence input file name from command line
    */
-  if (argc < 4) {
-    fprintf(stderr, "USAGE: %s refs.fa queries.fa pos1 pos2 ...\n", argv[0]);
-    exit(1);
+  int num_required_args = 4;
+  if (argc < num_required_args + 1) {
+    Log(&rLog,
+        LOG_FATAL,
+        "Usage: %s "
+        "<1: refs.fa> "
+        "<2: queries.fa> "
+        "<3: region start> "
+        "<4: region stop> "
+        "pos1 pos2 ... posN\n",
+        argv[0]);
   }
-  ref_seqs = argv[1];
-  query_seqs = argv[2];
 
-  int num_posns = argc - 3;
+  refs_fname = argv[1];
+  queries_fname = argv[2];
+  int region_start = strtol(argv[3], NULL, 10) - 1;
+  int region_stop  = strtol(argv[4], NULL, 10) - 1;
+
+  int num_key_posns = argc - num_required_args - 1;
+
+  int* key_posns = malloc(num_key_posns * sizeof(int));
+  if (key_posns == NULL) {
+    Log(&rLog, LOG_FATAL, "Memory error allocating for key_posns");
+  }
+  int* aln_key_posns = malloc(num_key_posns * sizeof(int));
+  if (aln_key_posns == NULL) {
+    Log(&rLog, LOG_FATAL, "Memory error allocating for aln_key_posns");
+  }
+
+  char* group = malloc((num_key_posns + 1) * sizeof(char));
+  if (group == NULL) {
+    Log(&rLog, LOG_FATAL, "Memory error allocating for group");
+  }
 
 
-  fprintf(stderr, "argc: %d\n", argc);
-  int* posns = malloc(num_posns * sizeof(int));
-  int* aln_posns = malloc(num_posns * sizeof(int));
-  char* oligotype = malloc((num_posns + 1) * sizeof(char));
-
-  fprintf(stdout,
-          "seq oligotype");
-  for (int i = 0; i < num_posns; ++i) {
-    posns[i] = strtol(argv[i+3], NULL, 10) - 1;
-    fprintf(stdout, " aa_at_%s", argv[i+3]);
+  fprintf(stdout, "seq group");
+  posn_argv_offset = num_required_args + 1;
+  for (key_posn_i = 0; key_posn_i < num_key_posns; ++key_posn_i) {
+    key_posns[key_posn_i] =
+      strtol(argv[key_posn_i + posn_argv_offset], NULL, 10) - 1;
+    fprintf(stdout, " aa_at_%s", argv[key_posn_i + posn_argv_offset]);
   }
   fprintf(stdout, "\n");
 
-  /* Read sequence file
-   */
-  NewMSeq(&prMSeq_query);
-  if (ReadSequences(prMSeq_query,     /* mseq_t* multiple seq struct */
-                    query_seqs,        /* char* seqfile */
+  /* Read the queries. TODO better would be not to have to save all
+     these in memory. */
+  NewMSeq(&queries);
+  if (ReadSequences(queries,         /* mseq_t* multiple seq struct */
+                    queries_fname,   /* char* seqfile */
                     SEQTYPE_UNKNOWN, /* iSeqType */
                     SEQTYPE_UNKNOWN, /* iSeqFmt */
                     FALSE,           /* bIsProfile */
@@ -112,16 +139,16 @@ main(int argc, char *argv[])
                     INT_MAX,         /* iMaxSeqLen */
                     NULL             /* char* pcHMMBatch */
                     )) {
-    Log(&rLog, LOG_FATAL, "Reading sequence file '%s' failed", query_seqs);
+    Log(&rLog, LOG_FATAL, "Reading sequence file '%s' failed", queries_fname);
   }
 
   /* TODO for some reason, DupMSeq, and AddSeq don't really work when
      trying to add both from the ref read above and the query seqs. so
      just re-read the refs every time */
-  for (int q_idx = 0; q_idx < prMSeq_query->nseqs; ++q_idx) {
-    NewMSeq(&prMSeq_ref);
-    if (ReadSequences(prMSeq_ref,     /* mseq_t* multiple seq struct */
-                      ref_seqs,        /* char* seqfile */
+  for (q_i = 0; q_i < queries->nseqs; ++q_i) {
+    NewMSeq(&references);
+    if (ReadSequences(references,     /* mseq_t* multiple seq struct */
+                      refs_fname,        /* char* seqfile */
                       SEQTYPE_UNKNOWN, /* iSeqType */
                       SEQTYPE_UNKNOWN, /* iSeqFmt */
                       FALSE,           /* bIsProfile */
@@ -130,65 +157,70 @@ main(int argc, char *argv[])
                       INT_MAX,         /* iMaxSeqLen */
                       NULL             /* char* pcHMMBatch */
                       )) {
-      Log(&rLog, LOG_FATAL, "Reading sequence file '%s' failed", ref_seqs);
+      Log(&rLog, LOG_FATAL, "Reading sequence file '%s' failed", refs_fname);
     }
 
-    AddSeq(&prMSeq_ref,
-           prMSeq_query->sqinfo[q_idx].name,
-           prMSeq_query->seq[q_idx]);
+    AddSeq(&references,
+           queries->sqinfo[q_i].name,
+           queries->seq[q_i]);
 
 
-    prMSeq_ref->seqtype = SEQTYPE_PROTEIN;
+    /* TODO not 100% sure why this needs to be reset. I think it is in
+       AddSeq. */
+    references->seqtype = SEQTYPE_PROTEIN;
 
-    if (Align(prMSeq_ref, NULL, &rAlnOpts)) {
+    if (Align(references, NULL, &rAlnOpts)) {
       Log(&rLog, LOG_FATAL, "A fatal error happended during the alignment process");
     }
 
-    assert(prMSeq_ref->aligned);
-    int ref_pos = 0;
-    for (int i = 0; i < prMSeq_ref->sqinfo[0].len; ++i) {
-      if (prMSeq_ref->seq[0][i] != '-') {
-        ref_pos++;
-        for (int j = 0; j < num_posns; ++j) {
-          if (ref_pos == posns[j]) {
-            aln_posns[j] = i+1;
+    assert(references->aligned);
+    ref_posn = -1;
+
+    /* Convert key_posns to their respective positions in this
+       alignment. */
+    for (aln_i = 0; aln_i < references->sqinfo[0].len; ++aln_i) {
+      if (references->seq[0][aln_i] != '-') {
+        ++ref_posn;
+        for (key_posn_i = 0; key_posn_i < num_key_posns; ++key_posn_i) {
+          if (ref_posn == key_posns[key_posn_i]) {
+            aln_key_posns[key_posn_i] = aln_i;
           }
         }
       }
     }
 
+    /* TODO this should always be the same */
+    cur_query_i = references->nseqs - 1;
+
+    /* Print out the protein group info. */
     fprintf(stdout,
             "%s",
-            prMSeq_ref->sqinfo[prMSeq_ref->nseqs-1].name);
+            /* the current query sequence */
+            references->sqinfo[cur_query_i].name);
 
-    for (int k = 0; k < num_posns; ++k) {
-      oligotype[k] = prMSeq_ref->seq[prMSeq_ref->nseqs-1][aln_posns[k]];
+    for (key_posn_i = 0; key_posn_i < num_key_posns; ++key_posn_i) {
+      group[key_posn_i] =
+        references->seq[cur_query_i][aln_key_posns[key_posn_i]];
     }
-    oligotype[k] = '\0';
+    group[num_key_posns] = '\0';
 
-    fprintf(stdout,
-            " %s",
-            oligotype);
+    fprintf(stdout, " %s", group);
 
-    for (int z = 0; z < num_posns; ++z) {
-      fprintf(stdout, " %c", oligotype[z]);
+    for (key_posn_i = 0; key_posn_i < num_key_posns; ++key_posn_i) {
+      fprintf(stdout, " %c", group[key_posn_i]);
     }
-    fprintf(stdout,
-            "\n");
+    fprintf(stdout, "\n");
 
-    FreeMSeq(&prMSeq_ref);
+    FreeMSeq(&references);
   }
 
 
-  FreeMSeq(&prMSeq_ref);
-  FreeMSeq(&prMSeq_query);
+  FreeMSeq(&references);
+  FreeMSeq(&queries);
 
-  free(posns);
-  free(aln_posns);
-  free(oligotype);
-
-  Log(&rLog, LOG_INFO, "Successfull program exit");
+  free(key_posns);
+  free(aln_key_posns);
+  free(group);
 
   return EXIT_SUCCESS;
 }
-/***   end of main()   ***/
