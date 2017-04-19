@@ -53,6 +53,135 @@
 /* } */
 
 int
+spans_region_p(int region_start,
+               int region_end,
+               int aln_region_start,
+               int aln_region_end,
+               int cur_query_i,
+               mseq_t* references)
+{
+  /* does the query span the region? */
+  int spans_start = 0;
+  int spans_end = 0;
+  int spans_region = 0;
+  int aln_i = 0;
+  char cur_char = 0;
+
+  if (region_start >= 0 && region_end >= region_start) {
+    for (aln_i = 0;
+         aln_i < references->sqinfo[cur_query_i].len;
+         ++aln_i) {
+
+      cur_char = references->seq[cur_query_i][aln_i];
+
+      if (aln_i <= aln_region_start && cur_char != '-') {
+        spans_start = 1;
+      }
+
+      if (aln_i >= aln_region_end && cur_char != '-') {
+        spans_end = 1;
+        break;
+      }
+    }
+
+    if (spans_start && spans_end) {
+      spans_region = 1;
+    } else {
+      spans_region = 0;
+    }
+  } else {
+    spans_region = -1;
+  }
+
+  return spans_region;
+}
+
+void
+set_key_aln_posns(int region_start,
+                  int region_end,
+                  int* aln_region_start,
+                  int* aln_region_end,
+                  int num_key_posns,
+                  int* key_posns,
+                  int* aln_key_posns,
+                  mseq_t* references)
+{
+  assert(references->aligned);
+  int ref_posn = -1;
+  int aln_i = 0;
+  int key_posn_i = 0;
+
+  /* Convert key_posns to their respective positions in this
+     alignment. */
+  for (aln_i = 0; aln_i < references->sqinfo[0].len; ++aln_i) {
+    if (references->seq[0][aln_i] != '-') {
+      ++ref_posn;
+
+      if (ref_posn == region_start) {
+        aln_region_start[0] = aln_i;
+      }
+
+      if (ref_posn == region_end) {
+        aln_region_end[0] = aln_i;
+      }
+
+      for (key_posn_i = 0; key_posn_i < num_key_posns; ++key_posn_i) {
+        if (ref_posn == key_posns[key_posn_i]) {
+          aln_key_posns[key_posn_i] = aln_i;
+        }
+      }
+    }
+  }
+}
+
+void
+print_protein_group_info(int spans_region,
+                         int num_key_posns,
+                         int* aln_key_posns,
+                         int cur_query_i,
+                         mseq_t* references)
+{
+  char* group = malloc((num_key_posns + 1) * sizeof(char));
+  assert(group != NULL);
+
+  int key_posn_i = 0;
+
+  /* Print out the protein group info. */
+  fprintf(stdout,
+          "%s",
+          /* the current query sequence */
+          references->sqinfo[cur_query_i].name);
+
+  if (spans_region == 1) {
+    fprintf(stdout, " yes");
+  } else if (spans_region == 0) {
+    fprintf(stdout, " no");
+  } else {
+    fprintf(stdout, " na");
+  }
+
+  /* build the oligotype */
+  for (key_posn_i = 0; key_posn_i < num_key_posns; ++key_posn_i) {
+    group[key_posn_i] =
+      references->seq[cur_query_i][aln_key_posns[key_posn_i]];
+  }
+  group[num_key_posns] = '\0';
+
+  fprintf(stdout, " %s", group);
+
+  for (key_posn_i = 0; key_posn_i < num_key_posns; ++key_posn_i) {
+    fprintf(stdout, " %c", group[key_posn_i]);
+  }
+  fprintf(stdout, "\n");
+
+  /* if (WriteAlignment(references, NULL, MSAFILE_A2M, 70, FALSE)) { */
+  /*     Log(&rLog, LOG_FATAL, "Could not save alignment"); */
+  /* } */
+
+  free(group);
+}
+
+int
 main(int argc, char *argv[])
 {
   opts_t rAlnOpts;
@@ -64,13 +193,11 @@ main(int argc, char *argv[])
   char* queries_fname;
 
   int openmp_threads = 1;
-  int ref_posn = 0;
   int posn_argv_offset = 0;
 
   /* loop indices */
   int cur_query_i = 0;
   int key_posn_i = 0;
-  int aln_i = 0;
   int q_i = 0; /* query idx */
 
   LogDefaultSetup(&rLog);
@@ -112,12 +239,8 @@ main(int argc, char *argv[])
   int aln_region_end = 0;
 
   int spans_region = 0;
-  int spans_start = 0;
-  int spans_end = 0;
 
   int num_key_posns = argc - num_required_args - 1;
-
-  char cur_char = 0;
 
   int* key_posns = malloc(num_key_posns * sizeof(int));
   if (key_posns == NULL) {
@@ -164,7 +287,10 @@ main(int argc, char *argv[])
                     INT_MAX,         /* iMaxSeqLen */
                     NULL             /* char* pcHMMBatch */
                     )) {
-    Log(&rLog, LOG_FATAL, "Reading sequence file '%s' failed", queries_fname);
+    Log(&rLog,
+        LOG_FATAL,
+        "Reading sequence file '%s' failed",
+        queries_fname);
   }
 
   /* TODO for some reason, DupMSeq, and AddSeq don't really work when
@@ -182,7 +308,10 @@ main(int argc, char *argv[])
                       INT_MAX,         /* iMaxSeqLen */
                       NULL             /* char* pcHMMBatch */
                       )) {
-      Log(&rLog, LOG_FATAL, "Reading sequence file '%s' failed", refs_fname);
+      Log(&rLog,
+          LOG_FATAL,
+          "Reading sequence file '%s' failed",
+          refs_fname);
     }
 
     AddSeq(&references,
@@ -195,94 +324,35 @@ main(int argc, char *argv[])
     references->seqtype = SEQTYPE_PROTEIN;
 
     if (Align(references, NULL, &rAlnOpts)) {
-      Log(&rLog, LOG_FATAL, "A fatal error happended during the alignment process");
+      Log(&rLog,
+          LOG_FATAL,
+          "A fatal error happended during the alignment process");
     }
 
-    assert(references->aligned);
-    ref_posn = -1;
+    /* convert key posistions to their respective positions in this
+       alignment */
+    set_key_aln_posns(region_start,
+                      region_end,
+                      &aln_region_start,
+                      &aln_region_end,
+                      num_key_posns,
+                      key_posns,
+                      aln_key_posns,
+                      references);
 
-    /* Convert key_posns to their respective positions in this
-       alignment. */
-    for (aln_i = 0; aln_i < references->sqinfo[0].len; ++aln_i) {
-      if (references->seq[0][aln_i] != '-') {
-        ++ref_posn;
-
-        if (ref_posn == region_start) {
-          aln_region_start = aln_i;
-        }
-
-        if (ref_posn == region_end) {
-          aln_region_end = aln_i;
-        }
-
-        for (key_posn_i = 0; key_posn_i < num_key_posns; ++key_posn_i) {
-          if (ref_posn == key_posns[key_posn_i]) {
-            aln_key_posns[key_posn_i] = aln_i;
-          }
-        }
-      }
-    }
-
-    /* TODO this should always be the same */
     cur_query_i = references->nseqs - 1;
+    spans_region = spans_region_p(region_start,
+                                  region_end,
+                                  aln_region_start,
+                                  aln_region_end,
+                                  cur_query_i,
+                                  references);
 
-    /* does the query span the region? */
-    spans_start = 0;
-    spans_end = 0;
-    if (region_start >= 0 && region_end >= region_start) {
-      for (aln_i = 0; aln_i < references->sqinfo[cur_query_i].len; ++aln_i) {
-        cur_char = references->seq[cur_query_i][aln_i];
-
-        if (aln_i <= aln_region_start && cur_char != '-') {
-          spans_start = 1;
-        }
-
-        if (aln_i >= aln_region_end && cur_char != '-') {
-          spans_end = 1;
-          break;
-        }
-      }
-
-      if (spans_start && spans_end) {
-        spans_region = 1;
-      } else {
-        spans_region = 0;
-      }
-    } else {
-      spans_region = -1;
-    }
-
-    /* Print out the protein group info. */
-    fprintf(stdout,
-            "%s",
-            /* the current query sequence */
-            references->sqinfo[cur_query_i].name);
-
-    if (spans_region == 1) {
-      fprintf(stdout, " yes");
-    } else if (spans_region == 0) {
-      fprintf(stdout, " no");
-    } else {
-      fprintf(stdout, " na");
-    }
-
-
-    for (key_posn_i = 0; key_posn_i < num_key_posns; ++key_posn_i) {
-      group[key_posn_i] =
-        references->seq[cur_query_i][aln_key_posns[key_posn_i]];
-    }
-    group[num_key_posns] = '\0';
-
-    fprintf(stdout, " %s", group);
-
-    for (key_posn_i = 0; key_posn_i < num_key_posns; ++key_posn_i) {
-      fprintf(stdout, " %c", group[key_posn_i]);
-    }
-    fprintf(stdout, "\n");
-
-    if (WriteAlignment(references, NULL, MSAFILE_A2M, 70, FALSE)) {
-        Log(&rLog, LOG_FATAL, "Could not save alignment");
-    }
+    print_protein_group_info(spans_region,
+                             num_key_posns,
+                             aln_key_posns,
+                             cur_query_i,
+                             references);
 
     FreeMSeq(&references);
   }

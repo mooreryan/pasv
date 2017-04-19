@@ -2,3 +2,4 @@
 *.dSYM
 group_proteins
 .DS_Store
+ignore
