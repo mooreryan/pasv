@@ -1,3 +1,4 @@
 *.o
 *.dSYM
 group_proteins
+.DS_Store

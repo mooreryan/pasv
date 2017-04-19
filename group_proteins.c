@@ -86,11 +86,11 @@ main(int argc, char *argv[])
   if (argc < num_required_args + 1) {
     Log(&rLog,
         LOG_FATAL,
-        "Usage: %s "
+        "\nUsage: %s "
         "<1: refs.fa> "
         "<2: queries.fa> "
-        "<3: region start> "
-        "<4: region stop> "
+        "<3: region start (1-based position)> "
+        "<4: region end (1-based position)> "
         "pos1 pos2 ... posN\n",
         argv[0]);
   }
@@ -98,9 +98,26 @@ main(int argc, char *argv[])
   refs_fname = argv[1];
   queries_fname = argv[2];
   int region_start = strtol(argv[3], NULL, 10) - 1;
-  int region_stop  = strtol(argv[4], NULL, 10) - 1;
+  int region_end  = strtol(argv[4], NULL, 10) - 1;
+
+  if (region_end < region_start) {
+    Log(&rLog,
+        LOG_FATAL,
+        "region end (%d) cannot be less than region start (%d)",
+        region_end + 1,
+        region_start + 1);
+  }
+
+  int aln_region_start = 0;
+  int aln_region_end = 0;
+
+  int spans_region = 0;
+  int spans_start = 0;
+  int spans_end = 0;
 
   int num_key_posns = argc - num_required_args - 1;
+
+  char cur_char = 0;
 
   int* key_posns = malloc(num_key_posns * sizeof(int));
   if (key_posns == NULL) {
@@ -116,12 +133,20 @@ main(int argc, char *argv[])
     Log(&rLog, LOG_FATAL, "Memory error allocating for group");
   }
 
-
-  fprintf(stdout, "seq group");
+  fprintf(stdout, "seq spans_region group");
   posn_argv_offset = num_required_args + 1;
   for (key_posn_i = 0; key_posn_i < num_key_posns; ++key_posn_i) {
     key_posns[key_posn_i] =
       strtol(argv[key_posn_i + posn_argv_offset], NULL, 10) - 1;
+
+    if (key_posns[key_posn_i] < 1) {
+      Log(&rLog,
+          LOG_FATAL,
+          "key position #%d (%d) must be 1 or greater",
+          key_posn_i,
+          key_posns[key_posn_i] + 1);
+    }
+
     fprintf(stdout, " aa_at_%s", argv[key_posn_i + posn_argv_offset]);
   }
   fprintf(stdout, "\n");
@@ -181,6 +206,15 @@ main(int argc, char *argv[])
     for (aln_i = 0; aln_i < references->sqinfo[0].len; ++aln_i) {
       if (references->seq[0][aln_i] != '-') {
         ++ref_posn;
+
+        if (ref_posn == region_start) {
+          aln_region_start = aln_i;
+        }
+
+        if (ref_posn == region_end) {
+          aln_region_end = aln_i;
+        }
+
         for (key_posn_i = 0; key_posn_i < num_key_posns; ++key_posn_i) {
           if (ref_posn == key_posns[key_posn_i]) {
             aln_key_posns[key_posn_i] = aln_i;
@@ -192,11 +226,46 @@ main(int argc, char *argv[])
     /* TODO this should always be the same */
     cur_query_i = references->nseqs - 1;
 
+    /* does the query span the region? */
+    spans_start = 0;
+    spans_end = 0;
+    if (region_start >= 0 && region_end >= region_start) {
+      for (aln_i = 0; aln_i < references->sqinfo[cur_query_i].len; ++aln_i) {
+        cur_char = references->seq[cur_query_i][aln_i];
+
+        if (aln_i <= aln_region_start && cur_char != '-') {
+          spans_start = 1;
+        }
+
+        if (aln_i >= aln_region_end && cur_char != '-') {
+          spans_end = 1;
+          break;
+        }
+      }
+
+      if (spans_start && spans_end) {
+        spans_region = 1;
+      } else {
+        spans_region = 0;
+      }
+    } else {
+      spans_region = -1;
+    }
+
     /* Print out the protein group info. */
     fprintf(stdout,
             "%s",
             /* the current query sequence */
             references->sqinfo[cur_query_i].name);
+
+    if (spans_region == 1) {
+      fprintf(stdout, " yes");
+    } else if (spans_region == 0) {
+      fprintf(stdout, " no");
+    } else {
+      fprintf(stdout, " na");
+    }
+
 
     for (key_posn_i = 0; key_posn_i < num_key_posns; ++key_posn_i) {
       group[key_posn_i] =
@@ -210,6 +279,10 @@ main(int argc, char *argv[])
       fprintf(stdout, " %c", group[key_posn_i]);
     }
     fprintf(stdout, "\n");
+
+    if (WriteAlignment(references, NULL, MSAFILE_A2M, 70, FALSE)) {
+        Log(&rLog, LOG_FATAL, "Could not save alignment");
+    }
 
     FreeMSeq(&references);
   }
