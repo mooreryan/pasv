@@ -144,6 +144,10 @@ print_protein_group_info(int spans_region,
   char* group = malloc((num_key_posns + 1) * sizeof(char));
   assert(group != NULL);
 
+  /* enough space for yes_ appended */
+  char* type =  malloc((4 + num_key_posns + 1) * sizeof(char));
+  assert(group != NULL);
+
   int key_posn_i = 0;
 
   /* Print out the protein group info. */
@@ -152,13 +156,6 @@ print_protein_group_info(int spans_region,
           /* the current query sequence */
           references->sqinfo[cur_query_i].name);
 
-  if (spans_region == 1) {
-    fprintf(stdout, " yes");
-  } else if (spans_region == 0) {
-    fprintf(stdout, " no");
-  } else {
-    fprintf(stdout, " na");
-  }
 
   /* build the oligotype */
   for (key_posn_i = 0; key_posn_i < num_key_posns; ++key_posn_i) {
@@ -166,6 +163,17 @@ print_protein_group_info(int spans_region,
       references->seq[cur_query_i][aln_key_posns[key_posn_i]];
   }
   group[num_key_posns] = '\0';
+
+  if (spans_region == 1) {
+    sprintf(type, " %s_yes", group);
+    fprintf(stdout, "%s yes", type);
+  } else if (spans_region == 0) {
+    sprintf(type, " %s_no", group);
+    fprintf(stdout, "%s no", type);
+  } else {
+    sprintf(type, " %s", group);
+    fprintf(stdout, "%s na", type);
+  }
 
   fprintf(stdout, " %s", group);
 
@@ -179,6 +187,7 @@ print_protein_group_info(int spans_region,
   /* } */
 
   free(group);
+  free(type);
 }
 
 int
@@ -251,12 +260,7 @@ main(int argc, char *argv[])
     Log(&rLog, LOG_FATAL, "Memory error allocating for aln_key_posns");
   }
 
-  char* group = malloc((num_key_posns + 1) * sizeof(char));
-  if (group == NULL) {
-    Log(&rLog, LOG_FATAL, "Memory error allocating for group");
-  }
-
-  fprintf(stdout, "seq spans_region group");
+  fprintf(stdout, "seq type spans_region group");
   posn_argv_offset = num_required_args + 1;
   for (key_posn_i = 0; key_posn_i < num_key_posns; ++key_posn_i) {
     key_posns[key_posn_i] =
@@ -363,7 +367,6 @@ main(int argc, char *argv[])
 
   free(key_posns);
   free(aln_key_posns);
-  free(group);
 
   return EXIT_SUCCESS;
 }
