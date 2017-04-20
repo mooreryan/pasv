@@ -3,3 +3,5 @@
 group_proteins
 .DS_Store
 ignore
+test_files/*split*
+split_seqs
