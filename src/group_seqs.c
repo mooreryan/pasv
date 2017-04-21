@@ -135,7 +135,8 @@ set_key_aln_posns(int region_start,
 }
 
 void
-print_protein_group_info(int spans_region,
+print_protein_group_info(FILE* outf,
+                         int spans_region,
                          int num_key_posns,
                          int* aln_key_posns,
                          int cur_query_i,
@@ -151,7 +152,7 @@ print_protein_group_info(int spans_region,
   int key_posn_i = 0;
 
   /* Print out the protein group info. */
-  fprintf(stdout,
+  fprintf(outf,
           "%s",
           /* the current query sequence */
           references->sqinfo[cur_query_i].name);
@@ -166,21 +167,21 @@ print_protein_group_info(int spans_region,
 
   if (spans_region == 1) {
     sprintf(type, " %s_yes", group);
-    fprintf(stdout, "%s yes", type);
+    fprintf(outf, "%s yes", type);
   } else if (spans_region == 0) {
     sprintf(type, " %s_no", group);
-    fprintf(stdout, "%s no", type);
+    fprintf(outf, "%s no", type);
   } else {
     sprintf(type, " %s", group);
-    fprintf(stdout, "%s na", type);
+    fprintf(outf, "%s na", type);
   }
 
-  fprintf(stdout, " %s", group);
+  fprintf(outf, " %s", group);
 
   for (key_posn_i = 0; key_posn_i < num_key_posns; ++key_posn_i) {
-    fprintf(stdout, " %c", group[key_posn_i]);
+    fprintf(outf, " %c", group[key_posn_i]);
   }
-  fprintf(stdout, "\n");
+  fprintf(outf, "\n");
 
   /* if (WriteAlignment(references, NULL, MSAFILE_A2M, 70, FALSE)) { */
   /*     Log(&rLog, LOG_FATAL, "Could not save alignment"); */
@@ -209,6 +210,9 @@ main(int argc, char *argv[])
   int key_posn_i = 0;
   int q_i = 0; /* query idx */
 
+  char* buf = malloc(1000 * sizeof(char));
+  assert(buf != NULL);
+
   LogDefaultSetup(&rLog);
   /* rLog.iLogLevelEnabled = LOG_DEBUG; */
 
@@ -233,6 +237,11 @@ main(int argc, char *argv[])
 
   refs_fname = argv[1];
   queries_fname = argv[2];
+
+  sprintf(buf, "%s.seq_groups", queries_fname);
+  FILE* outf = fopen(buf, "w");
+  assert(outf);
+
   int region_start = strtol(argv[3], NULL, 10) - 1;
   int region_end  = strtol(argv[4], NULL, 10) - 1;
 
@@ -260,7 +269,7 @@ main(int argc, char *argv[])
     Log(&rLog, LOG_FATAL, "Memory error allocating for aln_key_posns");
   }
 
-  fprintf(stdout, "seq type spans_region group");
+  fprintf(outf, "seq type spans_region group");
   posn_argv_offset = num_required_args + 1;
   for (key_posn_i = 0; key_posn_i < num_key_posns; ++key_posn_i) {
     key_posns[key_posn_i] =
@@ -274,9 +283,9 @@ main(int argc, char *argv[])
           key_posns[key_posn_i] + 1);
     }
 
-    fprintf(stdout, " aa_at_%s", argv[key_posn_i + posn_argv_offset]);
+    fprintf(outf, " aa_at_%s", argv[key_posn_i + posn_argv_offset]);
   }
-  fprintf(stdout, "\n");
+  fprintf(outf, "\n");
 
   /* Read the queries. TODO better would be not to have to save all
      these in memory. */
@@ -352,7 +361,8 @@ main(int argc, char *argv[])
                                   cur_query_i,
                                   references);
 
-    print_protein_group_info(spans_region,
+    print_protein_group_info(outf,
+                             spans_region,
                              num_key_posns,
                              aln_key_posns,
                              cur_query_i,
@@ -367,6 +377,8 @@ main(int argc, char *argv[])
 
   free(key_posns);
   free(aln_key_posns);
+  fclose(outf);
+  free(buf);
 
   return EXIT_SUCCESS;
 }

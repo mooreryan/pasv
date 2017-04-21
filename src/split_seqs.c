@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <zlib.h>
-#include "kseq.h"
+#include "../vendor/kseq.h"
 
 KSEQ_INIT(gzFile, gzread)
 
