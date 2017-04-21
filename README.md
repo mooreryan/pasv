@@ -18,45 +18,82 @@ Not a hard requirement, but it makes compiling easier. You can find it [here](ht
 
 ## Compiling
 
-With `pkg-config`...
+With `pkg-config` you can just use the `Makefile`...
 
 ```
-gcc -c -O2 -g -Wall $(pkg-config --cflags clustalo) group_proteins.c 
-g++ -g -Wall -o group_proteins $(pkg-config --libs clustalo) group_proteins.o
+make
 ``` 
 
-Without `pkg-config`, you just need to specify where the `clustalo` headers and libs are located manually like so....
+And the binaries will be in the `bin` directory.
+
+Right now the make file only works if you have `pkg-config`. If you don't want to install it, run these commands (replacing the actual location of your clustal libraries).
 
 ```
-gcc -c -O2 -g -Wall -I/usr/local/include/clustalo/ group_proteins.c 
-g++ -g -Wall -o group_proteins -L/usr/local/lib -lclustalo group_proteins.o
+mkdir -p bin
+gcc -Wall -g -O2 -o bin/split_seqs src/split_seqs.c -lz
+gcc -c -Wall -g -O2 -I/usr/local/include/clustalo/ src/group_seqs.c
+g++ -Wall -g -O2 -o bin/group_seqs -L/usr/local/lib -lclustalo group_seqs.o
+gcc -Wall -g -O2   -c -o vendor/tommyhashlin.o vendor/tommyhashlin.c
+gcc -Wall -g -O2   -c -o vendor/tommyhash.o vendor/tommyhash.c
+gcc -Wall -g -O2   -c -o vendor/tommylist.o vendor/tommylist.c
+gcc -Wall -g -O2 -o bin/partition_seqs vendor/tommyhashlin.o vendor/tommyhash.o vendor/tommylist.o src/partition_seqs.c -lz
 ```
+
+Note the need for `g++`...it's needed for the clustal api.
 
 The file locations on your computer may be different.
 
 ## Usage
 
+The individual commands...
+
+### split_seqs
+
 ```
-USAGE: ./group_proteins <1: refs.fa> <2: queries.fa> <3: region start (1-based position)> <4: region end (1-based position)> pos1 pos2 ... posN
+USAGE: ./split_seqs <1: number of splits> <2: seq file>
+```
+
+### group_seqs
+
+```
+Usage: ./group_seqs <1: refs.fa> <2: queries.fa> <3: region start (1-based position)> <4: region end (1-based position)> pos1 pos2 ... posN
+```
+
+### partition_seqs
+
+```
+USAGE: bin/partition_seqs <1: seq file> *.seq_types
+```
+
+### Ruby wrapper script
+
+If you have ruby installed, you can run the above three commands in parallel.
+
+```
+USAGE: scripts/group_and_partition.rb bin_dir threads refs.fa queries.fa start end pos1 pos2 ... posN
 ```
 
 ### Example
 
-```
-group_proteins refs.fa queries.fa 100 200 125 127 134
-```
+If I want to run the program with multiple cores...
 
-The above command will tell you whether the queries span the region from 100-200 on the first sequence in the `refs.fa` file. Also, it will give you the group info for the three positions `125`, `127`, and `134`.
-
-And the output might look something like this....
+Split the query file up.
 
 ```
-seq spans_region group aa_at_762 aa_at_777
-seq1 yes YV Y V
-seq2 yes FL F L
+bin/split_seqs 3 test_files/16_references.fasta
 ```
 
-It's space delimited. You can now use this file to pick only sequences in certain groups, e.g., thos with tyrosine at the 762 position with respect to the reference....`awk` 'till your heart's content!
+Make the group file for each of the split query files.
+
+```
+parallel --jobs 3 "bin/group_seqs test_files/03_references.fasta {} -1 -1 762" ::: test_files/16_references.fasta.split_*
+```
+
+And finally partition the original query file based on the type column.
+
+```
+bin/partition_seqs test_files/16_references.fasta test_files/16_references.fasta.split_*.seq_groups
+```
 
 ## Picking reference sequences
 
