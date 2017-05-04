@@ -205,6 +205,8 @@ main(int argc, char *argv[])
   int openmp_threads = 1;
   int posn_argv_offset = 0;
 
+  int num_iterations = 0;
+
   /* loop indices */
   int cur_query_i = 0;
   int key_posn_i = 0;
@@ -222,28 +224,41 @@ main(int argc, char *argv[])
 
   /* Get sequence input file name from command line
    */
-  int num_required_args = 4;
+  int num_required_args = 5;
   if (argc < num_required_args + 1) {
     Log(&rLog,
         LOG_FATAL,
         "\nUsage: %s "
-        "<1: refs.fa> "
-        "<2: queries.fa> "
-        "<3: region start (1-based position)> "
-        "<4: region end (1-based position)> "
+        "<1: num alignment iterations> "
+        "<2: refs.fa> "
+        "<3: queries.fa> "
+        "<4: region start (1-based position)> "
+        "<5: region end (1-based position)> "
         "pos1 pos2 ... posN\n",
         argv[0]);
   }
 
-  refs_fname = argv[1];
-  queries_fname = argv[2];
+  num_iterations = strtol(argv[1], NULL, 10);
+  if (num_iterations < 0) {
+    Log(&rLog,
+        LOG_FATAL,
+        "Num iterations must be >= 0");
+  }
+
+  rAlnOpts.iNumIterations = num_iterations;
+
+  fprintf(stderr, "Alignment options\n");
+  PrintAlnOpts(stderr, &rAlnOpts);
+
+  refs_fname = argv[2];
+  queries_fname = argv[3];
 
   sprintf(buf, "%s.seq_groups", queries_fname);
   FILE* outf = fopen(buf, "w");
   assert(outf);
 
-  int region_start = strtol(argv[3], NULL, 10) - 1;
-  int region_end  = strtol(argv[4], NULL, 10) - 1;
+  int region_start = strtol(argv[4], NULL, 10) - 1;
+  int region_end  = strtol(argv[5], NULL, 10) - 1;
 
   if (region_end < region_start) {
     Log(&rLog,
