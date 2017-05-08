@@ -6,7 +6,8 @@ BIN = bin
 VENDOR = vendor
 SRC = src
 
-OBJS = $(VENDOR)/tommyhashlin.o \
+OBJS = $(VENDOR)/tommyarray.o \
+       $(VENDOR)/tommyhashlin.o \
        $(VENDOR)/tommyhash.o \
        $(VENDOR)/tommylist.o
 
@@ -33,6 +34,8 @@ partition_seqs: $(OBJS)
 split_seqs:
 	$(CC) $(CFLAGS) -o $(BIN)/$@ $(SRC)/$@.c $(LDFLAGS)
 
+ai_pvcpipe: $(OBJS)
+	$(CC) $(CFLAGS) -o $(BIN)/$@ $^ $(SRC)/$@.c $(LDFLAGS) -lpthread
 
 clean:
 	-rm -r $(BIN) $(OBJS) *.o
