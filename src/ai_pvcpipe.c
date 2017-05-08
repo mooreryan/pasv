@@ -11,13 +11,8 @@
 #include <stdlib.h>
 #include "../vendor/tommyarray.h"
 
-#define WAIT 1e8
 pthread_mutex_t lock;
 #define MAX_SEQS 100
-#define REG_START 700
-#define REG_END 800
-#define NUM_KEY_POSNS 2
-int key_posns[] = { 762-1, 763-1 };
 
 KSEQ_INIT(gzFile, gzread)
 
@@ -43,7 +38,11 @@ rseq_destroy(struct rseq_t* rseq)
 
 struct rseq_t*
 get_aln_posns(char* aln_outfile,
-              int num_ref_seqs)
+              int num_ref_seqs,
+              int num_key_posns,
+              int* key_posns,
+              int region_start,
+              int region_end)
 {
 
   /* char buf[1000]; */
@@ -73,8 +72,8 @@ get_aln_posns(char* aln_outfile,
   int key_posn_i = 0;
   int aln_region_start = 0;
   int aln_region_end = 0;
-  int aln_key_posns[NUM_KEY_POSNS];
-  char* key_chars = malloc((NUM_KEY_POSNS+1) * sizeof(char));
+  int aln_key_posns[num_key_posns];
+  char* key_chars = malloc((num_key_posns+1) * sizeof(char));
 
   int spans_start = 0;
   int spans_end = 0;
@@ -88,15 +87,15 @@ get_aln_posns(char* aln_outfile,
         if (seq->seq.s[aln_i] != '-') {
           ++ref_posn;
 
-          if (ref_posn == REG_START) {
+          if (ref_posn == region_start) {
             aln_region_start = aln_i;
           }
 
-          if (ref_posn == REG_END) {
+          if (ref_posn == region_end) {
             aln_region_end = aln_i;
           }
 
-          for (key_posn_i = 0; key_posn_i < NUM_KEY_POSNS; ++key_posn_i) {
+          for (key_posn_i = 0; key_posn_i < num_key_posns; ++key_posn_i) {
             if (ref_posn == key_posns[key_posn_i]) {
               aln_key_posns[key_posn_i] = aln_i;
             }
@@ -105,19 +104,19 @@ get_aln_posns(char* aln_outfile,
       }
     } else if (seq_i == num_ref_seqs) { /* the query */
       int zz = 0;
-      for (zz = 0; zz < NUM_KEY_POSNS; ++zz) {
+      for (zz = 0; zz < num_key_posns; ++zz) {
         key_chars[zz] = seq->seq.s[aln_key_posns[zz]];
       }
       key_chars[zz] = '\0';
 
       /* note, this seq is aligned */
-      if (REG_START >= 0 && REG_END >= REG_START) {
+      if (region_start >= 0 && region_end >= region_start) {
         for(zz = 0; zz < seq->seq.l; ++zz) {
-          if (zz <= REG_START && seq->seq.s[zz] != '-') {
+          if (zz <= region_start && seq->seq.s[zz] != '-') {
             spans_start = 1;
           }
 
-          if (zz >= REG_END && seq->seq.s[zz] != '-') {
+          if (zz >= region_end && seq->seq.s[zz] != '-') {
             spans_end = 1;
             break;
           }
@@ -286,25 +285,133 @@ hello_fork(void* the_arg)
 /* if (pid == -1) {  */
 
 
-int main(int argc, char *argv[])
+int
+main(int argc, char *argv[])
 {
-  if (argc != 4) {
-    fprintf(stderr, "Usage: %s <1: num_threads> <2: refs.fa> <3: queries.fa>\n", argv[0]);
-    return 1;
+  int c = 0;
+  char* opt_threads = NULL;
+  char* opt_refs = NULL;
+  char* opt_queries = NULL;
+  char* opt_region_start = NULL;
+  char* opt_region_end = NULL;
+
+  static char intro[] =
+    "Trust the Process. Trust the PVCpipe.";
+  static char usage[] =
+    "[-s region_start] [-e region_end] -t num_threads -r ref_seqs -q query_seqs pos1 [pos2 ...]";
+  static char options[] =
+    "-t <integer> Number of threads to use\n"
+    "-r <string>  Fasta file with reference sequences\n"
+    "-q <string>  Fasta file with query sequences\n"
+    "-s <integer> Region start to check for spanning (deault: -1)\n"
+    "-e <integer> Region end to check for spanning (deault: -1)\n";
+
+
+  char doc_str[2000];
+  sprintf(doc_str,
+          "\n\n%s\n\nusage: %s %s\n\noptions:\n%s\n\n",
+          intro,
+          argv[0],
+          usage,
+          options);
+
+  while ((c = getopt(argc, argv, "ht:r:q:s:e:")) != -1) {
+    switch(c) {
+    case 'h':
+      fprintf(stderr, "%s", doc_str);
+      exit(1);
+    case 't':
+      opt_threads = optarg;
+      break;
+    case 'r':
+      opt_refs = optarg;
+      break;
+    case 'q':
+      opt_queries = optarg;
+      break;
+    case 's':
+      opt_region_start = optarg;
+      break;
+    case 'e':
+      opt_region_end = optarg;
+      break;
+    case '?':
+      exit(1);
+    default:
+      exit(1);
+    }
   }
 
-  gzFile ref_fp;
+  if (opt_refs == NULL) {
+    fprintf(stderr, "ARG ERROR -- Missing -r arg\n%s\n", doc_str);
+    exit(1);
+  }
+
+  if (opt_queries == NULL) {
+    fprintf(stderr, "ARG ERROR -- Missing -q arg\n%s\n", doc_str);
+    exit(1);
+  }
+
+  int num_threads = 0;
+  if (opt_threads == NULL) {
+    num_threads = 1;
+  } else {
+    num_threads = strtol(opt_threads, NULL, 10);
+  }
+
+  if (opt_region_start != NULL && opt_region_end == NULL) {
+    fprintf(stderr, "ARG ERROR -- got -s but no -e\n");
+    exit(1);
+  }
+  if (opt_region_start == NULL && opt_region_end != NULL) {
+    fprintf(stderr, "ARG ERROR -- got -e but no -s\n");
+    exit(1);
+  }
+
+  int region_start = 0;
+  if (opt_region_start == NULL) {
+    region_start = -1;
+  } else {
+    region_start = strtol(opt_region_start, NULL, 10);
+  }
+
+  int region_end = 0;
+  if (opt_region_end == NULL) {
+    region_end = -1;
+  } else {
+    region_end = strtol(opt_region_end, NULL, 10);
+  }
+
+  gzFile ref_fp = gzopen(opt_refs, "r");
+  if (ref_fp == NULL) {
+    fprintf(stderr, "FATAL -- Could not open '%s'\n", opt_refs);
+    exit(1);
+  }
+  gzFile query_fp = gzopen(opt_queries, "r");
+  if (query_fp == NULL) {
+    fprintf(stderr, "FATAL -- Could not open '%s'\n", opt_queries);
+    exit(1);
+  }
+
+  /* TODO can save a few bytes by removing the parsed args */
+  int key_posns[argc];
+  int opt_i = 0;
+  int num_key_posns = 0;
+  if (optind == argc) {
+    fprintf(stderr, "FATAL -- no positions given\n");
+    exit(1);
+  }
+
+  for (opt_i = optind; opt_i < argc; ++opt_i) {
+    key_posns[num_key_posns++] = strtol(argv[opt_i], NULL, 10) - 1;
+  }
+
   kseq_t* ref_seq;
   kseq_t* query_seq;
-  gzFile query_fp;
   int l = 0;
   int i = 0;
-  long num_threads = 0;
 
-  ref_fp = gzopen(argv[2], "r");
   ref_seq = kseq_init(ref_fp);
-
-  query_fp = gzopen(argv[3], "r");
   query_seq = kseq_init(query_fp);
 
   if (pthread_mutex_init(&lock, NULL) != 0) {
@@ -312,7 +419,6 @@ int main(int argc, char *argv[])
     return 1;
   }
 
-  num_threads = strtol(argv[1], NULL, 10);
   pthread_t threads[num_threads];
 
   struct hello_fork_ret_val_t* ret_val;
@@ -383,12 +489,17 @@ int main(int argc, char *argv[])
   char spans[10];
   char type[20];
   fprintf(stdout, "name type spans oligo");
-  for (int n = 0; n < NUM_KEY_POSNS; ++n) {
+  for (int n = 0; n < num_key_posns; ++n) {
     fprintf(stdout, " pos.%d", key_posns[n]);
   }
   fprintf(stdout, "\n");
   for (int i = 0; i < tommy_array_size(outfiles); ++i) {
-    rseq = get_aln_posns(tommy_array_get(outfiles, i), num_ref_seqs);
+    rseq = get_aln_posns(tommy_array_get(outfiles, i),
+                         num_ref_seqs,
+                         num_key_posns,
+                         key_posns,
+                         region_start,
+                         region_end);
 
     switch(rseq->spans_region) {
     case -1:
@@ -404,7 +515,12 @@ int main(int argc, char *argv[])
       assert(0);
     }
 
-    sprintf(type, "%s_%s", rseq->key_chars, spans);
+    if (rseq->spans_region == -1) {
+      sprintf(type, "%s", rseq->key_chars);
+    } else {
+      sprintf(type, "%s_%s", rseq->key_chars, spans);
+    }
+
     fprintf(stdout,
             "%s %s %s %s",
             rseq->name,
@@ -412,7 +528,7 @@ int main(int argc, char *argv[])
             spans,
             rseq->key_chars);
 
-    for (int z = 0; z < NUM_KEY_POSNS; ++z) {
+    for (int z = 0; z < num_key_posns; ++z) {
       fprintf(stdout, " %c", rseq->key_chars[z]);
     }
     fprintf(stdout, "\n");
