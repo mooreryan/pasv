@@ -2,16 +2,16 @@
    different type */
 
 #include <assert.h>
-#include "../vendor/kseq.h"
-#include <zlib.h>
-#include <unistd.h>
-#include <sys/wait.h>
-#include <stdio.h>
 #include <pthread.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <sys/wait.h>
+#include <unistd.h>
+#include <zlib.h>
+
+#include "../vendor/kseq.h"
 #include "../vendor/tommyarray.h"
 
-pthread_mutex_t lock;
 #define MAX_SEQS 100
 
 KSEQ_INIT(gzFile, gzread)
@@ -414,11 +414,6 @@ main(int argc, char *argv[])
   ref_seq = kseq_init(ref_fp);
   query_seq = kseq_init(query_fp);
 
-  if (pthread_mutex_init(&lock, NULL) != 0) {
-    printf("\n mutex init failed\n");
-    return 1;
-  }
-
   pthread_t threads[num_threads];
 
   struct hello_fork_ret_val_t* ret_val;
@@ -576,6 +571,5 @@ main(int argc, char *argv[])
   kseq_destroy(query_seq);
   gzclose(ref_fp);
   gzclose(query_fp);
-  pthread_mutex_destroy(&lock);
   return 0;
 }
