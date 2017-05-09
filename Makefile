@@ -1,15 +1,17 @@
 CC = gcc
 MKDIR_P = mkdir -p
-CFLAGS = -Wall -g -O2
+CFLAGS = -Wall -g -O2 -Wno-unused-function
 LDFLAGS = -lz
 BIN = bin
 VENDOR = vendor
 SRC = src
+TEST_D = test_files
 
-OBJS = $(VENDOR)/tommyarray.o \
-       $(VENDOR)/tommyhashlin.o \
-       $(VENDOR)/tommyhash.o \
-       $(VENDOR)/tommylist.o
+OBJS := $(SRC)/rseq.o \
+        $(VENDOR)/tommyarray.o \
+        $(VENDOR)/tommyhashlin.o \
+        $(VENDOR)/tommyhash.o \
+        $(VENDOR)/tommylist.o
 
 CLUSTAL_CFLAGS = `pkg-config --cflags clustalo`
 CLUSTAL_LIBS = `pkg-config --libs clustalo`
@@ -17,6 +19,7 @@ CLUSTAL_LIBS = `pkg-config --libs clustalo`
 .PHONY: all
 .PHONY: clean
 .PHONY: clean_test
+.PHONY: test_ai_pvcpipe
 
 all: bin_dir split_seqs group_seqs partition_seqs
 
@@ -41,4 +44,7 @@ clean:
 	-rm -r $(BIN) $(OBJS) *.o
 
 clean_test:
-	-rm test_files/*type* test_files/*split* test_files/*group*
+	-rm $(TEST_D)/*type* $(TEST_D)/*split* $(TEST_D)/*group*
+
+test_ai_pvcpipe:
+	valgrind $(BIN)/ai_pvcpipe -d tmp -s 700 -e 800 -t 2 -r $(TEST_D)/refs.fa -q $(TEST_D)/queries.fa 762 763

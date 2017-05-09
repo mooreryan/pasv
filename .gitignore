@@ -7,3 +7,5 @@ test_files/*split*
 split_seqs
 test_files/*type*
 bin
+tmp
+stuff.txt

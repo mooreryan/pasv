@@ -7,34 +7,11 @@
 #include <stdlib.h>
 #include <sys/wait.h>
 #include <unistd.h>
-#include <zlib.h>
 
-#include "../vendor/kseq.h"
 #include "../vendor/tommyarray.h"
+#include "rseq.h"
 
 #define MAX_SEQS 100
-
-KSEQ_INIT(gzFile, gzread)
-
-struct rseq_t {
-  char* seq;
-  char* name;
-  char* key_chars;
-
-  int seq_len;
-  int name_len;
-  int spans_region;
-};
-
-void
-rseq_destroy(struct rseq_t* rseq)
-{
-  free(rseq->seq);
-  free(rseq->name);
-  free(rseq->key_chars);
-
-  free(rseq);
-}
 
 struct rseq_t*
 get_aln_posns(char* aln_outfile,
@@ -45,15 +22,7 @@ get_aln_posns(char* aln_outfile,
               int region_end)
 {
 
-  /* char buf[1000]; */
-  /* fprintf(stderr, "catting %s\n", aln_outfile); */
-  /* sprintf(buf, "cat %s", aln_outfile); */
-  /* system(buf); */
-  /* fprintf(stderr, "just catted %s\n", aln_outfile); */
-
-  struct rseq_t* rseq = malloc(sizeof(struct rseq_t));
-  assert (rseq != NULL);
-
+  rseq_t* rseq;
   gzFile seq_f = gzopen(aln_outfile, "r");
   if (seq_f == NULL) {
     fprintf(stderr, "panic gzopen %s\n", aln_outfile);
@@ -131,10 +100,7 @@ get_aln_posns(char* aln_outfile,
         spans_region = -1;
       }
 
-      rseq->seq = strdup(seq->seq.s);
-      rseq->seq_len = seq->seq.l;
-      rseq->name = strdup(seq->name.s);
-      rseq->name_len = seq->name.l;
+      rseq = rseq_init(seq);
       rseq->key_chars = key_chars;
       rseq->spans_region = spans_region;
     }
@@ -147,11 +113,9 @@ get_aln_posns(char* aln_outfile,
 }
 
 struct arg_t {
-  char** ref_seqs;
-  char** query_seqs;
-
-  int num_ref_seqs;
-  int num_query_seqs;
+  tommy_array* ref_seqs;
+  tommy_array* query_seqs;
+  char* tmp_dir;
 
   /* Thread number */
   int tid;
@@ -159,41 +123,44 @@ struct arg_t {
 };
 
 struct arg_t*
-arg_init(char** ref_seqs, int num_ref_seqs,
-         char** query_seqs, int num_query_seqs,
+arg_init(tommy_array* ref_seqs,
+         tommy_array* query_seqs,
          int tid,
-         int num_workers)
+         int num_workers,
+         char* tmp_dir)
 {
   struct arg_t* arg = malloc(sizeof(struct arg_t));
   assert(arg != NULL);
 
   arg->ref_seqs = ref_seqs;
   arg->query_seqs = query_seqs;
-  arg->num_ref_seqs = num_ref_seqs;
-  arg->num_query_seqs = num_query_seqs;
   arg->tid = tid;
   arg->num_workers = num_workers;
+  arg->tmp_dir = tmp_dir;
 
   return arg;
 }
 
-void
-arg_destroy(struct arg_t* arg)
-{
-  int i = 0;
+/* TODO why not use this function? */
+/* void */
+/* arg_destroy(struct arg_t* arg) */
+/* { */
+/*   int i = 0; */
 
-  for (i = 0; i < arg->num_ref_seqs; ++i ) {
-    free(arg->ref_seqs[i]);
-  }
-  free(arg->ref_seqs);
+/*   for (i = 0; i < arg->num_ref_seqs; ++i ) { */
+/*     free(tommy_array_get(arg->ref_seqs, i)); */
+/*   } */
+/*   tommy_array_done(arg->ref_seqs); */
+/*   free(arg->ref_seqs); */
 
-  for (i = 0; i < arg->num_query_seqs; ++i ) {
-    free(arg->query_seqs[i]);
-  }
-  free(arg->query_seqs);
+/*   for (i = 0; i < arg->num_query_seqs; ++i ) { */
+/*     free(tommy_array_get(arg->query_seqs, i)); */
+/*   } */
+/*   tommy_array_done(arg->query_seqs); */
+/*   free(arg->query_seqs); */
 
-  free(arg);
-}
+/*   free(arg); */
+/* } */
 
 struct hello_fork_ret_val_t {
   tommy_array* outfiles;
@@ -207,7 +174,8 @@ hello_fork(void* the_arg)
 
   struct arg_t* arg = the_arg;
 
-  struct hello_fork_ret_val_t* ret_val = malloc(sizeof(struct hello_fork_ret_val_t));
+  struct hello_fork_ret_val_t* ret_val =
+    malloc(sizeof(struct hello_fork_ret_val_t));
   assert(ret_val != NULL);
 
   ret_val->outfiles = malloc(sizeof(tommy_array));
@@ -217,16 +185,21 @@ hello_fork(void* the_arg)
   int status = 0;
   pid_t pid = 0;
 
-  for (int y = 0; y < arg->num_query_seqs; ++y) {
+  for (int y = 0; y < tommy_array_size(arg->query_seqs); ++y) {
     if ((y % arg->num_workers) == tid) { /* this seq is for this thread */
-      char aln_infile[32];
-      sprintf(aln_infile, "tmpf_%d_%d", y, tid);
 
-      char aln_outfile[32];
+      /* TODO check for file overwriting */
+      /* TODO will blow up if path is longer than 999 chars */
+      char aln_infile[1000];
+      sprintf(aln_infile, "%s/tmpf_%d_%d", arg->tmp_dir, y, tid);
+
+      char aln_outfile[1000];
       sprintf(aln_outfile, "%s_out", aln_infile);
 
       tommy_array_insert(ret_val->outfiles, strdup(aln_outfile));
+      /* TODO drop the force and die if outfiles exist */
       char* argv[] = { "clustalo",
+                       "--force",
                        "-i", aln_infile,
                        "-o", aln_outfile,
                        "--iter", "0",
@@ -235,17 +208,26 @@ hello_fork(void* the_arg)
       /* fd = mkstemp(aln_infile); */
       FILE* fp = fopen(aln_infile, "w");
       if (fp == NULL) {
-        fprintf(stderr, "FATAL -- couldn't open '%s' for writing\n", aln_infile);
+        fprintf(stderr,
+                "FATAL -- couldn't open '%s' for writing\n",
+                aln_infile);
       }
 
-      /* dprintf(fd, "\n\n\n\nQUERY: %d, THREAD: %d\n", y, tid); */
       /* write the ref seqs */
-      for (int x = 0; x < arg->num_ref_seqs; ++x) {
-        fprintf(fp, ">ref_%d thread_%d\n%s\n", x, tid, arg->ref_seqs[x]);
+      for (int x = 0; x < tommy_array_size(arg->ref_seqs); ++x) {
+        fprintf(fp,
+                ">ref_%d thread_%d\n%s\n",
+                x,
+                tid,
+                tommy_array_get(arg->ref_seqs, x));
       }
 
       /* and the query */
-      fprintf(fp, ">query_%d thread_%d\n%s\n", y, tid, arg->query_seqs[y]);
+      fprintf(fp,
+              ">query_%d thread_%d\n%s\n",
+              y,
+              tid,
+              tommy_array_get(arg->query_seqs, y));
       fclose(fp);
 
       pid = fork();
@@ -255,35 +237,20 @@ hello_fork(void* the_arg)
       } else if (pid == 0) { /* child */
         execvp("clustalo", argv);
       } else if (pid > 1) { /* parent */
-        /* TODO the child processes are possibly leaking memory from the
-           pthread_create call in the main function according to
-           valgrind */
         pid = wait(&status);
 
         if (!WIFEXITED(status)) { /* if child did not terminate normally */
           exit(98);
-          /* fprintf(stderr, "FATAL -- The child did not terminate normally!\n"); */
-          /* return (void*)(intptr_t)2; */
         }
-        /* TODO ensure file is unlinked? */
-        /* unlink(aln_infile); */
-        /* return (void*)(intptr_t)0; */
-        /* ret_val->ret_code = 0; */
-        /* ret_val; */
-
       } else { /* something went wrong */
         continue;
-        /* return (void*)(intptr_t)3; */
       }
-      /* get_aln_posns(aln_outfile); */
     }
   }
 
   ret_val->ret_code = 0;
   pthread_exit(ret_val);
 }
-/* if (pid == -1) {  */
-
 
 int
 main(int argc, char *argv[])
@@ -294,17 +261,19 @@ main(int argc, char *argv[])
   char* opt_queries = NULL;
   char* opt_region_start = NULL;
   char* opt_region_end = NULL;
+  char* opt_tmp_dir = NULL;
 
   static char intro[] =
     "Trust the Process. Trust the PVCpipe.";
   static char usage[] =
-    "[-s region_start] [-e region_end] -t num_threads -r ref_seqs -q query_seqs pos1 [pos2 ...]";
+    "[-s region_start] [-e region_end] -d tmp_dir -t num_threads -r ref_seqs -q query_seqs pos1 [pos2 ...]";
   static char options[] =
     "-t <integer> Number of threads to use\n"
     "-r <string>  Fasta file with reference sequences\n"
     "-q <string>  Fasta file with query sequences\n"
     "-s <integer> Region start to check for spanning (deault: -1)\n"
-    "-e <integer> Region end to check for spanning (deault: -1)\n";
+    "-e <integer> Region end to check for spanning (deault: -1)\n"
+    "-d <string>  Directory for the tmp files. Create this before running the program.\n";
 
 
   char doc_str[2000];
@@ -315,7 +284,7 @@ main(int argc, char *argv[])
           usage,
           options);
 
-  while ((c = getopt(argc, argv, "ht:r:q:s:e:")) != -1) {
+  while ((c = getopt(argc, argv, "ht:r:q:s:e:d:")) != -1) {
     switch(c) {
     case 'h':
       fprintf(stderr, "%s", doc_str);
@@ -335,6 +304,9 @@ main(int argc, char *argv[])
     case 'e':
       opt_region_end = optarg;
       break;
+    case 'd':
+      opt_tmp_dir = optarg;
+      break;
     case '?':
       exit(1);
     default:
@@ -349,6 +321,11 @@ main(int argc, char *argv[])
 
   if (opt_queries == NULL) {
     fprintf(stderr, "ARG ERROR -- Missing -q arg\n%s\n", doc_str);
+    exit(1);
+  }
+
+  if (opt_tmp_dir == NULL) {
+    fprintf(stderr, "ARG ERROR -- Missing -d arg\n%s\n", doc_str);
     exit(1);
   }
 
@@ -423,30 +400,31 @@ main(int argc, char *argv[])
   tommy_array* outfiles = malloc(sizeof(tommy_array));
   tommy_array_init(outfiles);
 
-  char** ref_seqs = malloc(MAX_SEQS * sizeof(char*));
+  tommy_array* ref_seqs = malloc(sizeof(tommy_array));
   assert(ref_seqs != NULL);
+  tommy_array_init(ref_seqs);
 
-  char** query_seqs = malloc(MAX_SEQS * sizeof(char*));
+  tommy_array* query_seqs = malloc(sizeof(tommy_array));
   assert(query_seqs != NULL);
+  tommy_array_init(query_seqs);
 
   struct arg_t** args = malloc(num_threads * sizeof(struct arg_t*));
   assert(args != NULL);
 
-  int num_ref_seqs = 0;
   while ((l = kseq_read(ref_seq)) >= 0) {
-    ref_seqs[num_ref_seqs++] = strdup(ref_seq->seq.s);
+    tommy_array_insert(ref_seqs, strdup(ref_seq->seq.s));
   }
 
-  int num_query_seqs = 0;
   while ((l = kseq_read(query_seq)) >= 0) {
-    query_seqs[num_query_seqs++] = strdup(query_seq->seq.s);
+    tommy_array_insert(query_seqs, strdup(query_seq->seq.s));
   }
 
   for (i = 0; i < num_threads; ++i) {
-    args[i] = arg_init(ref_seqs, num_ref_seqs,
-                       query_seqs, num_query_seqs,
+    args[i] = arg_init(ref_seqs,
+                       query_seqs,
                        i,
-                       num_threads);
+                       num_threads,
+                       opt_tmp_dir);
 
     if (pthread_create(&threads[i],
                        NULL,
@@ -488,6 +466,7 @@ main(int argc, char *argv[])
     fprintf(stdout, " pos.%d", key_posns[n]);
   }
   fprintf(stdout, "\n");
+  int num_ref_seqs = tommy_array_size(ref_seqs);
   for (int i = 0; i < tommy_array_size(outfiles); ++i) {
     rseq = get_aln_posns(tommy_array_get(outfiles, i),
                          num_ref_seqs,
@@ -518,7 +497,7 @@ main(int argc, char *argv[])
 
     fprintf(stdout,
             "%s %s %s %s",
-            rseq->name,
+            rseq->head,
             type,
             spans,
             rseq->key_chars);
@@ -531,6 +510,8 @@ main(int argc, char *argv[])
   }
 
   /* Clean up */
+
+  /* TODO clean up outfiles */
 
   for (int z = 0; z < tommy_array_size(ret_vals); ++z) {
     ret_val = tommy_array_get(ret_vals, z);
@@ -549,17 +530,18 @@ main(int argc, char *argv[])
   tommy_array_done(outfiles);
   free(outfiles);
 
-  fprintf(stderr, "DEBUG -- num_ref_seqs: %d\n", num_ref_seqs);
-  for (int z = 0; z < num_ref_seqs; ++z) {
-    free(ref_seqs[z]);
+  for (int z = 0; z < tommy_array_size(ref_seqs); ++z) {
+    free(tommy_array_get(ref_seqs, z));
   }
 
-  fprintf(stderr, "DEBUG -- num_query_seqs: %d\n", num_query_seqs);
-  for (int z = 0; z < num_query_seqs; ++z) {
-    free(query_seqs[z]);
+  for (int z = 0; z < tommy_array_size(query_seqs); ++z) {
+    free(tommy_array_get(query_seqs, z));
   }
 
+  tommy_array_done(query_seqs);
   free(query_seqs);
+
+  tommy_array_done(ref_seqs);
   free(ref_seqs);
 
   for (i = 0; i < num_threads; ++i) {
