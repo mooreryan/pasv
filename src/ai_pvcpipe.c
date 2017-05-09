@@ -9,9 +9,9 @@
 #include <unistd.h>
 
 #include "../vendor/tommyarray.h"
-#include "rseq.h"
 
-#define MAX_SEQS 100
+#include "err_codes.h"
+#include "rseq.h"
 
 struct rseq_t*
 get_aln_posns(char* aln_outfile,
@@ -22,32 +22,39 @@ get_aln_posns(char* aln_outfile,
               int region_end)
 {
 
-  rseq_t* rseq;
-  gzFile seq_f = gzopen(aln_outfile, "r");
-  if (seq_f == NULL) {
-    fprintf(stderr, "panic gzopen %s\n", aln_outfile);
-    exit(99);
-  }
-  kseq_t* seq = kseq_init(seq_f);
-  if (seq == NULL) {
-    fprintf(stderr, "PANIC kseq_init!");
-    exit(100);
-  }
-
-  int seq_i = -1;
   int l = 0;
-  int ref_posn = -1;
   int aln_i = 0;
   int key_posn_i = 0;
+  int seq_i = -1;
+
+  int ref_posn = -1;
+
   int aln_region_start = 0;
   int aln_region_end = 0;
   int aln_key_posns[num_key_posns];
-  char* key_chars = malloc((num_key_posns+1) * sizeof(char));
 
   int spans_start = 0;
   int spans_end = 0;
   int spans_region = 0;
-  assert(key_chars != NULL);
+
+  gzFile seq_f;
+  kseq_t* seq;
+  rseq_t* rseq;
+
+  char* key_chars;
+
+  seq_f = gzopen(aln_outfile, "r");
+  PANIC_IF(seq_f == NULL,
+           FILE_ERR,
+           stderr, FILE_ERR_MSG, aln_outfile, "reading");
+
+  seq = kseq_init(seq_f);
+  PANIC_IF(seq == NULL,
+           KSEQ_ERR,
+           stderr, KSEQ_ERR_MSG, aln_outfile);
+
+  key_chars = malloc((num_key_posns+1) * sizeof(char));
+  PANIC_MEM(key_chars, stderr);
 
   while ((l = kseq_read(seq)) >= 0) {
     ++seq_i;
@@ -130,7 +137,7 @@ arg_init(tommy_array* ref_seqs,
          char* tmp_dir)
 {
   struct arg_t* arg = malloc(sizeof(struct arg_t));
-  assert(arg != NULL);
+  PANIC_MEM(arg, stderr);
 
   arg->ref_seqs = ref_seqs;
   arg->query_seqs = query_seqs;
@@ -170,15 +177,14 @@ struct hello_fork_ret_val_t {
 void*
 hello_fork(void* the_arg)
 {
-
-
   struct arg_t* arg = the_arg;
 
   struct hello_fork_ret_val_t* ret_val =
     malloc(sizeof(struct hello_fork_ret_val_t));
-  assert(ret_val != NULL);
+  PANIC_MEM(ret_val, stderr);
 
   ret_val->outfiles = malloc(sizeof(tommy_array));
+  PANIC_MEM(ret_val->outfiles, stderr);
   tommy_array_init(ret_val->outfiles);
 
   int tid = arg->tid;
@@ -395,21 +401,23 @@ main(int argc, char *argv[])
 
   struct hello_fork_ret_val_t* ret_val;
   tommy_array* ret_vals = malloc(sizeof(tommy_array));
+  PANIC_MEM(ret_vals, stderr);
   tommy_array_init(ret_vals);
 
   tommy_array* outfiles = malloc(sizeof(tommy_array));
+  PANIC_MEM(outfiles, stderr);
   tommy_array_init(outfiles);
 
   tommy_array* ref_seqs = malloc(sizeof(tommy_array));
-  assert(ref_seqs != NULL);
+  PANIC_MEM(ref_seqs, stderr);
   tommy_array_init(ref_seqs);
 
   tommy_array* query_seqs = malloc(sizeof(tommy_array));
-  assert(query_seqs != NULL);
+  PANIC_MEM(query_seqs, stderr);
   tommy_array_init(query_seqs);
 
   struct arg_t** args = malloc(num_threads * sizeof(struct arg_t*));
-  assert(args != NULL);
+  PANIC_MEM(args, stderr);
 
   while ((l = kseq_read(ref_seq)) >= 0) {
     tommy_array_insert(ref_seqs, strdup(ref_seq->seq.s));

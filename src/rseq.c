@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include "rseq.h"
+#include "err_codes.h"
 
 /* Returns -1 when something went wrong. Includes room for the
    terminating null char.
@@ -52,7 +53,7 @@ set_header(rseq_t* rseq,
     rseq->head = strdup(kseq->name.s);
   }
 
-  assert(rseq->head != NULL);
+  PANIC_MEM(rseq->head, stderr);
 
   rseq->head_len = header_size - 1;
 
@@ -65,13 +66,15 @@ rseq_init(kseq_t* kseq)
 {
   int ret_code = 0;
   rseq_t* rseq = malloc(sizeof(rseq_t));
-  assert(rseq != NULL);
+  PANIC_MEM(rseq, stderr);
 
   ret_code = set_header(rseq, kseq);
-  assert(ret_code == 0);
+  PANIC_UNLESS(ret_code == 0,
+               STD_ERR,
+               stderr, "set_header failed");
 
   rseq->seq = strdup(kseq->seq.s);
-  assert(rseq->seq != NULL);
+  PANIC_MEM(rseq->seq, stderr);
 
   rseq->seq_len = kseq->seq.l;
 
