@@ -15,6 +15,9 @@ struct aln_arg_t {
   char* tmp_dir;
   char* query_fname;
 
+  char* aligner;
+  char* prefs;
+
   /* Thread number */
   int tid;
   int num_workers;
@@ -26,7 +29,16 @@ aln_arg_init(tommy_array* ref_seqs,
              int tid,
              int num_workers,
              char* tmp_dir,
-             char* query_fname);
+             char* query_fname,
+             char* aligner,
+             char* prefs);
+
+char**
+make_aligner_opts(char* aligner,
+                  char* aln_infile,
+                  char* aln_outfile,
+                  char* opt_string);
+
 
 void*
 run_aln(void* the_arg);

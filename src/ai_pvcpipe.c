@@ -126,11 +126,13 @@ int
 main(int argc, char *argv[])
 {
   int c = 0;
-  char* opt_threads = NULL;
-  char* opt_refs = NULL;
+  char* opt_aligner = NULL;
+  char* opt_prefs = NULL;
   char* opt_queries = NULL;
+  char* opt_refs = NULL;
   char* opt_region_start = NULL;
   char* opt_region_end = NULL;
+  char* opt_threads = NULL;
   char* opt_tmp_dir = NULL;
 
   char* query_fname = NULL;
@@ -158,28 +160,34 @@ main(int argc, char *argv[])
           usage,
           options);
 
-  while ((c = getopt(argc, argv, "ht:r:q:s:e:d:")) != -1) {
+  while ((c = getopt(argc, argv, "a:d:e:hp:q:r:s:t:")) != -1) {
     switch(c) {
-    case 'h':
-      fprintf(stderr, "%s", doc_str);
-      exit(1);
-    case 't':
-      opt_threads = optarg;
+    case 'a':
+      opt_aligner = optarg;
       break;
-    case 'r':
-      opt_refs = optarg;
-      break;
-    case 'q':
-      opt_queries = optarg;
-      break;
-    case 's':
-      opt_region_start = optarg;
+    case 'd':
+      opt_tmp_dir = optarg;
       break;
     case 'e':
       opt_region_end = optarg;
       break;
-    case 'd':
-      opt_tmp_dir = optarg;
+    case 'h':
+      fprintf(stderr, "%s", doc_str);
+      exit(1);
+    case 'p':
+      opt_prefs = optarg;
+      break;
+    case 'q':
+      opt_queries = optarg;
+      break;
+    case 'r':
+      opt_refs = optarg;
+      break;
+    case 's':
+      opt_region_start = optarg;
+      break;
+    case 't':
+      opt_threads = optarg;
       break;
     case '?':
       exit(1);
@@ -189,6 +197,8 @@ main(int argc, char *argv[])
   }
 
   /* Check the getopt args */
+
+  /* TODO check that the aligner is actually on the path */
 
   PANIC_IF(opt_refs == NULL,
            OPT_ERR,
@@ -202,7 +212,7 @@ main(int argc, char *argv[])
            "Missing the -q argument. Try %s -h for help.",
            argv[0]);
 
-  PANIC_IF(opt_tmp_dir == NULL
+  PANIC_IF(opt_tmp_dir == NULL,
            OPT_ERR,
            stderr,
            "Missing the -d argument. Try %s -h for help.",
@@ -217,6 +227,19 @@ main(int argc, char *argv[])
                "Error running mkdir(%s): %s\n",
                opt_tmp_dir,
                strerror(errno));
+
+  if (opt_aligner == NULL) {
+    opt_aligner = "clustalo";
+  }
+  PANIC_UNLESS(strcmp(opt_aligner, "clustalo") == 0,
+               OPT_ERR,
+               stderr,
+               "Aligner '%s' is not available",
+               opt_aligner);
+
+  if (opt_prefs == NULL) {
+    opt_prefs = "";
+  }
 
   int num_threads = 0;
   if (opt_threads == NULL) {
@@ -316,7 +339,9 @@ main(int argc, char *argv[])
                                i,
                                num_threads,
                                opt_tmp_dir,
-                               query_fname);
+                               query_fname,
+                               opt_aligner,
+                               opt_prefs);
 
     if (pthread_create(&threads[i],
                        NULL,

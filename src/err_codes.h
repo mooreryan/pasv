@@ -42,7 +42,7 @@
 
 #define PANIC_UNLESS(test, err_type, fp, msg, ...)      \
   do {                                                  \
-    if (!test) {                                        \
+    if (!(test)) {                                      \
       fprintf(fp,                                       \
               "FATAL -- %s:%d -- " msg "\n",            \
               __FILE__,                                 \
