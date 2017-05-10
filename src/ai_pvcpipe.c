@@ -2,14 +2,17 @@
    different type */
 
 #include <assert.h>
+#include <errno.h>
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/stat.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
 #include "../vendor/tommyarray.h"
 
+#include "aln.h"
 #include "err_codes.h"
 #include "rseq.h"
 
@@ -53,7 +56,7 @@ get_aln_posns(char* aln_outfile,
            KSEQ_ERR,
            stderr, KSEQ_ERR_MSG, aln_outfile);
 
-  key_chars = malloc((num_key_posns+1) * sizeof(char));
+  key_chars = malloc(sizeof *key_chars * (num_key_posns+1));
   PANIC_MEM(key_chars, stderr);
 
   while ((l = kseq_read(seq)) >= 0) {
@@ -119,145 +122,6 @@ get_aln_posns(char* aln_outfile,
   return rseq;
 }
 
-struct arg_t {
-  tommy_array* ref_seqs;
-  tommy_array* query_seqs;
-  char* tmp_dir;
-
-  /* Thread number */
-  int tid;
-  int num_workers;
-};
-
-struct arg_t*
-arg_init(tommy_array* ref_seqs,
-         tommy_array* query_seqs,
-         int tid,
-         int num_workers,
-         char* tmp_dir)
-{
-  struct arg_t* arg = malloc(sizeof(struct arg_t));
-  PANIC_MEM(arg, stderr);
-
-  arg->ref_seqs = ref_seqs;
-  arg->query_seqs = query_seqs;
-  arg->tid = tid;
-  arg->num_workers = num_workers;
-  arg->tmp_dir = tmp_dir;
-
-  return arg;
-}
-
-/* TODO why not use this function? */
-/* void */
-/* arg_destroy(struct arg_t* arg) */
-/* { */
-/*   int i = 0; */
-
-/*   for (i = 0; i < arg->num_ref_seqs; ++i ) { */
-/*     free(tommy_array_get(arg->ref_seqs, i)); */
-/*   } */
-/*   tommy_array_done(arg->ref_seqs); */
-/*   free(arg->ref_seqs); */
-
-/*   for (i = 0; i < arg->num_query_seqs; ++i ) { */
-/*     free(tommy_array_get(arg->query_seqs, i)); */
-/*   } */
-/*   tommy_array_done(arg->query_seqs); */
-/*   free(arg->query_seqs); */
-
-/*   free(arg); */
-/* } */
-
-struct hello_fork_ret_val_t {
-  tommy_array* outfiles;
-  int ret_code;
-};
-
-void*
-hello_fork(void* the_arg)
-{
-  struct arg_t* arg = the_arg;
-
-  struct hello_fork_ret_val_t* ret_val =
-    malloc(sizeof(struct hello_fork_ret_val_t));
-  PANIC_MEM(ret_val, stderr);
-
-  ret_val->outfiles = malloc(sizeof(tommy_array));
-  PANIC_MEM(ret_val->outfiles, stderr);
-  tommy_array_init(ret_val->outfiles);
-
-  int tid = arg->tid;
-  int status = 0;
-  pid_t pid = 0;
-
-  for (int y = 0; y < tommy_array_size(arg->query_seqs); ++y) {
-    if ((y % arg->num_workers) == tid) { /* this seq is for this thread */
-
-      /* TODO check for file overwriting */
-      /* TODO will blow up if path is longer than 999 chars */
-      char aln_infile[1000];
-      sprintf(aln_infile, "%s/tmpf_%d_%d", arg->tmp_dir, y, tid);
-
-      char aln_outfile[1000];
-      sprintf(aln_outfile, "%s_out", aln_infile);
-
-      tommy_array_insert(ret_val->outfiles, strdup(aln_outfile));
-      /* TODO drop the force and die if outfiles exist */
-      char* argv[] = { "clustalo",
-                       "--force",
-                       "-i", aln_infile,
-                       "-o", aln_outfile,
-                       "--iter", "0",
-                       NULL };
-
-      /* fd = mkstemp(aln_infile); */
-      FILE* fp = fopen(aln_infile, "w");
-      if (fp == NULL) {
-        fprintf(stderr,
-                "FATAL -- couldn't open '%s' for writing\n",
-                aln_infile);
-      }
-
-      /* write the ref seqs */
-      for (int x = 0; x < tommy_array_size(arg->ref_seqs); ++x) {
-        fprintf(fp,
-                ">ref_%d thread_%d\n%s\n",
-                x,
-                tid,
-                tommy_array_get(arg->ref_seqs, x));
-      }
-
-      /* and the query */
-      fprintf(fp,
-              ">query_%d thread_%d\n%s\n",
-              y,
-              tid,
-              tommy_array_get(arg->query_seqs, y));
-      fclose(fp);
-
-      pid = fork();
-      if (pid == -1) {
-        continue;
-        /* return (void*)(intptr_t)1; */
-      } else if (pid == 0) { /* child */
-        execvp("clustalo", argv);
-      } else if (pid > 1) { /* parent */
-        pid = wait(&status);
-
-        if (!WIFEXITED(status)) { /* if child did not terminate normally */
-          exit(98);
-        }
-      } else { /* something went wrong */
-        continue;
-      }
-    }
-  }
-
-  ret_val->ret_code = 0;
-  pthread_exit(ret_val);
-}
-
 int
 main(int argc, char *argv[])
 {
@@ -268,6 +132,8 @@ main(int argc, char *argv[])
   char* opt_region_start = NULL;
   char* opt_region_end = NULL;
   char* opt_tmp_dir = NULL;
+
+  char* query_fname = NULL;
 
   static char intro[] =
     "Trust the Process. Trust the PVCpipe.";
@@ -283,7 +149,8 @@ main(int argc, char *argv[])
 
 
   char doc_str[2000];
-  sprintf(doc_str,
+  snprintf(doc_str,
+           1999,
           "\n\n%s\n\nusage: %s %s\n\noptions:\n%s\n\n",
           intro,
           argv[0],
@@ -334,6 +201,13 @@ main(int argc, char *argv[])
     fprintf(stderr, "ARG ERROR -- Missing -d arg\n%s\n", doc_str);
     exit(1);
   }
+
+  PANIC_UNLESS(mkdir(opt_tmp_dir, 0755) == 0,
+               errno,
+               stderr,
+               "Error running mkdir(%s): %s\n",
+               opt_tmp_dir,
+               strerror(errno));
 
   int num_threads = 0;
   if (opt_threads == NULL) {
@@ -399,25 +273,25 @@ main(int argc, char *argv[])
 
   pthread_t threads[num_threads];
 
-  struct hello_fork_ret_val_t* ret_val;
-  tommy_array* ret_vals = malloc(sizeof(tommy_array));
+  struct aln_ret_val_t* ret_val;
+  tommy_array* ret_vals = malloc(sizeof *ret_vals);
   PANIC_MEM(ret_vals, stderr);
   tommy_array_init(ret_vals);
 
-  tommy_array* outfiles = malloc(sizeof(tommy_array));
+  tommy_array* outfiles = malloc(sizeof *outfiles);
   PANIC_MEM(outfiles, stderr);
   tommy_array_init(outfiles);
 
-  tommy_array* ref_seqs = malloc(sizeof(tommy_array));
+  tommy_array* ref_seqs = malloc(sizeof *ref_seqs);
   PANIC_MEM(ref_seqs, stderr);
   tommy_array_init(ref_seqs);
 
-  tommy_array* query_seqs = malloc(sizeof(tommy_array));
+  tommy_array* query_seqs = malloc(sizeof *query_seqs);
   PANIC_MEM(query_seqs, stderr);
   tommy_array_init(query_seqs);
 
-  struct arg_t** args = malloc(num_threads * sizeof(struct arg_t*));
-  PANIC_MEM(args, stderr);
+  struct aln_arg_t** aln_args = malloc(sizeof *aln_args * num_threads);
+  PANIC_MEM(aln_args, stderr);
 
   while ((l = kseq_read(ref_seq)) >= 0) {
     tommy_array_insert(ref_seqs, strdup(ref_seq->seq.s));
@@ -428,16 +302,17 @@ main(int argc, char *argv[])
   }
 
   for (i = 0; i < num_threads; ++i) {
-    args[i] = arg_init(ref_seqs,
-                       query_seqs,
-                       i,
-                       num_threads,
-                       opt_tmp_dir);
+    aln_args[i] = aln_arg_init(ref_seqs,
+                               query_seqs,
+                               i,
+                               num_threads,
+                               opt_tmp_dir,
+                               query_fname);
 
     if (pthread_create(&threads[i],
                        NULL,
-                       hello_fork,
-                       args[i])) {
+                       run_aln,
+                       aln_args[i])) {
       fprintf(stderr, "FATAL -- could not create thread %d\n", i);
     } else {
       fprintf(stderr, "DEBUG -- spawning thread %d\n", i);
@@ -467,6 +342,9 @@ main(int argc, char *argv[])
 
   /* there will be an outfile for each query */
   struct rseq_t* rseq = NULL;
+
+  /* TODO need to assert that there are not more input posns than size
+     of these char* */
   char spans[10];
   char type[20];
   fprintf(stdout, "name type spans oligo");
@@ -485,22 +363,22 @@ main(int argc, char *argv[])
 
     switch(rseq->spans_region) {
     case -1:
-      sprintf(spans, "NA");
+      snprintf(spans, 9, "NA");
       break;
     case 0:
-      sprintf(spans, "No");
+      snprintf(spans, 9, "No");
       break;
     case 1:
-      sprintf(spans, "Yes");
+      snprintf(spans, 9, "Yes");
       break;
     default:
       assert(0);
     }
 
     if (rseq->spans_region == -1) {
-      sprintf(type, "%s", rseq->key_chars);
+      snprintf(type, 19, "%s", rseq->key_chars);
     } else {
-      sprintf(type, "%s_%s", rseq->key_chars, spans);
+      snprintf(type, 19, "%s_%s", rseq->key_chars, spans);
     }
 
     fprintf(stdout,
@@ -553,9 +431,9 @@ main(int argc, char *argv[])
   free(ref_seqs);
 
   for (i = 0; i < num_threads; ++i) {
-    free(args[i]);
+    free(aln_args[i]);
   }
-  free(args);
+  free(aln_args);
 
   kseq_destroy(ref_seq);
   kseq_destroy(query_seq);

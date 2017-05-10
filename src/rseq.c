@@ -30,22 +30,20 @@ set_header(rseq_t* rseq,
 
 {
   int header_size = get_header_size(kseq);
-  assert(header_size != -1);
+  PANIC_IF(header_size == -1,
+           STD_ERR,
+           stderr,
+           "Could not get header size for %s",
+           kseq->name.s);
 
   char buf[header_size];
 
-  int ret_code = 0;
-
   if (kseq->comment.l) {
-    /* TODO use snprinf */
-    ret_code = sprintf(buf,
-                       "%s %s",
-                       kseq->name.s,
-                       kseq->comment.s);
-
-    if (ret_code < 0) { /* sprintf failed */
-      return -1;
-    }
+    snprintf(buf,
+             header_size,
+             "%s %s",
+             kseq->name.s,
+             kseq->comment.s);
 
     /* TODO use strndup */
     rseq->head = strdup(buf);
@@ -65,7 +63,7 @@ rseq_t*
 rseq_init(kseq_t* kseq)
 {
   int ret_code = 0;
-  rseq_t* rseq = malloc(sizeof(rseq_t));
+  rseq_t* rseq = malloc(sizeof *rseq);
   PANIC_MEM(rseq, stderr);
 
   ret_code = set_header(rseq, kseq);
@@ -93,10 +91,9 @@ rseq_destroy(rseq_t* rseq)
 void
 rseq_print(FILE* fstream, rseq_t* rseq)
 {
-  int ret_code = fprintf(fstream,
-                         ">%s\n"
-                         "%s\n",
-                         rseq->head,
-                         rseq->seq);
-  assert(ret_code >= 0);
+  fprintf(fstream,
+          ">%s\n"
+          "%s\n",
+          rseq->head,
+          rseq->seq);
 }

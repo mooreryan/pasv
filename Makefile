@@ -7,7 +7,8 @@ VENDOR = vendor
 SRC = src
 TEST_D = test_files
 
-OBJS := $(SRC)/rseq.o \
+OBJS := $(SRC)/aln.o \
+	$(SRC)/rseq.o \
         $(VENDOR)/tommyarray.o \
         $(VENDOR)/tommyhashlin.o \
         $(VENDOR)/tommyhash.o \

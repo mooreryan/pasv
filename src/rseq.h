@@ -17,6 +17,7 @@ typedef struct rseq_t {
 
 } rseq_t;
 
+/* Includes space for the terminating null char */
 static int
 get_header_size(kseq_t* kseq);
 
