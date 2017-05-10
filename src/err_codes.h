@@ -1,10 +1,19 @@
 #ifndef ERR_CODES_H
 #define ERR_CODES_H
 
+
+/* These are need for the macros to work */
+#include <errno.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
 /* NOTE when calling kseq_init, kseq calls ks_init which does NOT
    check the calloc calls. */
 
-#define SUCESS     0
+#define SUCCESS    0
 
 #define ARG_ERR    2
 #define FILE_ERR   3
@@ -12,6 +21,7 @@
 #define MEM_ERR    6
 #define STD_ERR    1
 #define THREAD_ERR 4
+#define OPT_ERR    7
 
 #define FILE_ERR_MSG "could not open '%s' for %s"
 #define KSEQ_ERR_MSG "could not init kseq on '%s'"
@@ -51,6 +61,28 @@
               __LINE__);                                        \
       exit(MEM_ERR);                                            \
     }                                                           \
+  } while (0)
+
+void
+panic_unless_file_can_be_read(char* fname);
+
+#define PANIC_UNLESS_FILE_CAN_BE_READ(iostream, fname)                  \
+  do {                                                                  \
+    int err_codes_fd = open(fname, O_RDONLY);                           \
+    PANIC_IF(err_codes_fd == -1,                                        \
+             errno,                                                     \
+             iostream,                                                  \
+             "Could not read file '%s': %s",                            \
+             fname,                                                     \
+             strerror(errno));                                          \
+    PANIC_UNLESS(close(err_codes_fd) == 0,                              \
+                 errno,                                                 \
+                 iostream,                                              \
+                 "Could not close fd (%d) associated with file "        \
+                 "'%s': %s",                                            \
+                 err_codes_fd,                                          \
+                 fname,                                                 \
+                 strerror(errno));                                      \
   } while (0)
 
 #endif

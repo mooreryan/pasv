@@ -48,4 +48,4 @@ clean_test:
 	-rm $(TEST_D)/*type* $(TEST_D)/*split* $(TEST_D)/*group*
 
 test_ai_pvcpipe:
-	valgrind $(BIN)/ai_pvcpipe -d tmp -s 700 -e 800 -t 2 -r $(TEST_D)/refs.fa -q $(TEST_D)/queries.fa 762 763
+	rm -r tmp; valgrind $(BIN)/ai_pvcpipe -d tmp -s 700 -e 800 -t 2 -r $(TEST_D)/refs.fa -q $(TEST_D)/queries.fa 762 763

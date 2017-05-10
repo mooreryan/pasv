@@ -148,6 +148,7 @@ main(int argc, char *argv[])
     "-d <string>  Directory for the tmp files. Create this before running the program.\n";
 
 
+  /* TODO base this on actual doc str len */
   char doc_str[2000];
   snprintf(doc_str,
            1999,
@@ -187,20 +188,28 @@ main(int argc, char *argv[])
     }
   }
 
-  if (opt_refs == NULL) {
-    fprintf(stderr, "ARG ERROR -- Missing -r arg\n%s\n", doc_str);
-    exit(1);
-  }
+  /* Check the getopt args */
 
-  if (opt_queries == NULL) {
-    fprintf(stderr, "ARG ERROR -- Missing -q arg\n%s\n", doc_str);
-    exit(1);
-  }
+  PANIC_IF(opt_refs == NULL,
+           OPT_ERR,
+           stderr,
+           "Missing the -r argument. Try %s -h for help.",
+           argv[0]);
 
-  if (opt_tmp_dir == NULL) {
-    fprintf(stderr, "ARG ERROR -- Missing -d arg\n%s\n", doc_str);
-    exit(1);
-  }
+  PANIC_IF(opt_queries == NULL,
+           OPT_ERR,
+           stderr,
+           "Missing the -q argument. Try %s -h for help.",
+           argv[0]);
+
+  PANIC_IF(opt_tmp_dir == NULL
+           OPT_ERR,
+           stderr,
+           "Missing the -d argument. Try %s -h for help.",
+           argv[0]);
+
+  PANIC_UNLESS_FILE_CAN_BE_READ(stderr, opt_refs);
+  PANIC_UNLESS_FILE_CAN_BE_READ(stderr, opt_queries);
 
   PANIC_UNLESS(mkdir(opt_tmp_dir, 0755) == 0,
                errno,
