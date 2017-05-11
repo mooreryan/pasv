@@ -129,6 +129,7 @@ main(int argc, char *argv[])
 {
   int c = 0;
   char* opt_aligner = NULL;
+  char* opt_io_fmt_str = NULL;
   char* opt_prefs = NULL;
   char* opt_queries = NULL;
   char* opt_refs = NULL;
@@ -144,25 +145,34 @@ main(int argc, char *argv[])
   static char usage[] =
     "[-s region_start] [-e region_end] -d tmp_dir -t num_threads -r ref_seqs -q query_seqs pos1 [pos2 ...]";
   static char options[] =
-    "-t <integer> Number of threads to use\n"
+    "-h           Display help\n\n"
+
+    "-a <string>  Name of alignment program (default: clustal)\n"
+    "-p <string>  Parameters to send to alignment program (in quotes). E.g., -p '--iter 10' (default: '')\n"
+    "-i <string>  IO format string for alignment program. (default: '-i %s -o %s')\n\n"
+
+    "-d <string>  Directory for the tmp files\n"
+    "-t <integer> Number of threads\n\n"
+
     "-r <string>  Fasta file with reference sequences\n"
-    "-q <string>  Fasta file with query sequences\n"
+    "-q <string>  Fasta file with query sequences\n\n"
+
     "-s <integer> Region start to check for spanning (deault: -1)\n"
-    "-e <integer> Region end to check for spanning (deault: -1)\n"
-    "-d <string>  Directory for the tmp files. Create this before running the program.\n";
+    "-e <integer> Region end to check for spanning (deault: -1)\n";
+
 
 
   /* TODO base this on actual doc str len */
-  char doc_str[2000];
+  char doc_str[10000];
   snprintf(doc_str,
-           1999,
-          "\n\n%s\n\nusage: %s %s\n\noptions:\n%s\n\n",
-          intro,
-          argv[0],
-          usage,
-          options);
+           9999,
+           "\n\n%s\n\nusage: %s %s\n\noptions:\n%s\n\n",
+           intro,
+           argv[0],
+           usage,
+           options);
 
-  while ((c = getopt(argc, argv, "a:d:e:hp:q:r:s:t:")) != -1) {
+  while ((c = getopt(argc, argv, "a:d:e:hi:p:q:r:s:t:")) != -1) {
     switch(c) {
     case 'a':
       opt_aligner = optarg;
@@ -176,6 +186,9 @@ main(int argc, char *argv[])
     case 'h':
       fprintf(stderr, "%s", doc_str);
       exit(1);
+    case 'i':
+      opt_io_fmt_str = optarg;
+      break;
     case 'p':
       opt_prefs = optarg;
       break;
@@ -238,6 +251,15 @@ main(int argc, char *argv[])
                stderr,
                "Aligner '%s' is not available",
                opt_aligner);
+
+  if (opt_io_fmt_str == NULL) {
+    if (strcmp(opt_aligner, "clustalo") == 0) {
+      opt_io_fmt_str = "-i %s -o %s";
+    }
+  } else {
+    /* TOOD validate the io format string */
+  }
+
 
   if (opt_prefs == NULL) {
     opt_prefs = "";
@@ -343,7 +365,8 @@ main(int argc, char *argv[])
                                opt_tmp_dir,
                                query_fname,
                                opt_aligner,
-                               opt_prefs);
+                               opt_prefs,
+                               opt_io_fmt_str);
 
     if (pthread_create(&threads[i],
                        NULL,
