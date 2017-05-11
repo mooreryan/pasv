@@ -253,10 +253,6 @@ run_aln(void* the_arg)
                  "Error while waiting on child process: %s",
                  strerror(errno));
 
-        /* TODO is this the best place to panic (from inside the
-           thread? */
-        PANIC_UNLESS_FILE_CAN_BE_READ(stderr, aln_outfile);
-
         int arg_i = 0;
         for (arg_i = 0; aln_argv[arg_i] != NULL; ++arg_i) {
           free(aln_argv[arg_i]);

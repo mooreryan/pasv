@@ -1,6 +1,8 @@
 /* TODO if there is a lower case letter at the position, it will be a
    different type */
 
+/* TODO handle non numbers for key posns */
+
 #include <assert.h>
 #include <errno.h>
 #include <pthread.h>
@@ -370,7 +372,9 @@ main(int argc, char *argv[])
   for (int i = 0; i < tommy_array_size(ret_vals); ++i) {
     ret_val = tommy_array_get(ret_vals, i);
     for (int j = 0; j < tommy_array_size(ret_val->outfiles); ++j) {
-      tommy_array_insert(outfiles, tommy_array_get(ret_val->outfiles, j));
+      char* outfile = tommy_array_get(ret_val->outfiles, j);
+      PANIC_UNLESS_FILE_CAN_BE_READ(stderr, outfile);
+      tommy_array_insert(outfiles, outfile);
     }
   }
 
