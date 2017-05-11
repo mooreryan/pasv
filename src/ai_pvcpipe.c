@@ -130,6 +130,7 @@ main(int argc, char *argv[])
   int c = 0;
   char* opt_aligner = NULL;
   char* opt_io_fmt_str = NULL;
+  char* opt_outfname = NULL;
   char* opt_prefs = NULL;
   char* opt_queries = NULL;
   char* opt_refs = NULL;
@@ -172,7 +173,7 @@ main(int argc, char *argv[])
            usage,
            options);
 
-  while ((c = getopt(argc, argv, "a:d:e:hi:p:q:r:s:t:")) != -1) {
+  while ((c = getopt(argc, argv, "a:d:e:hi:o:p:q:r:s:t:")) != -1) {
     switch(c) {
     case 'a':
       opt_aligner = optarg;
@@ -188,6 +189,9 @@ main(int argc, char *argv[])
       exit(1);
     case 'i':
       opt_io_fmt_str = optarg;
+      break;
+    case 'o':
+      opt_outfname = optarg;
       break;
     case 'p':
       opt_prefs = optarg;
@@ -243,21 +247,38 @@ main(int argc, char *argv[])
                opt_tmp_dir,
                strerror(errno));
 
+  PANIC_IF(opt_outfname == NULL,
+           OPT_ERR,
+           stderr,
+           "Missing the -o argument. Try %s -h for help.",
+           argv[0]);
+
+  PANIC_IF_FILE_CAN_BE_READ(stderr, opt_outfname);
+
   if (opt_aligner == NULL) {
     opt_aligner = "clustalo";
   }
-  PANIC_UNLESS(strcmp(opt_aligner, "clustalo") == 0,
-               OPT_ERR,
-               stderr,
-               "Aligner '%s' is not available",
-               opt_aligner);
 
-  if (opt_io_fmt_str == NULL) {
-    if (strcmp(opt_aligner, "clustalo") == 0) {
-      opt_io_fmt_str = "-i %s -o %s";
+  /* TODO use hash table lookup? */
+  /* TODO use Guile script as a spec? */
+  if (strcmp(opt_aligner, "clustalo") == 0) {
+    if (opt_io_fmt_str != NULL) {
+      fprintf(stderr, "INFO -- clustalo was selected...ignoring -i option\n");
     }
+    opt_io_fmt_str = "-i %s -o %s";
+  } else if (strcmp(opt_aligner, "mafft") == 0) {
+    if (opt_io_fmt_str != NULL) {
+      fprintf(stderr, "INFO -- mafft was selected...ignoring -i option\n");
+    }
+    opt_io_fmt_str = "--quiet %s > %s";
   } else {
-    /* TOOD validate the io format string */
+    PANIC_IF(opt_io_fmt_str == NULL,
+             OPT_ERR,
+             stderr,
+             "Aligner '%s' is not included by default. "
+             "You can still use it, but you must provide your "
+             "own I/O format string.",
+             opt_aligner);
   }
 
 
@@ -408,11 +429,20 @@ main(int argc, char *argv[])
      of these char* */
   char spans[10];
   char type[20];
-  fprintf(stdout, "name type spans oligo");
+
+  FILE* outfs = fopen(opt_outfname, "w");
+  PANIC_IF(outfs == NULL,
+           errno,
+           stderr,
+           "Could not open '%s': %s",
+           opt_outfname,
+           strerror(errno));
+
+  fprintf(outfs, "name type spans oligo");
   for (int n = 0; n < num_key_posns; ++n) {
-    fprintf(stdout, " pos.%d", key_posns[n]);
+    fprintf(outfs, " pos.%d", key_posns[n]);
   }
-  fprintf(stdout, "\n");
+  fprintf(outfs, "\n");
   int num_ref_seqs = tommy_array_size(ref_seqs);
   for (int i = 0; i < tommy_array_size(outfiles); ++i) {
     rseq = get_aln_posns(tommy_array_get(outfiles, i),
@@ -442,7 +472,7 @@ main(int argc, char *argv[])
       snprintf(type, 19, "%s_%s", rseq->key_chars, spans);
     }
 
-    fprintf(stdout,
+    fprintf(outfs,
             "%s %s %s %s",
             rseq->head,
             type,
@@ -450,13 +480,15 @@ main(int argc, char *argv[])
             rseq->key_chars);
 
     for (int z = 0; z < num_key_posns; ++z) {
-      fprintf(stdout, " %c", rseq->key_chars[z]);
+      fprintf(outfs, " %c", rseq->key_chars[z]);
     }
-    fprintf(stdout, "\n");
+    fprintf(outfs, "\n");
     rseq_destroy(rseq);
   }
 
   /* Clean up */
+
+  fclose(outfs);
 
   /* TODO clean up outfiles */
 
