@@ -1,6 +1,8 @@
 /* TODO if there is a lower case letter at the position, it will be a
    different type */
 
+/* TODO handle non numbers for key posns */
+
 #include <assert.h>
 #include <errno.h>
 #include <pthread.h>
@@ -127,6 +129,8 @@ main(int argc, char *argv[])
 {
   int c = 0;
   char* opt_aligner = NULL;
+  char* opt_io_fmt_str = NULL;
+  char* opt_outfname = NULL;
   char* opt_prefs = NULL;
   char* opt_queries = NULL;
   char* opt_refs = NULL;
@@ -142,25 +146,34 @@ main(int argc, char *argv[])
   static char usage[] =
     "[-s region_start] [-e region_end] -d tmp_dir -t num_threads -r ref_seqs -q query_seqs pos1 [pos2 ...]";
   static char options[] =
-    "-t <integer> Number of threads to use\n"
+    "-h           Display help\n\n"
+
+    "-a <string>  Name of alignment program (default: clustal)\n"
+    "-p <string>  Parameters to send to alignment program (in quotes). E.g., -p '--iter 10' (default: '')\n"
+    "-i <string>  IO format string for alignment program. (default: '-i %s -o %s')\n\n"
+
+    "-d <string>  Directory for the tmp files\n"
+    "-t <integer> Number of threads\n\n"
+
     "-r <string>  Fasta file with reference sequences\n"
-    "-q <string>  Fasta file with query sequences\n"
+    "-q <string>  Fasta file with query sequences\n\n"
+
     "-s <integer> Region start to check for spanning (deault: -1)\n"
-    "-e <integer> Region end to check for spanning (deault: -1)\n"
-    "-d <string>  Directory for the tmp files. Create this before running the program.\n";
+    "-e <integer> Region end to check for spanning (deault: -1)\n";
+
 
 
   /* TODO base this on actual doc str len */
-  char doc_str[2000];
+  char doc_str[10000];
   snprintf(doc_str,
-           1999,
-          "\n\n%s\n\nusage: %s %s\n\noptions:\n%s\n\n",
-          intro,
-          argv[0],
-          usage,
-          options);
+           9999,
+           "\n\n%s\n\nusage: %s %s\n\noptions:\n%s\n\n",
+           intro,
+           argv[0],
+           usage,
+           options);
 
-  while ((c = getopt(argc, argv, "a:d:e:hp:q:r:s:t:")) != -1) {
+  while ((c = getopt(argc, argv, "a:d:e:hi:o:p:q:r:s:t:")) != -1) {
     switch(c) {
     case 'a':
       opt_aligner = optarg;
@@ -174,6 +187,12 @@ main(int argc, char *argv[])
     case 'h':
       fprintf(stderr, "%s", doc_str);
       exit(1);
+    case 'i':
+      opt_io_fmt_str = optarg;
+      break;
+    case 'o':
+      opt_outfname = optarg;
+      break;
     case 'p':
       opt_prefs = optarg;
       break;
@@ -228,14 +247,40 @@ main(int argc, char *argv[])
                opt_tmp_dir,
                strerror(errno));
 
+  PANIC_IF(opt_outfname == NULL,
+           OPT_ERR,
+           stderr,
+           "Missing the -o argument. Try %s -h for help.",
+           argv[0]);
+
+  PANIC_IF_FILE_CAN_BE_READ(stderr, opt_outfname);
+
   if (opt_aligner == NULL) {
     opt_aligner = "clustalo";
   }
-  PANIC_UNLESS(strcmp(opt_aligner, "clustalo") == 0,
-               OPT_ERR,
-               stderr,
-               "Aligner '%s' is not available",
-               opt_aligner);
+
+  /* TODO use hash table lookup? */
+  /* TODO use Guile script as a spec? */
+  if (strcmp(opt_aligner, "clustalo") == 0) {
+    if (opt_io_fmt_str != NULL) {
+      fprintf(stderr, "INFO -- clustalo was selected...ignoring -i option\n");
+    }
+    opt_io_fmt_str = "-i %s -o %s";
+  } else if (strcmp(opt_aligner, "mafft") == 0) {
+    if (opt_io_fmt_str != NULL) {
+      fprintf(stderr, "INFO -- mafft was selected...ignoring -i option\n");
+    }
+    opt_io_fmt_str = "--quiet %s > %s";
+  } else {
+    PANIC_IF(opt_io_fmt_str == NULL,
+             OPT_ERR,
+             stderr,
+             "Aligner '%s' is not included by default. "
+             "You can still use it, but you must provide your "
+             "own I/O format string.",
+             opt_aligner);
+  }
+
 
   if (opt_prefs == NULL) {
     opt_prefs = "";
@@ -341,7 +386,8 @@ main(int argc, char *argv[])
                                opt_tmp_dir,
                                query_fname,
                                opt_aligner,
-                               opt_prefs);
+                               opt_prefs,
+                               opt_io_fmt_str);
 
     if (pthread_create(&threads[i],
                        NULL,
@@ -370,7 +416,9 @@ main(int argc, char *argv[])
   for (int i = 0; i < tommy_array_size(ret_vals); ++i) {
     ret_val = tommy_array_get(ret_vals, i);
     for (int j = 0; j < tommy_array_size(ret_val->outfiles); ++j) {
-      tommy_array_insert(outfiles, tommy_array_get(ret_val->outfiles, j));
+      char* outfile = tommy_array_get(ret_val->outfiles, j);
+      PANIC_UNLESS_FILE_CAN_BE_READ(stderr, outfile);
+      tommy_array_insert(outfiles, outfile);
     }
   }
 
@@ -381,11 +429,20 @@ main(int argc, char *argv[])
      of these char* */
   char spans[10];
   char type[20];
-  fprintf(stdout, "name type spans oligo");
+
+  FILE* outfs = fopen(opt_outfname, "w");
+  PANIC_IF(outfs == NULL,
+           errno,
+           stderr,
+           "Could not open '%s': %s",
+           opt_outfname,
+           strerror(errno));
+
+  fprintf(outfs, "name type spans oligo");
   for (int n = 0; n < num_key_posns; ++n) {
-    fprintf(stdout, " pos.%d", key_posns[n]);
+    fprintf(outfs, " pos.%d", key_posns[n]);
   }
-  fprintf(stdout, "\n");
+  fprintf(outfs, "\n");
   int num_ref_seqs = tommy_array_size(ref_seqs);
   for (int i = 0; i < tommy_array_size(outfiles); ++i) {
     rseq = get_aln_posns(tommy_array_get(outfiles, i),
@@ -415,7 +472,7 @@ main(int argc, char *argv[])
       snprintf(type, 19, "%s_%s", rseq->key_chars, spans);
     }
 
-    fprintf(stdout,
+    fprintf(outfs,
             "%s %s %s %s",
             rseq->head,
             type,
@@ -423,13 +480,15 @@ main(int argc, char *argv[])
             rseq->key_chars);
 
     for (int z = 0; z < num_key_posns; ++z) {
-      fprintf(stdout, " %c", rseq->key_chars[z]);
+      fprintf(outfs, " %c", rseq->key_chars[z]);
     }
-    fprintf(stdout, "\n");
+    fprintf(outfs, "\n");
     rseq_destroy(rseq);
   }
 
   /* Clean up */
+
+  fclose(outfs);
 
   /* TODO clean up outfiles */
 

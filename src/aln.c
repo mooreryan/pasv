@@ -38,80 +38,124 @@ tokenize(char* str, char* split_on)
   return tokens;
 }
 
+char*
+make_io_str(char* format, char* aln_infile, char* aln_outfile)
+{
+  /* TODO better string length */
+  char* buf = malloc(sizeof *buf * (strlen(format) +
+                                    strlen(aln_infile) +
+                                    strlen(aln_outfile) +
+                                    1));
+  PANIC_MEM(buf, stderr);
+
+  /* TODO validate */
+  sprintf(buf, format, aln_infile, aln_outfile);
+
+  return buf;
+}
+
 /* The char* vals in this array will need to be free'd */
 char**
 make_aligner_opts(char* aligner,
                   char* aln_infile,
                   char* aln_outfile,
-                  char* opt_string)
+                  char* opt_string,
+                  char* io_fmt_str,
+                  int*  redirect_flag)
 {
+  *redirect_flag = 0;
 
   int i = 0;
-  int token_i = 0;
-  tommy_array* tokens = NULL;
-  int num_tokens = 0;
+  int opt_token_i = 0;
+  tommy_array* opt_tokens = NULL;
+  int num_opt_tokens = 0;
 
-  tokens = tokenize(opt_string, " ");
-  num_tokens = tommy_array_size(tokens);
-  char* first_token = tommy_array_get(tokens, 0);
+  int io_token_i = 0;
+  tommy_array* io_tokens = NULL;
+  int num_io_tokens = 0;
 
-  if (num_tokens == 1 && (strcmp(first_token, "") == 0)) {
+  char* input_str = make_io_str(io_fmt_str,
+                                aln_infile,
+                                aln_outfile);
+
+  io_tokens = tokenize(input_str, " ");
+  free(input_str);
+  num_io_tokens = tommy_array_size(io_tokens);
+  PANIC_IF(num_io_tokens < 2, /* should at least have the in and out files */
+           STD_ERR,
+           stderr,
+           "Not enough tokens: %d, need at least 2",
+           num_io_tokens);
+
+  opt_tokens = tokenize(opt_string, " ");
+  num_opt_tokens = tommy_array_size(opt_tokens);
+  char* first_opt_token = tommy_array_get(opt_tokens, 0);
+
+  if (num_opt_tokens == 1 && (strcmp(first_opt_token, "") == 0)) {
     /* Free the first str cos we won't get to it again */
-    free(tommy_array_get(tokens, 0));
-    num_tokens = 0;
+    free(tommy_array_get(opt_tokens, 0));
+    num_opt_tokens = 0;
   }
 
   char* tmp_str = NULL;
   char** aln_argv = NULL;
 
-  if (strncmp("clustalo", aligner, 100) == 0) {
-    aln_argv = malloc(sizeof *aln_argv * (1 + 5 + num_tokens));
-    PANIC_MEM(aln_argv, stderr);
+  int size_of_aln_argv = 1 + num_opt_tokens + num_io_tokens + 1;
+  aln_argv = malloc(sizeof *aln_argv * size_of_aln_argv);
+  PANIC_MEM(aln_argv, stderr);
 
-    tmp_str = strdup("clustalo");
-    PANIC_MEM(tmp_str, stderr);
-    aln_argv[i++] = tmp_str;
+  tmp_str = strdup(aligner);
+  PANIC_MEM(tmp_str, stderr);
+  aln_argv[i++] = tmp_str;
 
-    if (num_tokens > 0) {
-      for (token_i = 0; token_i < num_tokens; ++token_i) {
-        aln_argv[i + token_i] = tommy_array_get(tokens, token_i);
-      }
-
-      i += token_i;
+  if (num_opt_tokens > 0) {
+    for (opt_token_i = 0; opt_token_i < num_opt_tokens; ++opt_token_i) {
+      aln_argv[i + opt_token_i] = tommy_array_get(opt_tokens, opt_token_i);
     }
 
-    tmp_str = strdup("-i");
-    PANIC_MEM(tmp_str, stderr);
-    aln_argv[i++] = tmp_str;
-
-    tmp_str = strdup(aln_infile);
-    PANIC_MEM(tmp_str, stderr);
-    aln_argv[i++] = tmp_str;
-
-    tmp_str = strdup("-o");
-    PANIC_MEM(tmp_str, stderr);
-    aln_argv[i++] = tmp_str;
-
-    tmp_str = strdup(aln_outfile);
-    PANIC_MEM(tmp_str, stderr);
-    aln_argv[i++] = tmp_str;
-
-    aln_argv[i++] = NULL;
-
-    PANIC_UNLESS(i == 1 + 5 + num_tokens,
-                 STD_ERR,
-                 stderr,
-                 "something went wrong, token_i: %d, num_tokens: %d",
-                 token_i,
-                 num_tokens);
-  } else {
-    /* TODO handle bad aligner */
+    i += opt_token_i;
   }
 
-  /* TODO this doesn't deallocate the things in the array right? */
-  tommy_array_done(tokens);
-  free(tokens);
+  for (io_token_i = 0;
+       io_token_i < num_io_tokens;
+       ++io_token_i) {
+    char* io_token = tommy_array_get(io_tokens, io_token_i);
+    if (strcmp(io_token, ">") == 0) {
+      *redirect_flag = 1;
+      break;
+    }
+    aln_argv[i + io_token_i] = io_token;
+  }
 
+  i += io_token_i;
+  aln_argv[i++] = NULL;
+
+  /* TODO take care of this by the option validation */
+  if (*redirect_flag == 1) {
+    /* free all tokens including and beyond the ">" */
+    for (; io_token_i < num_io_tokens; ++io_token_i) {
+      free(tommy_array_get(io_tokens, io_token_i));
+    }
+  }
+
+  /* This actually only holds if there is NO redirect flag */
+  /* PANIC_UNLESS(i == size_of_aln_argv, */
+  /*              STD_ERR, */
+  /*              stderr, */
+  /*              "something went wrong, opt_token_i: %d, num_opt_tokens: %d", */
+  /*              opt_token_i, */
+  /*              num_opt_tokens); */
+
+  /* TODO this doesn't deallocate the things in the array right? */
+  tommy_array_done(opt_tokens);
+  tommy_array_done(io_tokens);
+
+  free(opt_tokens);
+  free(io_tokens);
+
+
+  /* TODO return a value at the beginning indicating whether or not
+     the command writes to standard output */
   return aln_argv;
 }
 
@@ -123,7 +167,8 @@ aln_arg_init(tommy_array* ref_seqs,
              char* tmp_dir,
              char* query_fname,
              char* aligner,
-             char* prefs)
+             char* prefs,
+             char* io_fmt_str)
 {
   struct aln_arg_t* aln_arg = malloc(sizeof *aln_arg);
   PANIC_MEM(aln_arg, stderr);
@@ -136,6 +181,7 @@ aln_arg_init(tommy_array* ref_seqs,
   aln_arg->query_fname = query_fname;
   aln_arg->aligner     = aligner;
   aln_arg->prefs       = prefs;
+  aln_arg->io_fmt_str = io_fmt_str;
 
   return aln_arg;
 }
@@ -178,6 +224,8 @@ run_aln(void* the_arg)
   int status = 0;
   pid_t pid = 0;
   int query_i = 0;
+  int tmp_stdout = 0;
+  int redirect_flag[] = { 0 };
 
   for (query_i = 0;
        query_i < tommy_array_size(aln_arg->query_seqs);
@@ -202,7 +250,9 @@ run_aln(void* the_arg)
       char** aln_argv = make_aligner_opts(aln_arg->aligner,
                                           aln_infile,
                                           aln_outfile,
-                                          aln_arg->prefs);
+                                          aln_arg->prefs,
+                                          aln_arg->io_fmt_str,
+                                          redirect_flag);
       PANIC_MEM(aln_argv, stderr);
 
       /* fd = mkstemp(aln_infile); */
@@ -210,7 +260,7 @@ run_aln(void* the_arg)
       PANIC_IF(fp == NULL,
                errno,
                stderr,
-               "Error opening '%s': %s",
+               "Error opening '%s' for writing: %s",
                aln_infile,
                strerror(errno));
 
@@ -238,9 +288,40 @@ run_aln(void* the_arg)
                "Error forking: %s",
                strerror(errno));
 
+
       if (pid == 0) { /* child */
+        /* TODO sometimes, the problem is that all threads will write to
+           the same outfile...a fix might be to set this in the child
+           only? */
+        FILE* outfp = NULL;
+        if (*redirect_flag == 1) { /* need to redirect stdout */
+          outfp = fopen(aln_outfile, "w");
+          PANIC_IF(fp == NULL,
+                   errno,
+                   stderr,
+                   "Error opening '%s' for writing: %s",
+                   aln_infile,
+                   strerror(errno));
+
+          /* So we can redirect later */
+          tmp_stdout = dup(STDOUT_FILENO);
+          PANIC_IF(tmp_stdout == -1,
+                   errno,
+                   stderr,
+                   "Error duplicating stdout: %s",
+                   strerror(errno));
+
+          PANIC_IF(dup2(fileno(outfp), STDOUT_FILENO) == -1,
+                   errno,
+                   stderr,
+                   "Error redirecting stdout to '%s': %s",
+                   aln_outfile,
+                   strerror(errno));
+          fclose(outfp);
+        }
+
         /* TODO gracefully handle aligner failure */
-        PANIC_IF(execvp("clustalo", aln_argv) == -1,
+        PANIC_IF(execvp(aln_arg->aligner, aln_argv) == -1,
                  errno,
                  stderr,
                  "The alignment command failed: %s\n",
@@ -253,16 +334,22 @@ run_aln(void* the_arg)
                  "Error while waiting on child process: %s",
                  strerror(errno));
 
-        /* TODO is this the best place to panic (from inside the
-           thread? */
-        PANIC_UNLESS_FILE_CAN_BE_READ(stderr, aln_outfile);
-
         int arg_i = 0;
         for (arg_i = 0; aln_argv[arg_i] != NULL; ++arg_i) {
           free(aln_argv[arg_i]);
         }
         free(aln_argv);
       }
+
+      /* WARN sometimes a different thread will still have this set to
+         the new fd and not stdout */
+      /* if (redirect_flag == 1) { */
+      /*   /\* Redirect back to stdout *\/ */
+      /*   PANIC_IF(dup2(tmp_stdout, STDOUT_FILENO) == -1, */
+      /*            errno, */
+      /*            stderr, */
+      /*            "Error redirecting back to stdout: %s", */
+      /*            strerror(errno)); */
     }
   }
 

@@ -82,4 +82,24 @@
                  strerror(errno));                                      \
   } while (0)
 
+#define PANIC_IF_FILE_CAN_BE_READ(iostream, fname)                      \
+  do {                                                                  \
+    int err_codes_fd = open(fname, O_RDONLY);                           \
+    PANIC_UNLESS(err_codes_fd == -1,                                    \
+                 STD_ERR,                                               \
+                 iostream,                                              \
+                 "The file '%s' already exists",                        \
+                 fname);                                                \
+    if (err_codes_fd != -1) {                                           \
+      PANIC_UNLESS(close(err_codes_fd) == 0,                            \
+                   errno,                                               \
+                   iostream,                                            \
+                   "Could not close fd (%d) associated with file "      \
+                   "'%s': %s",                                          \
+                   err_codes_fd,                                        \
+                   fname,                                               \
+                   strerror(errno));                                    \
+    }                                                                   \
+  } while (0)
+
 #endif
