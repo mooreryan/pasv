@@ -4,7 +4,9 @@
 #include "../vendor/tommyarray.h"
 
 struct aln_ret_val_t {
+  tommy_array* infiles;
   tommy_array* outfiles;
+
   int ret_code;
 };
 

@@ -8,6 +8,7 @@
 #include "aln.h"
 #include "err_codes.h"
 #include "rseq.h"
+#include "tommy_helper.h"
 
 /* If str is empty, will return "" in the array */
 tommy_array*
@@ -217,9 +218,8 @@ run_aln(void* the_arg)
     malloc(sizeof *ret_val);
   PANIC_MEM(ret_val, stderr);
 
-  ret_val->outfiles = malloc(sizeof *ret_val->outfiles);
-  PANIC_MEM(ret_val->outfiles, stderr);
-  tommy_array_init(ret_val->outfiles);
+  INIT_ARRAY(ret_val->infiles);
+  INIT_ARRAY(ret_val->outfiles);
 
   int tid = aln_arg->tid;
   int status = 0;
@@ -240,14 +240,17 @@ run_aln(void* the_arg)
       char aln_infile[1000];
       snprintf(aln_infile,
                999,
-               "%s/pasv_%d_%d",
+               "%s/pasv.q_%d.t_%d",
                aln_arg->tmp_dir,
                query_i, tid);
 
       char aln_outfile[1000];
       snprintf(aln_outfile, 999, "%s.aln.fa", aln_infile);
 
+      /* TODO validate the strdups */
+      tommy_array_insert(ret_val->infiles, strdup(aln_infile));
       tommy_array_insert(ret_val->outfiles, strdup(aln_outfile));
+
       /* TODO drop the force and die if outfiles exist */
       char** aln_argv = make_aligner_opts(aln_arg->aligner,
                                           aln_infile,

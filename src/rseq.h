@@ -2,6 +2,9 @@
 #define RSEQ_H
 
 #include <zlib.h>
+
+#include "../vendor/tommyhashlin.h"
+
 #include "kseq.h"
 
 KSEQ_INIT(gzFile, gzread)
@@ -10,6 +13,9 @@ typedef struct rseq_t {
   char* head;
   char* seq;
   char* key_chars;
+  char* type;
+
+  tommy_node node;
 
   int head_len;
   int seq_len;
@@ -34,5 +40,17 @@ rseq_destroy(rseq_t* rseq);
 void
 rseq_print(FILE* fstream,
            rseq_t* rseq);
+
+/* Compares headers, if header is eq the seq is eq */
+int
+rseq_compare(const void* arg, const void* rseq);
+
+tommy_uint32_t
+rseq_hash_head(rseq_t* rseq);
+
+void
+rseq_try_insert_hashlin(rseq_t* rseq, tommy_hashlin* hash);
+
+
 
 #endif

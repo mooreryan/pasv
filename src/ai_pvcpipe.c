@@ -13,10 +13,34 @@
 #include <unistd.h>
 
 #include "../vendor/tommyarray.h"
+#include "../vendor/tommyhashlin.h"
 
 #include "aln.h"
 #include "err_codes.h"
 #include "rseq.h"
+#include "tommy_helper.h"
+
+typedef struct t2fs_t {
+  char* type;
+  FILE* fs;
+
+  tommy_node node;
+} t2fs_t;
+
+void
+t2fs_destroy(t2fs_t* t2fs)
+{
+  free(t2fs->type);
+  fclose(t2fs->fs);
+  free(t2fs);
+}
+
+int
+t2fs_compare(const void* arg, const void* t2fs)
+{
+  return strcmp((const char*)arg,
+                ((const t2fs_t*)t2fs)->type);
+}
 
 struct rseq_t*
 get_aln_posns(char* aln_outfile,
@@ -127,10 +151,14 @@ get_aln_posns(char* aln_outfile,
 int
 main(int argc, char *argv[])
 {
+  tommy_hashlin* header2rseq = NULL;
+  tommy_hashlin* type2fs = NULL;
+  t2fs_t* t2fs = NULL;
+
   int c = 0;
   char* opt_aligner = NULL;
   char* opt_io_fmt_str = NULL;
-  char* opt_outfname = NULL;
+  char* opt_out_base = NULL;
   char* opt_prefs = NULL;
   char* opt_queries = NULL;
   char* opt_refs = NULL;
@@ -153,6 +181,8 @@ main(int argc, char *argv[])
     "-i <string>  IO format string for alignment program. (default: '-i %s -o %s')\n\n"
 
     "-d <string>  Directory for the tmp files\n"
+    "-o <string>  Output base name\n"
+
     "-t <integer> Number of threads\n\n"
 
     "-r <string>  Fasta file with reference sequences\n"
@@ -167,7 +197,7 @@ main(int argc, char *argv[])
   char doc_str[10000];
   snprintf(doc_str,
            9999,
-           "\n\n%s\n\nusage: %s %s\n\noptions:\n%s\n\n",
+           "\n\n%s\n\nusage: %s %s\n\noptions:\n\n%s\n\n",
            intro,
            argv[0],
            usage,
@@ -191,7 +221,7 @@ main(int argc, char *argv[])
       opt_io_fmt_str = optarg;
       break;
     case 'o':
-      opt_outfname = optarg;
+      opt_out_base = optarg;
       break;
     case 'p':
       opt_prefs = optarg;
@@ -247,13 +277,13 @@ main(int argc, char *argv[])
                opt_tmp_dir,
                strerror(errno));
 
-  PANIC_IF(opt_outfname == NULL,
+  PANIC_IF(opt_out_base == NULL,
            OPT_ERR,
            stderr,
            "Missing the -o argument. Try %s -h for help.",
            argv[0]);
 
-  PANIC_IF_FILE_CAN_BE_READ(stderr, opt_outfname);
+  PANIC_IF_FILE_CAN_BE_READ(stderr, opt_out_base);
 
   if (opt_aligner == NULL) {
     opt_aligner = "clustalo";
@@ -373,6 +403,9 @@ main(int argc, char *argv[])
 
 
   rseq_t* tmp_rseq = NULL;
+
+  INIT_HASHLIN(header2rseq);
+
   /* Parse the ref and query seqs */
   while ((l = kseq_read(ref_seq)) >= 0) {
     tmp_rseq = rseq_init(ref_seq);
@@ -380,6 +413,8 @@ main(int argc, char *argv[])
              STD_ERR,
              stderr,
              "Couldn't make rseq");
+
+    rseq_try_insert_hashlin(tmp_rseq, header2rseq);
 
     tommy_array_insert(ref_seqs, tmp_rseq);
   }
@@ -390,6 +425,8 @@ main(int argc, char *argv[])
              STD_ERR,
              stderr,
              "Couldn't make rseq");
+
+    rseq_try_insert_hashlin(tmp_rseq, header2rseq);
 
     tommy_array_insert(query_seqs, tmp_rseq);
   }
@@ -436,6 +473,19 @@ main(int argc, char *argv[])
       PANIC_UNLESS_FILE_CAN_BE_READ(stderr, outfile);
       tommy_array_insert(outfiles, outfile);
     }
+
+    /* remove the infiles to the aligner */
+    for (int j = 0; j < tommy_array_size(ret_val->infiles); ++j) {
+      char* infile = tommy_array_get(ret_val->infiles, j);
+      PANIC_UNLESS_FILE_CAN_BE_READ(stderr, infile);
+
+      if (unlink(infile) == -1) {
+        fprintf(stderr,
+                "WARN -- could not delete tmp file '%s': %s\n",
+                infile,
+                strerror(errno));
+      }
+    }
   }
 
   /* there will be an outfile for each query */
@@ -446,17 +496,22 @@ main(int argc, char *argv[])
   char spans[10];
   char type[20];
 
-  FILE* outfs = fopen(opt_outfname, "w");
+  char outfname[1000];
+  snprintf(outfname, 999, "%s.type_info.txt", opt_out_base);
+
+  FILE* outfs = fopen(outfname, "w");
   PANIC_IF(outfs == NULL,
            errno,
            stderr,
            "Could not open '%s': %s",
-           opt_outfname,
+           opt_out_base,
            strerror(errno));
 
-  fprintf(outfs, "name type spans oligo");
+  INIT_HASHLIN(type2fs);
+
+  fprintf(outfs, "name\ttype\tspans\toligo");
   for (int n = 0; n < num_key_posns; ++n) {
-    fprintf(outfs, " pos.%d", key_posns[n]);
+    fprintf(outfs, "\tpos.%d", key_posns[n]);
   }
   fprintf(outfs, "\n");
   int num_ref_seqs = tommy_array_size(ref_seqs);
@@ -488,15 +543,58 @@ main(int argc, char *argv[])
       snprintf(type, 19, "%s_%s", rseq->key_chars, spans);
     }
 
+    /* check if type has a fs */
+    /* TODO only hash once */
+    t2fs = tommy_hashlin_search(type2fs,
+                              t2fs_compare,
+                              type,
+                              tommy_strhash_u32(0, type));
+
+    if (!t2fs) {
+      /* add the fs to the hash */
+      char fname[1000];
+      /* TODO validate */
+      snprintf(fname, 999, "%s.type.%s.fa", opt_out_base, type);
+
+      t2fs = malloc(sizeof *t2fs);
+      t2fs->type = strdup(type);
+      PANIC_MEM(t2fs->type, stderr);
+      t2fs->fs = fopen(fname, "w");
+      PANIC_IF(t2fs->fs == NULL,
+               errno,
+               stderr,
+               "Could not open '%s' for reading: %s",
+               fname,
+               strerror(errno));
+
+      tommy_hashlin_insert(type2fs,
+                           &t2fs->node,
+                           t2fs,
+                           tommy_strhash_u32(0, type));
+    }
+
+    /* now get the original non-gapped sequence */
+    rseq_t* rseq_orig = tommy_hashlin_search(header2rseq,
+                                             rseq_compare,
+                                             rseq->head,
+                                             rseq_hash_head(rseq));
+    PANIC_UNLESS(rseq_orig,
+                 STD_ERR,
+                 stderr,
+                 "Could not find original seq for '%s'\n",
+                 rseq->head);
+
+    rseq_print(t2fs->fs, rseq_orig);
+
     fprintf(outfs,
-            "%s %s %s %s",
+            "%s\t%s\t%s\t%s",
             rseq->head,
             type,
             spans,
             rseq->key_chars);
 
     for (int z = 0; z < num_key_posns; ++z) {
-      fprintf(outfs, " %c", rseq->key_chars[z]);
+      fprintf(outfs, "\t%c", rseq->key_chars[z]);
     }
     fprintf(outfs, "\n");
     rseq_destroy(rseq);
@@ -507,6 +605,7 @@ main(int argc, char *argv[])
   fclose(outfs);
 
   /* TODO clean up outfiles */
+
 
   for (int z = 0; z < tommy_array_size(ret_vals); ++z) {
     ret_val = tommy_array_get(ret_vals, z);
@@ -543,6 +642,13 @@ main(int argc, char *argv[])
     free(aln_args[i]);
   }
   free(aln_args);
+
+  tommy_hashlin_done(header2rseq);
+  free(header2rseq);
+
+  tommy_hashlin_foreach(type2fs, (tommy_foreach_func*)t2fs_destroy);
+  tommy_hashlin_done(type2fs);
+  free(type2fs);
 
   kseq_destroy(ref_seq);
   kseq_destroy(query_seq);

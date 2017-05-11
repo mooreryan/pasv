@@ -77,6 +77,7 @@ rseq_init(kseq_t* kseq)
   rseq->seq_len = kseq->seq.l;
 
   rseq->key_chars = NULL;
+  rseq->type = NULL;
   rseq->spans_region = 0;
 
   return rseq;
@@ -88,6 +89,7 @@ rseq_destroy(rseq_t* rseq)
   free(rseq->head);
   free(rseq->seq);
   free(rseq->key_chars);
+  free(rseq->type);
   free(rseq);
 }
 
@@ -99,4 +101,40 @@ rseq_print(FILE* fstream, rseq_t* rseq)
           "%s\n",
           rseq->head,
           rseq->seq);
+}
+
+int
+rseq_compare(const void* arg, const void* rseq)
+{
+  return strcmp((const char*)arg,
+                ((const rseq_t*)rseq)->head);
+}
+
+tommy_uint32_t
+rseq_hash_head(rseq_t* rseq)
+{
+  return tommy_strhash_u32(0, rseq->head);
+}
+
+void
+rseq_try_insert_hashlin(rseq_t* rseq, tommy_hashlin* hash)
+{
+  rseq_t* tmp = NULL;
+  tommy_uint32_t hashed_head = rseq_hash_head(rseq);
+
+  tmp = tommy_hashlin_search(hash,
+                             rseq_compare,
+                             rseq->head,
+                             hashed_head);
+
+  PANIC_IF(tmp,
+           STD_ERR,
+           stderr,
+           "Header '%s' is repeated",
+           rseq->head);
+
+  tommy_hashlin_insert(hash,
+                       &rseq->node,
+                       rseq,
+                       hashed_head);
 }
