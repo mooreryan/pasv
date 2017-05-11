@@ -63,9 +63,6 @@
     }                                                           \
   } while (0)
 
-void
-panic_unless_file_can_be_read(char* fname);
-
 #define PANIC_UNLESS_FILE_CAN_BE_READ(iostream, fname)                  \
   do {                                                                  \
     int err_codes_fd = open(fname, O_RDONLY);                           \
