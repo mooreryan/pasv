@@ -370,12 +370,28 @@ main(int argc, char *argv[])
   struct aln_arg_t** aln_args = malloc(sizeof *aln_args * num_threads);
   PANIC_MEM(aln_args, stderr);
 
+
+
+  rseq_t* tmp_rseq = NULL;
+  /* Parse the ref and query seqs */
   while ((l = kseq_read(ref_seq)) >= 0) {
-    tommy_array_insert(ref_seqs, strdup(ref_seq->seq.s));
+    tmp_rseq = rseq_init(ref_seq);
+    PANIC_IF(tmp_rseq == NULL,
+             STD_ERR,
+             stderr,
+             "Couldn't make rseq");
+
+    tommy_array_insert(ref_seqs, tmp_rseq);
   }
 
   while ((l = kseq_read(query_seq)) >= 0) {
-    tommy_array_insert(query_seqs, strdup(query_seq->seq.s));
+    tmp_rseq = rseq_init(query_seq);
+    PANIC_IF(tmp_rseq == NULL,
+             STD_ERR,
+             stderr,
+             "Couldn't make rseq");
+
+    tommy_array_insert(query_seqs, tmp_rseq);
   }
 
   for (i = 0; i < num_threads; ++i) {
@@ -510,11 +526,11 @@ main(int argc, char *argv[])
   free(outfiles);
 
   for (int z = 0; z < tommy_array_size(ref_seqs); ++z) {
-    free(tommy_array_get(ref_seqs, z));
+    rseq_destroy(tommy_array_get(ref_seqs, z));
   }
 
   for (int z = 0; z < tommy_array_size(query_seqs); ++z) {
-    free(tommy_array_get(query_seqs, z));
+    rseq_destroy(tommy_array_get(query_seqs, z));
   }
 
   tommy_array_done(query_seqs);

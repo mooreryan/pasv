@@ -76,6 +76,9 @@ rseq_init(kseq_t* kseq)
 
   rseq->seq_len = kseq->seq.l;
 
+  rseq->key_chars = NULL;
+  rseq->spans_region = 0;
+
   return rseq;
 }
 

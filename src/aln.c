@@ -7,6 +7,7 @@
 
 #include "aln.h"
 #include "err_codes.h"
+#include "rseq.h"
 
 /* If str is empty, will return "" in the array */
 tommy_array*
@@ -226,6 +227,7 @@ run_aln(void* the_arg)
   int query_i = 0;
   int tmp_stdout = 0;
   int redirect_flag[] = { 0 };
+  rseq_t* rseq = NULL;
 
   for (query_i = 0;
        query_i < tommy_array_size(aln_arg->query_seqs);
@@ -266,19 +268,13 @@ run_aln(void* the_arg)
 
       /* write the ref seqs */
       for (int x = 0; x < tommy_array_size(aln_arg->ref_seqs); ++x) {
-        fprintf(fp,
-                ">ref_%d thread_%d\n%s\n",
-                x,
-                tid,
-                tommy_array_get(aln_arg->ref_seqs, x));
+        rseq = tommy_array_get(aln_arg->ref_seqs, x);
+        rseq_print(fp, rseq);
       }
 
       /* and the query */
-      fprintf(fp,
-              ">query_%d thread_%d\n%s\n",
-              query_i,
-              tid,
-              tommy_array_get(aln_arg->query_seqs, query_i));
+      rseq = tommy_array_get(aln_arg->query_seqs, query_i);
+      rseq_print(fp, rseq);
       fclose(fp);
 
       pid = fork();
