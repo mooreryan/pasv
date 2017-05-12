@@ -1,98 +1,60 @@
-# Group Proteins
+# PASV
+
+**P**rotein **A**ctive **S**ite **V**alidater
+
+## Overview
 
 Partition protein sequences with respect to how they align with important positions on a reference sequence, for example, identifying phage lifestyle based on 762 position of the DNA polA protein in *E. coli*.
 
-It is basically a generalized version of [this](https://github.com/dnasko/dna_pola_762_caller) program, which was inspired by [this](http://www.nature.com/ismej/journal/v8/n1/full/ismej2013124a.html) paper by Schmidt et al. The user can pick any references with any regions of intersest and with any set of key residues with which to partition protein sequences.
+It is basically a generalized version of [this](https://github.com/dnasko/dna_pola_762_caller) program, which was inspired by [this](http://www.nature.com/ismej/journal/v8/n1/full/ismej2013124a.html) paper by Schmidt et al. The user can pick any references with any regions of intersest and with any set of key residues with which to partition protein sequences. Also, any alignmet software can be used for the alignment.
 
-## Requirements
+## Dependencies
 
-### Clustal Omega
+### Alignment software
 
-This program uses the [Clustal Omega C api](http://www.clustal.org/omega/clustalo-api/index.html) (version 1.2.4), so you are going to need to [install Clustal Omega from source](http://www.clustal.org/omega/clustal-omega-1.2.4.tar.gz).
+You need to have some kind of multiple sequence alignment software installed somewhere on your path. PASV supports MAAFT and Clustal Omega out of the box, but any MSA software will work as long as it is on your path.
 
-[Install](http://www.clustal.org/omega/clustal-omega-1.2.4.tar.gz) Clustal Omega version `1.2.4` to ensure that it works. I know for a fact it won't work with `1.1.0`, and any other versions, I'm not sure.
+## Installing
 
-### pkg-config
+### Get the code
 
-Not a hard requirement, but it makes compiling easier. You can find it [here](https://www.freedesktop.org/wiki/Software/pkg-config/).
-
-## Compiling
-
-With `pkg-config` you can just use the `Makefile`...
+Use git to clone the git repository.
 
 ```
-make
+$ git clone https://github.com/mooreryan/pasv.git
 ```
 
-And the binaries will be in the `bin` directory.
+### Compile it
 
-Right now the make file only works if you have `pkg-config`. If you don't want to install it, run these commands (replacing the actual location of your clustal libraries).
+`cd` into the `pasv` directory and type `make`.
 
-```
-mkdir -p bin
-gcc -Wall -g -O2 -o bin/split_seqs src/split_seqs.c -lz
-gcc -c -Wall -g -O2 -I/usr/local/include/clustalo/ src/group_seqs.c
-g++ -Wall -g -O2 -o bin/group_seqs -L/usr/local/lib -lclustalo group_seqs.o
-gcc -Wall -g -O2   -c -o vendor/tommyhashlin.o vendor/tommyhashlin.c
-gcc -Wall -g -O2   -c -o vendor/tommyhash.o vendor/tommyhash.c
-gcc -Wall -g -O2   -c -o vendor/tommylist.o vendor/tommylist.c
-gcc -Wall -g -O2 -o bin/partition_seqs vendor/tommyhashlin.o vendor/tommyhash.o vendor/tommylist.o src/partition_seqs.c -lz
-```
-
-Note the need for `g++`...it's needed for the clustal api.
-
-The file locations on your computer may be different.
+This will put the `pasv` binary program into a directory called `bin` in this folder. You can now move this file to somewhere on your path if you want.
 
 ## Usage
 
-The individual commands...
-
-### split_seqs
+### Synopsis
 
 ```
-USAGE: ./split_seqs <1: number of splits> <2: seq file>
-```
-
-### group_seqs
-
-```
-Usage: ./group_seqs <1: num iterations> <2: refs.fa> <3: queries.fa> <4: region start (1-based position)> <5: region end (1-based position)> pos1 pos2 ... posN
-```
-
-### partition_seqs
-
-```
-USAGE: bin/partition_seqs <1: seq file> *.seq_types
-```
-
-### Ruby wrapper script
-
-If you have ruby installed, you can run the above three commands in parallel.
-
-```
-USAGE: scripts/group_and_partition.rb bin_dir threads num_iters refs.fa queries.fa start end pos1 pos2 ... posN
+pasv [-a aligner] [-p 'alignment params'] [-i 'I/O format string'] [-s region_start] [-e region_end] -d alignment_file_dir -o output_base_name -t num_threads -r ref_seqs -q query_seqs pos1 [pos2 ...] 
 ```
 
 ### Example
 
-If I want to run the program with multiple cores...
-
-Split the query file up.
+You can run the test files like this.
 
 ```
-bin/split_seqs 3 test_files/16_references.fasta
+$ bin/pasv -a mafft -s 700 -e 800 -d align_dir -o pola -t 2 -r test_files/refs.fa -q test_files/queries.fa 762 765
 ```
 
-Make the group file for each of the split query files.
+And the output directory contents will be these...
 
 ```
-parallel --jobs 3 "bin/group_seqs 0 test_files/03_references.fasta {} -1 -1 762" ::: test_files/16_references.fasta.split_*
-```
+$ tree align_dir/
 
-And finally partition the original query file based on the type column.
-
-```
-bin/partition_seqs test_files/16_references.fasta test_files/16_references.fasta.split_*.seq_groups
+align_dir/
+├── pasv.q_0.t_0.aln.fa
+├── pasv.q_1.t_1.aln.fa
+└── pola.type_info.txt
 ```
 
 ## Picking reference sequences

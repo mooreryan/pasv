@@ -172,7 +172,7 @@ main(int argc, char *argv[])
   static char intro[] =
     "Trust the Process. Trust the PVCpipe.";
   static char usage[] =
-    "[-s region_start] [-e region_end] -d tmp_dir -t num_threads -r ref_seqs -q query_seqs pos1 [pos2 ...]";
+    "[-a aligner] [-p 'alignment params'] [-i 'I/O format string'] [-s region_start] [-e region_end] -d alignment_file_dir -o output_base_name -t num_threads -r ref_seqs -q query_seqs pos1 [pos2 ...]";
   static char options[] =
     "-h           Display help\n\n"
 
@@ -180,7 +180,7 @@ main(int argc, char *argv[])
     "-p <string>  Parameters to send to alignment program (in quotes). E.g., -p '--iter 10' (default: '')\n"
     "-i <string>  IO format string for alignment program. (default: '-i %s -o %s')\n\n"
 
-    "-d <string>  Directory for the tmp files\n"
+    "-d <string>  Directory for the alignment files\n"
     "-o <string>  Output base name\n"
 
     "-t <integer> Number of threads\n\n"
@@ -282,8 +282,6 @@ main(int argc, char *argv[])
            stderr,
            "Missing the -o argument. Try %s -h for help.",
            argv[0]);
-
-  PANIC_IF_FILE_CAN_BE_READ(stderr, opt_out_base);
 
   if (opt_aligner == NULL) {
     opt_aligner = "clustalo";
@@ -497,9 +495,16 @@ main(int argc, char *argv[])
   char type[20];
 
   char outfname[1000];
-  snprintf(outfname, 999, "%s.type_info.txt", opt_out_base);
+  snprintf(outfname,
+           999,
+           "%s/%s.type_info.txt",
+           opt_tmp_dir,
+           opt_out_base);
+
+  PANIC_IF_FILE_CAN_BE_READ(stderr, outfname);
 
   FILE* outfs = fopen(outfname, "w");
+
   PANIC_IF(outfs == NULL,
            errno,
            stderr,
@@ -546,15 +551,20 @@ main(int argc, char *argv[])
     /* check if type has a fs */
     /* TODO only hash once */
     t2fs = tommy_hashlin_search(type2fs,
-                              t2fs_compare,
-                              type,
-                              tommy_strhash_u32(0, type));
+                                t2fs_compare,
+                                type,
+                                tommy_strhash_u32(0, type));
 
     if (!t2fs) {
       /* add the fs to the hash */
       char fname[1000];
       /* TODO validate */
-      snprintf(fname, 999, "%s.type.%s.fa", opt_out_base, type);
+      snprintf(fname,
+               999,
+               "%s/%s.type.%s.fa",
+               opt_tmp_dir,
+               opt_out_base,
+               type);
 
       t2fs = malloc(sizeof *t2fs);
       t2fs->type = strdup(type);
