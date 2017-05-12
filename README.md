@@ -1,6 +1,6 @@
 # PASV
 
-**P**rotein **A**ctive **S**ite **V**alidater
+**P**rotein **A**ctive **S**ite **V**alidator
 
 ## Overview
 
@@ -35,7 +35,7 @@ This will put the `pasv` binary program into a directory called `bin` in this fo
 ### Synopsis
 
 ```
-pasv [-a aligner] [-p 'alignment params'] [-i 'I/O format string'] [-s region_start] [-e region_end] -d alignment_file_dir -o output_base_name -t num_threads -r ref_seqs -q query_seqs pos1 [pos2 ...] 
+pasv [-a aligner] [-p 'alignment params'] [-i 'I/O format string'] [-s region_start] [-e region_end] -d alignment_file_dir -o output_base_name -t num_threads -r ref_seqs -q query_seqs pos1 [pos2 ...]
 ```
 
 ### Example
