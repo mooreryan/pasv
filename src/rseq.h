@@ -5,7 +5,7 @@
 
 #include "../vendor/tommyhashlin.h"
 
-#include "kseq.h"
+#include "../vendor/kseq.h"
 
 KSEQ_INIT(gzFile, gzread)
 
