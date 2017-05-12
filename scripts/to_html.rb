@@ -8,7 +8,13 @@ opts = Trollop.options do
   banner <<-EOS
 
   Example:
-   ./to_html.rb --positions 100 50 --files `ls dir/*` > out.html && open out.html
+
+   ./to_html.rb --positions 100 50 --files `ls dir/*` > out.html
+
+  Known issues:
+
+    - The positions option highlights with respect to the columns of
+      the alignment rather than the original residue.
 
   Options:
   EOS
