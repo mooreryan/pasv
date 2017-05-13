@@ -87,6 +87,7 @@ get_aln_posns(char* aln_outfile,
 
   while ((l = kseq_read(seq)) >= 0) {
     ++seq_i;
+
     if (seq_i == 0) { /* this seq has the key positions */
       for (aln_i = 0; aln_i < seq->seq.l; ++aln_i) {
         if (seq->seq.s[aln_i] != '-') {
@@ -100,6 +101,7 @@ get_aln_posns(char* aln_outfile,
             aln_region_end = aln_i;
           }
 
+          /* TODO optiize this */
           for (key_posn_i = 0; key_posn_i < num_key_posns; ++key_posn_i) {
             if (ref_posn == key_posns[key_posn_i]) {
               aln_key_posns[key_posn_i] = aln_i;
@@ -107,9 +109,21 @@ get_aln_posns(char* aln_outfile,
           }
         }
       }
+      for (key_posn_i = 0; key_posn_i < num_key_posns; ++key_posn_i) {
+        PANIC_IF(key_posns[key_posn_i] >= ref_posn,
+                 STD_ERR,
+                 stderr,
+                 "Key pos %d is greater than length (%d) of seq '%s'",
+                 key_posns[key_posn_i],
+                 ref_posn,
+                 seq->name.s);
+      }
     } else if (seq_i == num_ref_seqs) { /* the query */
       int zz = 0;
       for (zz = 0; zz < num_key_posns; ++zz) {
+        assert(0 <= zz && zz < num_key_posns);
+        assert(0 <= aln_key_posns[zz] && aln_key_posns[zz] < seq->seq.l);
+
         key_chars[zz] = seq->seq.s[aln_key_posns[zz]];
       }
       key_chars[zz] = '\0';
@@ -614,9 +628,6 @@ main(int argc, char *argv[])
 
   fclose(outfs);
 
-  /* TODO clean up outfiles */
-
-
   for (int z = 0; z < tommy_array_size(ret_vals); ++z) {
     ret_val = tommy_array_get(ret_vals, z);
 
@@ -624,10 +635,19 @@ main(int argc, char *argv[])
       free(tommy_array_get(ret_val->outfiles, y));
     }
 
+    for (int y = 0; y < tommy_array_size(ret_val->infiles); ++y) {
+      free(tommy_array_get(ret_val->infiles, y));
+    }
+
+    tommy_array_done(ret_val->infiles);
     tommy_array_done(ret_val->outfiles);
+
+    free(ret_val->infiles);
     free(ret_val->outfiles);
+
     free(ret_val);
   }
+
   tommy_array_done(ret_vals);
   free(ret_vals);
 
