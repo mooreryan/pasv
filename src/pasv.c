@@ -20,6 +20,12 @@
 #include "rseq.h"
 #include "tommy_helper.h"
 
+/* #define VERSION "0.0.1" */
+/* #define COPYRIGHT "2017 Ryan Moore" */
+/* #define CONTACT "moorer@udel.edu" */
+/* #define WEBSITE "https://github.com/mooreryan/pasv" */
+/* #define LICENSE "GPLv3" */
+
 typedef struct t2fs_t {
   char* type;
   FILE* fs;
@@ -183,8 +189,15 @@ main(int argc, char *argv[])
 
   char* query_fname = NULL;
 
+  static char version_banner[] =
+    "  Version: 0.0.1\n"
+    "  Copyright: 2017 Ryan Moore\n"
+    "  Contact: moorer@udel.edu\n"
+    "  Website: https://github.com/mooreryan/pasv\n"
+    "  License: GPLv3\n";
+
   static char intro[] =
-    "Trust the Process. Trust the PVCpipe.";
+    "Trust the Process. Trust the PASV PVCpipe.";
   static char usage[] =
     "[-a aligner] [-p 'alignment params'] [-i 'I/O format string'] [-s region_start] [-e region_end] -d alignment_file_dir -o output_base_name -t num_threads -r ref_seqs -q query_seqs pos1 [pos2 ...]";
   static char options[] =
@@ -211,8 +224,9 @@ main(int argc, char *argv[])
   char doc_str[10000];
   snprintf(doc_str,
            9999,
-           "\n\n%s\n\nusage: %s %s\n\noptions:\n\n%s\n\n",
+           "\n\n%s\n\n%s\n\nusage: %s %s\n\noptions:\n\n%s\n\n",
            intro,
+           version_banner,
            argv[0],
            usage,
            options);
