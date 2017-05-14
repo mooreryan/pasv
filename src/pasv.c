@@ -54,7 +54,8 @@ get_aln_posns(char* aln_outfile,
               int num_key_posns,
               int* key_posns,
               int region_start,
-              int region_end)
+              int region_end,
+              tommy_hashlin* header2rseq)
 {
 
   int l = 0;
@@ -74,8 +75,12 @@ get_aln_posns(char* aln_outfile,
 
   gzFile seq_f;
   kseq_t* seq;
-  rseq_t* rseq;
 
+  rseq_t* first_ref_seq = NULL;
+  rseq_t* query_seq = NULL;
+
+  int first_ref_seq_found = 0;
+  int query_seq_found = 0;
   char* key_chars;
 
   seq_f = gzopen(aln_outfile, "r");
@@ -94,78 +99,113 @@ get_aln_posns(char* aln_outfile,
   while ((l = kseq_read(seq)) >= 0) {
     ++seq_i;
 
-    if (seq_i == 0) { /* this seq has the key positions */
-      for (aln_i = 0; aln_i < seq->seq.l; ++aln_i) {
-        if (seq->seq.s[aln_i] != '-') {
-          ++ref_posn;
+    /* get the rseq info */
+    rseq_t* tmp_rseq = NULL;
+    char* seq_header = get_header_from_kseq(seq);
+    PANIC_MEM(seq_header, stderr);
+    tmp_rseq = tommy_hashlin_search(header2rseq,
+                                    rseq_compare,
+                                    seq_header,
+                                    tommy_strhash_u32(0, seq_header));
 
-          if (ref_posn == region_start) {
-            aln_region_start = aln_i;
-          }
-
-          if (ref_posn == region_end) {
-            aln_region_end = aln_i;
-          }
-
-          /* TODO optiize this */
-          for (key_posn_i = 0; key_posn_i < num_key_posns; ++key_posn_i) {
-            if (ref_posn == key_posns[key_posn_i]) {
-              aln_key_posns[key_posn_i] = aln_i;
-            }
-          }
-        }
-      }
-      for (key_posn_i = 0; key_posn_i < num_key_posns; ++key_posn_i) {
-        PANIC_IF(key_posns[key_posn_i] >= ref_posn,
+    PANIC_UNLESS(tmp_rseq,
                  STD_ERR,
                  stderr,
-                 "Key pos %d is greater than length (%d) of seq '%s'",
-                 key_posns[key_posn_i],
-                 ref_posn,
-                 seq->name.s);
-      }
-    } else if (seq_i == num_ref_seqs) { /* the query */
-      int zz = 0;
-      for (zz = 0; zz < num_key_posns; ++zz) {
-        assert(0 <= zz && zz < num_key_posns);
-        assert(0 <= aln_key_posns[zz] && aln_key_posns[zz] < seq->seq.l);
+                 "Could not find seq '%s' in the header2rseq hash table\n",
+                 seq_header);
 
-        key_chars[zz] = seq->seq.s[aln_key_posns[zz]];
-      }
-      key_chars[zz] = '\0';
+    if (tmp_rseq->first_ref_seq == 1) {
+      assert(tmp_rseq->query_seq != 1);
+      assert(first_ref_seq_found == 0);
+      first_ref_seq_found = 1;
 
-      /* note, this seq is aligned */
-      if (region_start >= 0 && region_end >= region_start) {
-        for(zz = 0; zz < seq->seq.l; ++zz) {
-          if (zz <= region_start && seq->seq.s[zz] != '-') {
-            spans_start = 1;
-          }
+      first_ref_seq = rseq_init(seq);
+    } else if (tmp_rseq->query_seq == 1) {
+      assert(query_seq_found == 0);
 
-          if (zz >= region_end && seq->seq.s[zz] != '-') {
-            spans_end = 1;
-            break;
-          }
-        }
-
-        if (spans_start && spans_end) {
-          spans_region = 1;
-        } else {
-          spans_region = 0;
-        }
-      } else {
-        spans_region = -1;
-      }
-
-      rseq = rseq_init(seq);
-      rseq->key_chars = key_chars;
-      rseq->spans_region = spans_region;
+      query_seq_found = 1;
+      query_seq = rseq_init(seq);
     }
+
+    if (first_ref_seq_found == 1 && query_seq_found == 1) {
+      free(seq_header);
+      break;
+    }
+
+    free(seq_header);
   }
 
   gzclose(seq_f);
   kseq_destroy(seq);
 
-  return rseq;
+  /* get aln positions from the first ref seq */
+  for (aln_i = 0; aln_i < first_ref_seq->seq_len; ++aln_i) {
+    if (first_ref_seq->seq[aln_i] != '-') {
+      ++ref_posn;
+
+      if (ref_posn == region_start) {
+        aln_region_start = aln_i;
+      }
+
+      if (ref_posn == region_end) {
+        aln_region_end = aln_i;
+      }
+
+      /* TODO optiize this */
+      for (key_posn_i = 0; key_posn_i < num_key_posns; ++key_posn_i) {
+        if (ref_posn == key_posns[key_posn_i]) {
+          aln_key_posns[key_posn_i] = aln_i;
+        }
+      }
+    }
+  }
+  for (key_posn_i = 0; key_posn_i < num_key_posns; ++key_posn_i) {
+    PANIC_IF(key_posns[key_posn_i] >= ref_posn,
+             STD_ERR,
+             stderr,
+             "Key pos %d is greater than length (%d) of seq '%s'",
+             key_posns[key_posn_i],
+             ref_posn,
+             first_ref_seq->head);
+  }
+
+  /* TODO assert that there is only 1 query seq in this file */
+  int zz = 0;
+  for (zz = 0; zz < num_key_posns; ++zz) {
+    assert(0 <= zz && zz < num_key_posns);
+    assert(0 <= aln_key_posns[zz] && aln_key_posns[zz] < query_seq->seq_len);
+
+    key_chars[zz] = query_seq->seq[aln_key_posns[zz]];
+  }
+  key_chars[zz] = '\0';
+
+  /* note, this seq is aligned */
+  if (region_start >= 0 && region_end >= region_start) {
+    for(zz = 0; zz < query_seq->seq_len; ++zz) {
+      if (zz <= region_start && query_seq->seq[zz] != '-') {
+        spans_start = 1;
+      }
+
+      if (zz >= region_end && query_seq->seq[zz] != '-') {
+        spans_end = 1;
+        break;
+      }
+    }
+
+    if (spans_start && spans_end) {
+      spans_region = 1;
+    } else {
+      spans_region = 0;
+    }
+  } else {
+    spans_region = -1;
+  }
+
+  rseq_destroy(first_ref_seq);
+  query_seq->key_chars = key_chars;
+  query_seq->spans_region = spans_region;
+
+  return query_seq;
 }
 
 int
@@ -433,12 +473,22 @@ main(int argc, char *argv[])
   INIT_HASHLIN(header2rseq);
 
   /* Parse the ref and query seqs */
+  int seq_number = 0;
   while ((l = kseq_read(ref_seq)) >= 0) {
+
     tmp_rseq = rseq_init(ref_seq);
+
     PANIC_IF(tmp_rseq == NULL,
              STD_ERR,
              stderr,
              "Couldn't make rseq");
+
+    if (seq_number++ == 0) { /* this is the first seq */
+      tmp_rseq->first_ref_seq = 1;
+    } else {
+      tmp_rseq->first_ref_seq = 0;
+    }
+    tmp_rseq->query_seq = 0;
 
     rseq_try_insert_hashlin(tmp_rseq, header2rseq);
 
@@ -451,6 +501,9 @@ main(int argc, char *argv[])
              STD_ERR,
              stderr,
              "Couldn't make rseq");
+
+    tmp_rseq->first_ref_seq = 0;
+    tmp_rseq->query_seq = 1;
 
     rseq_try_insert_hashlin(tmp_rseq, header2rseq);
 
@@ -554,7 +607,8 @@ main(int argc, char *argv[])
                          num_key_posns,
                          key_posns,
                          region_start,
-                         region_end);
+                         region_end,
+                         header2rseq);
 
     switch(rseq->spans_region) {
     case -1:

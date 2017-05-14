@@ -20,12 +20,17 @@ typedef struct rseq_t {
   int head_len;
   int seq_len;
   int spans_region;
+  int first_ref_seq;
+  int query_seq;
 
 } rseq_t;
 
 /* Includes space for the terminating null char */
-static int
+int
 get_header_size(kseq_t* kseq);
+
+char*
+get_header_from_kseq(kseq_t* kseq);
 
 static int
 set_header(rseq_t* rseq,

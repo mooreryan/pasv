@@ -10,7 +10,7 @@
    null char.
 
 */
-static int
+int
 get_header_size(kseq_t* kseq)
 {
   if (kseq->comment.l && kseq->name.l) {
@@ -21,6 +21,38 @@ get_header_size(kseq_t* kseq)
   } else {
     return -1;
   }
+}
+
+/* Allocates a new char* on the heap */
+char*
+get_header_from_kseq(kseq_t* kseq)
+{
+  char* header = NULL;
+  int header_size = get_header_size(kseq);
+  PANIC_IF(header_size == -1,
+           STD_ERR,
+           stderr,
+           "Could not get header size for %s",
+           kseq->name.s);
+
+  char buf[header_size];
+
+  if (kseq->comment.l) {
+    snprintf(buf,
+             header_size,
+             "%s %s",
+             kseq->name.s,
+             kseq->comment.s);
+
+    /* TODO use strndup */
+    header = strdup(buf);
+  } else {
+    header = strdup(kseq->name.s);
+  }
+
+  PANIC_MEM(header, stderr);
+
+  return header;
 }
 
 /* Returns -1 on fail, 0 on sucess */
@@ -79,6 +111,8 @@ rseq_init(kseq_t* kseq)
   rseq->key_chars = NULL;
   rseq->type = NULL;
   rseq->spans_region = 0;
+  rseq->first_ref_seq = 0;
+  rseq->query_seq = 0;
 
   return rseq;
 }
