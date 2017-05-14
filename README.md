@@ -57,6 +57,76 @@ align_dir/
 └── pola.type_info.txt
 ```
 
+### Passing in command line args to the MSA software
+
+PASV can pass in command line arguments to whichever MSA software you want to use with the `-p` command. Say you want to do more iterations in Clustal Omega. The option for this is `--iter num_of_iterations`. So, to use 3 iterations, you would pass this flag to the `pasv` command
+
+```
+-p '--iter 3'
+```
+
+How about if we want to use MAFFT and adjust the gap opening penalty to 3. The option for gap opening penalty in MAFFT is `--op`. For fun, we can also change the `--maxiterate` option at the same time. So in PASV, you would do that like so
+
+```
+pasv -a mafft -p '--op 3 --maxiterate 1000' ...
+```
+
+This shows how you can pass in any command line args to the MSA software you want.
+
+### Using other alignment software
+
+Support for MAFFT and Clustal Omega are supported directly. However, any MSA software should work if it is on your path. You just need to set the `-i` option to tell `pasv` how you favorite MSA program handles input and output.
+
+#### Example
+
+If Clustal Omega weren't supported already, here is how you could use it with `pasv`.
+
+Running `clustalo --help` shows an example of running Clustal Omega like this...
+
+```
+clustalo -i my-in-seqs.fa -o my-out-seqs.fa -v
+```
+
+The key here is you specify input and output files to the program. In this case it is `-i input_file -o output_file`. To tell `pasv` how to use this, you would pass in `'-i %s -o %s'` to `pasv`'s `-i` option like so
+
+```
+pasv -a clustalo -i '-i %s -o %s' [other options]
+```
+
+#### Another example
+
+Let's see how we could use MAFFT if it weren't already available.
+
+MAFFT is a bit different in that it writes output to standard out rather than to a file directly. PASV can handle this too!
+
+First, run `mafft -h` to see how MAFFT handles input and output files. It's pretty simple...
+
+```
+mafft in > out
+```
+
+Nice...so how do we tell PASV about this? This is how the command would start...
+
+```
+pasv -a mafft -i '%s > %s' ...
+```
+
+#### Using a new aligner
+
+The last two examples were just to show you how the I/O format strings work in PASV. Let's try to use Muscle, which PASV does not support out of the box.
+
+First, figure out how `muscle` handles input and output by running `muscle -h`. You will see a bunch of stuff including 
+
+```
+muscle -in <inputfile> -out <outputfile>
+```
+
+Great, so now we build the I/O string like this `'-in %s -out %s'` and pass everything in to the `pasv` command like this
+
+```
+pasv -a muscle -i '-in %s -out %s' ...
+```
+
 ## Picking reference sequences
 
 You can include as many reference sequences as you would like, but make the the first one in the reference file is the one you want to annotate against. In other, this is the sequence with which columns in the aligment with be named.
