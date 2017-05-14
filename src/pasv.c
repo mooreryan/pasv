@@ -20,12 +20,6 @@
 #include "rseq.h"
 #include "tommy_helper.h"
 
-/* #define VERSION "0.0.1" */
-/* #define COPYRIGHT "2017 Ryan Moore" */
-/* #define CONTACT "moorer@udel.edu" */
-/* #define WEBSITE "https://github.com/mooreryan/pasv" */
-/* #define LICENSE "GPLv3" */
-
 typedef struct t2fs_t {
   char* type;
   FILE* fs;
@@ -230,7 +224,7 @@ main(int argc, char *argv[])
   char* query_fname = NULL;
 
   static char version_banner[] =
-    "  Version: 0.0.1\n"
+    "  Version: 0.0.2\n"
     "  Copyright: 2017 Ryan Moore\n"
     "  Contact: moorer@udel.edu\n"
     "  Website: https://github.com/mooreryan/pasv\n"
@@ -433,6 +427,13 @@ main(int argc, char *argv[])
   }
 
   for (opt_i = optind; opt_i < argc; ++opt_i) {
+    /* TODO switch to longs */
+    int num = strtol(argv[opt_i], NULL, 10) - 1;
+    PANIC_UNLESS(num >= 0,
+                 OPT_ERR,
+                 stderr,
+                 "key positions must be >= 1, got %d\n",
+                 num);
     key_posns[num_key_posns++] = strtol(argv[opt_i], NULL, 10) - 1;
   }
 
