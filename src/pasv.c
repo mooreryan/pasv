@@ -224,7 +224,7 @@ main(int argc, char *argv[])
   char* query_fname = NULL;
 
   static char version_banner[] =
-    "  Version: 0.0.2\n"
+    "  Version: 0.0.3\n"
     "  Copyright: 2017 Ryan Moore\n"
     "  Contact: moorer@udel.edu\n"
     "  Website: https://github.com/mooreryan/pasv\n"

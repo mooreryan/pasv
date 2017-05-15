@@ -161,14 +161,20 @@ rseq_try_insert_hashlin(rseq_t* rseq, tommy_hashlin* hash)
                              rseq->head,
                              hashed_head);
 
-  PANIC_IF(tmp,
-           STD_ERR,
-           stderr,
-           "Header '%s' is repeated",
-           rseq->head);
-
-  tommy_hashlin_insert(hash,
-                       &rseq->node,
-                       rseq,
-                       hashed_head);
+  if (tmp) { /* the seq is already there */
+    /* check if the two sequences are actually equal, if not panic */
+    /* TODO consider strncmp */
+    /* TODO make test files for this */
+    PANIC_IF(strcmp(rseq->seq, tmp->seq) != 0,
+             STD_ERR,
+             stderr,
+             "Header '%s' is repeated, but the sequences it "
+             "represents are not equal.",
+             rseq->head);
+  } else {
+    tommy_hashlin_insert(hash,
+                         &rseq->node,
+                         rseq,
+                         hashed_head);
+  }
 }
