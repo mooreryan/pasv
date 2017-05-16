@@ -21,6 +21,7 @@ typedef struct rseq_t {
   int seq_len;
   int spans_region;
   int first_ref_seq;
+  int ref_seq;
   int query_seq;
 
 } rseq_t;
@@ -53,7 +54,7 @@ rseq_compare(const void* arg, const void* rseq);
 tommy_uint32_t
 rseq_hash_head(rseq_t* rseq);
 
-void
+int
 rseq_try_insert_hashlin(rseq_t* rseq, tommy_hashlin* hash);
 
 

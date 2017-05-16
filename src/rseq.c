@@ -112,6 +112,7 @@ rseq_init(kseq_t* kseq)
   rseq->type = NULL;
   rseq->spans_region = 0;
   rseq->first_ref_seq = 0;
+  rseq->ref_seq = 0;
   rseq->query_seq = 0;
 
   return rseq;
@@ -150,7 +151,8 @@ rseq_hash_head(rseq_t* rseq)
   return tommy_strhash_u32(0, rseq->head);
 }
 
-void
+/* Returns 0 if the seq was NOT added, and 1 if it WAS added */
+int
 rseq_try_insert_hashlin(rseq_t* rseq, tommy_hashlin* hash)
 {
   rseq_t* tmp = NULL;
@@ -172,23 +174,14 @@ rseq_try_insert_hashlin(rseq_t* rseq, tommy_hashlin* hash)
              "represents are not equal.",
              rseq->head);
 
-    /* Sometimes a seq can be repeated in both the ref and query
-       files. In this case it's possible that it could be the first
-       ref seq AND a query seq. */
-    /* Now, check if the first_ref_seq and query_seq flags match. If
-       not, the rseq flag will be added to the tmp seq's flag */
-    if (rseq->first_ref_seq == 1 && tmp->first_ref_seq == 0) {
-      tmp->first_ref_seq = 1; /* set it to match the incoming rseq */
-    }
-
-    if (rseq->query_seq == 1 && tmp->query_seq == 0) {
-      tmp->query_seq = 1;
-    }
-
+    /* TODO validate the flags */
+    return 0;
   } else {
     tommy_hashlin_insert(hash,
                          &rseq->node,
                          rseq,
                          hashed_head);
+
+    return 1;
   }
 }

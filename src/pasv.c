@@ -113,7 +113,7 @@ get_aln_posns(char* aln_outfile,
       PANIC_IF(first_ref_seq_found > 1,
                STD_ERR,
                stderr,
-               "Found more than one key ref seq (%s) in file '%s'\n",
+               "Found more than one key ref seq '%s' in file '%s'\n",
                seq->name.s,
                aln_outfile);
 
@@ -123,11 +123,11 @@ get_aln_posns(char* aln_outfile,
     if (tmp_rseq->query_seq == 1) {
       ++query_seq_found;
 
-      PANIC_IF((query_seq_found > 1 && first_ref_seq_found == 0) ||
-               (query_seq_found > 2 && first_ref_seq_found == 1),
+      /* with the naming scheme there should only be one */
+      PANIC_IF(query_seq_found > 1,
                STD_ERR,
                stderr,
-               "Found more than one query seq (%s) in file '%s'\n",
+               "Found more than one pseudo query seq '%s' in file '%s'\n",
                seq->name.s,
                aln_outfile);
 
@@ -213,6 +213,7 @@ get_aln_posns(char* aln_outfile,
 int
 main(int argc, char *argv[])
 {
+  int ret_code = 0;
   tommy_hashlin* header2rseq = NULL;
   tommy_hashlin* type2fs = NULL;
   t2fs_t* t2fs = NULL;
@@ -232,11 +233,11 @@ main(int argc, char *argv[])
   char* query_fname = NULL;
 
   static char version_banner[] =
-    "  Version: 0.0.4\n"
+    "    Version: 0.0.5\n"
     "  Copyright: 2017 Ryan Moore\n"
-    "  Contact: moorer@udel.edu\n"
-    "  Website: https://github.com/mooreryan/pasv\n"
-    "  License: GPLv3\n";
+    "    Contact: moorer@udel.edu\n"
+    "    Website: https://github.com/mooreryan/pasv\n"
+    "    License: GPLv3\n";
 
   static char intro[] =
     "Trust the Process. Trust the PASV PVCpipe.";
@@ -265,7 +266,7 @@ main(int argc, char *argv[])
   /* TODO base this on actual doc str len */
   char doc_str[10000];
   snprintf(doc_str,
-           9999,
+           10000,
            "\n\n%s\n\n%s\n\nusage: %s %s\n\noptions:\n\n%s\n\n",
            intro,
            version_banner,
@@ -486,22 +487,42 @@ main(int argc, char *argv[])
   while ((l = kseq_read(ref_seq)) >= 0) {
 
     tmp_rseq = rseq_init(ref_seq);
-
     PANIC_IF(tmp_rseq == NULL,
              STD_ERR,
              stderr,
              "Couldn't make rseq");
+
+    /* one for the null and 6 for the ref___ */
+    int new_header_size = tmp_rseq->head_len + 1 + 6;
+    char* new_header = malloc(sizeof *new_header * new_header_size);
+    PANIC_MEM(new_header, stderr);
+    snprintf(new_header,
+             new_header_size,
+             "ref___%s",
+             tmp_rseq->head);
+
+    free(tmp_rseq->head);
+    tmp_rseq->head = new_header;
+    tmp_rseq->head_len = new_header_size - 1;
 
     if (seq_number++ == 0) { /* this is the first seq */
       tmp_rseq->first_ref_seq = 1;
     } else {
       tmp_rseq->first_ref_seq = 0;
     }
-    tmp_rseq->query_seq = 0;
+    tmp_rseq->ref_seq = 1;
 
-    rseq_try_insert_hashlin(tmp_rseq, header2rseq);
-
-    tommy_array_insert(ref_seqs, tmp_rseq);
+    ret_code = rseq_try_insert_hashlin(tmp_rseq, header2rseq);
+    if (ret_code == 1) {
+      tommy_array_insert(ref_seqs, tmp_rseq);
+    } else if (ret_code == 0) {
+      rseq_destroy(tmp_rseq);
+    } else {
+      PANIC_IF(1,
+               STD_ERR,
+               stderr,
+               "Something weird happened...");
+    }
   }
 
   while ((l = kseq_read(query_seq)) >= 0) {
@@ -511,12 +532,19 @@ main(int argc, char *argv[])
              stderr,
              "Couldn't make rseq");
 
-    tmp_rseq->first_ref_seq = 0;
     tmp_rseq->query_seq = 1;
 
-    rseq_try_insert_hashlin(tmp_rseq, header2rseq);
-
-    tommy_array_insert(query_seqs, tmp_rseq);
+    ret_code = rseq_try_insert_hashlin(tmp_rseq, header2rseq);
+    if (ret_code == 1) {
+      tommy_array_insert(query_seqs, tmp_rseq);
+    } else if (ret_code == 0) {
+      rseq_destroy(tmp_rseq);
+    } else {
+      PANIC_IF(1,
+               STD_ERR,
+               stderr,
+               "Something weird happened...");
+    }
   }
 
   for (i = 0; i < num_threads; ++i) {
@@ -586,7 +614,7 @@ main(int argc, char *argv[])
 
   char outfname[1000];
   snprintf(outfname,
-           999,
+           1000,
            "%s/%s.type_info.txt",
            opt_tmp_dir,
            opt_out_base);
@@ -621,22 +649,22 @@ main(int argc, char *argv[])
 
     switch(rseq->spans_region) {
     case -1:
-      snprintf(spans, 9, "NA");
+      snprintf(spans, 10, "NA");
       break;
     case 0:
-      snprintf(spans, 9, "No");
+      snprintf(spans, 10, "No");
       break;
     case 1:
-      snprintf(spans, 9, "Yes");
+      snprintf(spans, 10, "Yes");
       break;
     default:
       assert(0);
     }
 
     if (rseq->spans_region == -1) {
-      snprintf(type, 19, "%s", rseq->key_chars);
+      snprintf(type, 20, "%s", rseq->key_chars);
     } else {
-      snprintf(type, 19, "%s_%s", rseq->key_chars, spans);
+      snprintf(type, 20, "%s_%s", rseq->key_chars, spans);
     }
 
     /* check if type has a fs */
@@ -651,7 +679,7 @@ main(int argc, char *argv[])
       char fname[1000];
       /* TODO validate */
       snprintf(fname,
-               999,
+               1000,
                "%s/%s.type.%s.fa",
                opt_tmp_dir,
                opt_out_base,
