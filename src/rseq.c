@@ -171,6 +171,20 @@ rseq_try_insert_hashlin(rseq_t* rseq, tommy_hashlin* hash)
              "Header '%s' is repeated, but the sequences it "
              "represents are not equal.",
              rseq->head);
+
+    /* Sometimes a seq can be repeated in both the ref and query
+       files. In this case it's possible that it could be the first
+       ref seq AND a query seq. */
+    /* Now, check if the first_ref_seq and query_seq flags match. If
+       not, the rseq flag will be added to the tmp seq's flag */
+    if (rseq->first_ref_seq == 1 && tmp->first_ref_seq == 0) {
+      tmp->first_ref_seq = 1; /* set it to match the incoming rseq */
+    }
+
+    if (rseq->query_seq == 1 && tmp->query_seq == 0) {
+      tmp->query_seq = 1;
+    }
+
   } else {
     tommy_hashlin_insert(hash,
                          &rseq->node,

@@ -109,21 +109,29 @@ get_aln_posns(char* aln_outfile,
                  seq_header);
 
     if (tmp_rseq->first_ref_seq == 1) {
-      assert(tmp_rseq->query_seq != 1);
-      assert(first_ref_seq_found == 0);
-      first_ref_seq_found = 1;
+      ++first_ref_seq_found;
+      PANIC_IF(first_ref_seq_found > 1,
+               STD_ERR,
+               stderr,
+               "Found more than one key ref seq (%s) in file '%s'\n",
+               seq->name.s,
+               aln_outfile);
 
       first_ref_seq = rseq_init(seq);
-    } else if (tmp_rseq->query_seq == 1) {
-      assert(query_seq_found == 0);
-
-      query_seq_found = 1;
-      query_seq = rseq_init(seq);
     }
 
-    if (first_ref_seq_found == 1 && query_seq_found == 1) {
-      free(seq_header);
-      break;
+    if (tmp_rseq->query_seq == 1) {
+      ++query_seq_found;
+
+      PANIC_IF((query_seq_found > 1 && first_ref_seq_found == 0) ||
+               (query_seq_found > 2 && first_ref_seq_found == 1),
+               STD_ERR,
+               stderr,
+               "Found more than one query seq (%s) in file '%s'\n",
+               seq->name.s,
+               aln_outfile);
+
+      query_seq = rseq_init(seq);
     }
 
     free(seq_header);
@@ -224,7 +232,7 @@ main(int argc, char *argv[])
   char* query_fname = NULL;
 
   static char version_banner[] =
-    "  Version: 0.0.3\n"
+    "  Version: 0.0.4\n"
     "  Copyright: 2017 Ryan Moore\n"
     "  Contact: moorer@udel.edu\n"
     "  Website: https://github.com/mooreryan/pasv\n"
@@ -598,7 +606,7 @@ main(int argc, char *argv[])
 
   fprintf(outfs, "name\ttype\tspans\toligo");
   for (int n = 0; n < num_key_posns; ++n) {
-    fprintf(outfs, "\tpos.%d", key_posns[n]);
+    fprintf(outfs, "\tpos.%d", key_posns[n] + 1);
   }
   fprintf(outfs, "\n");
   int num_ref_seqs = tommy_array_size(ref_seqs);
