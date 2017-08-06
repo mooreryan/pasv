@@ -73,6 +73,8 @@ pasv -a mafft -p '--op 3 --maxiterate 1000' ...
 
 This shows how you can pass in any command line args to the MSA software you want.
 
+*Note*: When using `clustalo`, you should probably pass in `-p '--threads 1'` because Clustal will default to using all cpus, which can lead to errors creating threads.
+
 ### Using other alignment software
 
 Support for MAFFT and Clustal Omega are supported directly. However, any MSA software should work if it is on your path. You just need to set the `-i` option to tell `pasv` how you favorite MSA program handles input and output.
@@ -115,7 +117,7 @@ pasv -a mafft -i '%s > %s' ...
 
 The last two examples were just to show you how the I/O format strings work in PASV. Let's try to use Muscle, which PASV does not support out of the box.
 
-First, figure out how `muscle` handles input and output by running `muscle -h`. You will see a bunch of stuff including 
+First, figure out how `muscle` handles input and output by running `muscle -h`. You will see a bunch of stuff including
 
 ```
 muscle -in <inputfile> -out <outputfile>
@@ -130,3 +132,7 @@ pasv -a muscle -i '-in %s -out %s' ...
 ## Picking reference sequences
 
 You can include as many reference sequences as you would like, but make the the first one in the reference file is the one you want to annotate against. In other, this is the sequence with which columns in the aligment with be named.
+
+## Known Issues
+
+When using Clustal Omega, we recommend passing in `-p '--threads 1'` or to some other low number because Clustal Omega uses all cpus by default.

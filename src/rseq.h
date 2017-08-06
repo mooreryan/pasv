@@ -14,9 +14,12 @@ typedef struct rseq_t {
   char* seq;
   char* key_chars;
   char* type;
+  char* id; /* This is everything up to the first space in the header */
 
   tommy_node node;
 
+  /* TODO do these lengths include the terminating null char? */
+  int id_len;
   int head_len;
   int seq_len;
   int spans_region;

@@ -107,6 +107,8 @@ rseq_init(kseq_t* kseq)
   PANIC_MEM(rseq->seq, stderr);
 
   rseq->seq_len = kseq->seq.l;
+  rseq->id_len = kseq->name.l;
+  rseq->id = strdup(kseq->name.s);
 
   rseq->key_chars = NULL;
   rseq->type = NULL;
@@ -125,6 +127,7 @@ rseq_destroy(rseq_t* rseq)
   free(rseq->seq);
   free(rseq->key_chars);
   free(rseq->type);
+  free(rseq->id);
   free(rseq);
 }
 
@@ -138,11 +141,12 @@ rseq_print(FILE* fstream, rseq_t* rseq)
           rseq->seq);
 }
 
+/* Compares rseqs on the id. */
 int
 rseq_compare(const void* arg, const void* rseq)
 {
   return strcmp((const char*)arg,
-                ((const rseq_t*)rseq)->head);
+                ((const rseq_t*)rseq)->id);
 }
 
 tommy_uint32_t
@@ -152,16 +156,17 @@ rseq_hash_head(rseq_t* rseq)
 }
 
 /* Returns 0 if the seq was NOT added, and 1 if it WAS added */
+/* Key everything on the ID since the aligners will cut off large headers. */
 int
 rseq_try_insert_hashlin(rseq_t* rseq, tommy_hashlin* hash)
 {
   rseq_t* tmp = NULL;
-  tommy_uint32_t hashed_head = rseq_hash_head(rseq);
+  tommy_uint32_t hashed_id = tommy_strhash_u32(0, rseq->id);
 
   tmp = tommy_hashlin_search(hash,
                              rseq_compare,
-                             rseq->head,
-                             hashed_head);
+                             rseq->id,
+                             hashed_id);
 
   if (tmp) { /* the seq is already there */
     /* check if the two sequences are actually equal, if not panic */
@@ -170,9 +175,9 @@ rseq_try_insert_hashlin(rseq_t* rseq, tommy_hashlin* hash)
     PANIC_IF(strcmp(rseq->seq, tmp->seq) != 0,
              STD_ERR,
              stderr,
-             "Header '%s' is repeated, but the sequences it "
-             "represents are not equal.",
-             rseq->head);
+             "The id '%s' is repeated, but the sequences it "
+             "represents are not the same.",
+             rseq->id);
 
     /* TODO validate the flags */
     return 0;
@@ -180,7 +185,7 @@ rseq_try_insert_hashlin(rseq_t* rseq, tommy_hashlin* hash)
     tommy_hashlin_insert(hash,
                          &rseq->node,
                          rseq,
-                         hashed_head);
+                         hashed_id);
 
     return 1;
   }

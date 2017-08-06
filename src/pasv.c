@@ -20,6 +20,18 @@
 #include "rseq.h"
 #include "tommy_helper.h"
 
+void
+jrseq_print(void* rs)
+{
+  rseq_t* rseq = rs;
+
+  fprintf(stderr,
+          ">%s\n"
+          "%s\n",
+          rseq->head,
+          rseq->seq);
+}
+
 typedef struct t2fs_t {
   char* type;
   FILE* fs;
@@ -49,7 +61,7 @@ get_aln_posns(char* aln_outfile,
               int* key_posns,
               int region_start,
               int region_end,
-              tommy_hashlin* header2rseq)
+              tommy_hashlin* id2rseq)
 {
 
   int l = 0;
@@ -95,18 +107,17 @@ get_aln_posns(char* aln_outfile,
 
     /* get the rseq info */
     rseq_t* tmp_rseq = NULL;
-    char* seq_header = get_header_from_kseq(seq);
-    PANIC_MEM(seq_header, stderr);
-    tmp_rseq = tommy_hashlin_search(header2rseq,
+    char* seq_id = seq->name.s;
+    tmp_rseq = tommy_hashlin_search(id2rseq,
                                     rseq_compare,
-                                    seq_header,
-                                    tommy_strhash_u32(0, seq_header));
+                                    seq_id,
+                                    tommy_strhash_u32(0, seq_id));
 
     PANIC_UNLESS(tmp_rseq,
                  STD_ERR,
                  stderr,
-                 "Could not find seq '%s' in the header2rseq hash table\n",
-                 seq_header);
+                 "Could not find seq '%s' in the id2rseq hash table. If the header shown here looks as though it is missing some of the actual header from the end, your headers are probably longer than what is supported by the aligner.\n",
+                 seq_id);
 
     if (tmp_rseq->first_ref_seq == 1) {
       ++first_ref_seq_found;
@@ -133,8 +144,6 @@ get_aln_posns(char* aln_outfile,
 
       query_seq = rseq_init(seq);
     }
-
-    free(seq_header);
   }
 
   gzclose(seq_f);
@@ -214,7 +223,7 @@ int
 main(int argc, char *argv[])
 {
   int ret_code = 0;
-  tommy_hashlin* header2rseq = NULL;
+  tommy_hashlin* id2rseq = NULL;
   tommy_hashlin* type2fs = NULL;
   t2fs_t* t2fs = NULL;
 
@@ -365,6 +374,8 @@ main(int argc, char *argv[])
       fprintf(stderr, "INFO -- clustalo was selected...ignoring -i option\n");
     }
     opt_io_fmt_str = "-i %s -o %s";
+
+
   } else if (strcmp(opt_aligner, "mafft") == 0) {
     if (opt_io_fmt_str != NULL) {
       fprintf(stderr, "INFO -- mafft was selected...ignoring -i option\n");
@@ -379,7 +390,6 @@ main(int argc, char *argv[])
              "own I/O format string.",
              opt_aligner);
   }
-
 
   if (opt_prefs == NULL) {
     opt_prefs = "";
@@ -480,7 +490,7 @@ main(int argc, char *argv[])
 
   rseq_t* tmp_rseq = NULL;
 
-  INIT_HASHLIN(header2rseq);
+  INIT_HASHLIN(id2rseq);
 
   /* Parse the ref and query seqs */
   int seq_number = 0;
@@ -493,17 +503,29 @@ main(int argc, char *argv[])
              "Couldn't make rseq");
 
     /* one for the null and 6 for the ref___ */
-    int new_header_size = tmp_rseq->head_len + 1 + 6;
-    char* new_header = malloc(sizeof *new_header * new_header_size);
-    PANIC_MEM(new_header, stderr);
-    snprintf(new_header,
-             new_header_size,
+    int new_head_size = tmp_rseq->head_len + 1 + 6;
+    char* new_head = malloc(sizeof *new_head * new_head_size);
+    PANIC_MEM(new_head, stderr);
+    snprintf(new_head,
+             new_head_size,
              "ref___%s",
              tmp_rseq->head);
 
     free(tmp_rseq->head);
-    tmp_rseq->head = new_header;
-    tmp_rseq->head_len = new_header_size - 1;
+    tmp_rseq->head = new_head;
+    tmp_rseq->head_len = new_head_size - 1;
+
+    int new_id_size = tmp_rseq->id_len + 1 + 6;
+    char* new_id = malloc(sizeof *new_id * new_id_size);
+    PANIC_MEM(new_id, stderr);
+    snprintf(new_id,
+             new_id_size,
+             "ref___%s",
+             tmp_rseq->id);
+
+    free(tmp_rseq->id);
+    tmp_rseq->id = new_id;
+    tmp_rseq->id_len = new_id_size - 1;
 
     if (seq_number++ == 0) { /* this is the first seq */
       tmp_rseq->first_ref_seq = 1;
@@ -512,7 +534,7 @@ main(int argc, char *argv[])
     }
     tmp_rseq->ref_seq = 1;
 
-    ret_code = rseq_try_insert_hashlin(tmp_rseq, header2rseq);
+    ret_code = rseq_try_insert_hashlin(tmp_rseq, id2rseq);
     if (ret_code == 1) {
       tommy_array_insert(ref_seqs, tmp_rseq);
     } else if (ret_code == 0) {
@@ -534,7 +556,7 @@ main(int argc, char *argv[])
 
     tmp_rseq->query_seq = 1;
 
-    ret_code = rseq_try_insert_hashlin(tmp_rseq, header2rseq);
+    ret_code = rseq_try_insert_hashlin(tmp_rseq, id2rseq);
     if (ret_code == 1) {
       tommy_array_insert(query_seqs, tmp_rseq);
     } else if (ret_code == 0) {
@@ -543,7 +565,7 @@ main(int argc, char *argv[])
       PANIC_IF(1,
                STD_ERR,
                stderr,
-               "Something weird happened...");
+               "Should never get here. Something weird happened...");
     }
   }
 
@@ -595,12 +617,12 @@ main(int argc, char *argv[])
       char* infile = tommy_array_get(ret_val->infiles, j);
       PANIC_UNLESS_FILE_CAN_BE_READ(stderr, infile);
 
-      if (unlink(infile) == -1) {
-        fprintf(stderr,
-                "WARN -- could not delete tmp file '%s': %s\n",
-                infile,
-                strerror(errno));
-      }
+      /* if (unlink(infile) == -1) { */
+      /*   fprintf(stderr, */
+      /*           "WARN -- could not delete tmp file '%s': %s\n", */
+      /*           infile, */
+      /*           strerror(errno)); */
+      /* } */
     }
   }
 
@@ -645,7 +667,7 @@ main(int argc, char *argv[])
                          key_posns,
                          region_start,
                          region_end,
-                         header2rseq);
+                         id2rseq);
 
     switch(rseq->spans_region) {
     case -1:
@@ -703,10 +725,10 @@ main(int argc, char *argv[])
     }
 
     /* now get the original non-gapped sequence */
-    rseq_t* rseq_orig = tommy_hashlin_search(header2rseq,
+    rseq_t* rseq_orig = tommy_hashlin_search(id2rseq,
                                              rseq_compare,
-                                             rseq->head,
-                                             rseq_hash_head(rseq));
+                                             rseq->id,
+                                             tommy_strhash_u32(0, rseq->id));
     PANIC_UNLESS(rseq_orig,
                  STD_ERR,
                  stderr,
@@ -778,8 +800,8 @@ main(int argc, char *argv[])
   }
   free(aln_args);
 
-  tommy_hashlin_done(header2rseq);
-  free(header2rseq);
+  tommy_hashlin_done(id2rseq);
+  free(id2rseq);
 
   tommy_hashlin_foreach(type2fs, (tommy_foreach_func*)t2fs_destroy);
   tommy_hashlin_done(type2fs);

@@ -41,6 +41,7 @@ tokenize(char* str, char* split_on)
   return tokens;
 }
 
+/* The io str is allowed to have default options */
 char*
 make_io_str(char* format, char* aln_infile, char* aln_outfile)
 {
