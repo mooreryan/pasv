@@ -28,33 +28,42 @@ $ git clone https://github.com/mooreryan/pasv.git
 
 `cd` into the `pasv` directory and type `make`.
 
-This will put the `pasv` binary program into a directory called `bin` in this folder. You can now move this file to somewhere on your path if you want.
+This will put the `pasv` binary program into a directory called `bin` in this folder. You can now move this file to somewhere on your path if you want. Or make a symlink to somewhere on your path.
 
 ## Usage
 
 ### Synopsis
 
 ```
-pasv [-a aligner] [-p 'alignment params'] [-i 'I/O format string'] [-s region_start] [-e region_end] -d alignment_file_dir -o output_base_name -t num_threads -r ref_seqs -q query_seqs pos1 [pos2 ...]
+USAGE: pasv [-a aligner] [-p 'alignment params'] [-i 'I/O format string'] [-s region_start] [-e region_end] [-b output_base_name] [-o alignment_file_dir] [-t num_threads] -r ref_seqs -q query_seqs pos1 [pos2 ...]
 ```
 
 ### Example
 
-You can run the test files like this.
+You can run PASV on the test files by running `make test` or by using a command like this:
 
 ```
-$ bin/pasv -a mafft -s 700 -e 800 -d align_dir -o pola -t 2 -r test_files/refs.fa -q test_files/queries.fa 762 765
+$ bin/pasv -t 4 -r test_files/refs.fa -q test_files/queries.fa -s 700 -e 800 762 763
 ```
 
 And the output directory contents will be these...
 
 ```
-$ tree align_dir/
+$ tree pasv_outdir/
 
-align_dir/
-├── pasv.q_0.t_0.aln.fa
-├── pasv.q_1.t_1.aln.fa
-└── pola.type_info.txt
+pasv_outdir/
+├── clustalo_alignments
+│   ├── pasv.refs_and_query_1.aln_clustalo.fa
+│   ├── pasv.refs_and_query_2.aln_clustalo.fa
+│   ├── pasv.refs_and_query_3.aln_clustalo.fa
+│   └── pasv.refs_and_query_4.aln_clustalo.fa
+├── partitioned_seqs
+│   ├── pasv.partition_FG_Yes.fa
+│   ├── pasv.partition_YA_Yes.fa
+│   └── pasv.partition_YG_Yes.fa
+└── pasv.partition_info.txt
+
+2 directories, 8 files
 ```
 
 ### Passing in command line args to the MSA software
