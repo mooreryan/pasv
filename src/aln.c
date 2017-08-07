@@ -169,6 +169,7 @@ aln_arg_init(tommy_array* ref_seqs,
              int tid,
              int num_workers,
              char* tmp_dir,
+             char* out_basename,
              char* query_fname,
              char* aligner,
              char* prefs,
@@ -177,15 +178,16 @@ aln_arg_init(tommy_array* ref_seqs,
   struct aln_arg_t* aln_arg = malloc(sizeof *aln_arg);
   PANIC_MEM(aln_arg, stderr);
 
-  aln_arg->ref_seqs    = ref_seqs;
-  aln_arg->query_seqs  = query_seqs;
-  aln_arg->tid         = tid;
-  aln_arg->num_workers = num_workers;
-  aln_arg->tmp_dir     = tmp_dir;
-  aln_arg->query_fname = query_fname;
-  aln_arg->aligner     = aligner;
-  aln_arg->prefs       = prefs;
-  aln_arg->io_fmt_str = io_fmt_str;
+  aln_arg->ref_seqs     = ref_seqs;
+  aln_arg->query_seqs   = query_seqs;
+  aln_arg->tid          = tid;
+  aln_arg->num_workers  = num_workers;
+  aln_arg->tmp_dir      = tmp_dir;
+  aln_arg->out_basename = out_basename;
+  aln_arg->query_fname  = query_fname;
+  aln_arg->aligner      = aligner;
+  aln_arg->prefs        = prefs;
+  aln_arg->io_fmt_str   = io_fmt_str;
 
   return aln_arg;
 }
@@ -242,12 +244,13 @@ run_aln(void* the_arg)
       char aln_infile[1000];
       snprintf(aln_infile,
                999,
-               "%s/pasv.q_%d.t_%d",
+               "%s/pasv.refs_and_query_%d",
                aln_arg->tmp_dir,
-               query_i, tid);
+               query_i+1);
 
+      /* TODO get length dynamically */
       char aln_outfile[1000];
-      snprintf(aln_outfile, 999, "%s.aln.fa", aln_infile);
+      snprintf(aln_outfile, 999, "%s.aln_%s.fa", aln_infile, aln_arg->aligner);
 
       /* TODO validate the strdups */
       tommy_array_insert(ret_val->infiles, strdup(aln_infile));
@@ -321,7 +324,9 @@ run_aln(void* the_arg)
           fclose(outfp);
         }
 
-        /* TODO gracefully handle aligner failure */
+        /* TODO ideally, restart any failed alignments, for now at
+           least die when the command failed. */
+        /* TODO execvp doesn't always return if the command failed */
         PANIC_IF(execvp(aln_arg->aligner, aln_argv) == -1,
                  errno,
                  stderr,
@@ -341,16 +346,6 @@ run_aln(void* the_arg)
         }
         free(aln_argv);
       }
-
-      /* WARN sometimes a different thread will still have this set to
-         the new fd and not stdout */
-      /* if (redirect_flag == 1) { */
-      /*   /\* Redirect back to stdout *\/ */
-      /*   PANIC_IF(dup2(tmp_stdout, STDOUT_FILENO) == -1, */
-      /*            errno, */
-      /*            stderr, */
-      /*            "Error redirecting back to stdout: %s", */
-      /*            strerror(errno)); */
     }
   }
 

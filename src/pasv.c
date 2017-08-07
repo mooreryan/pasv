@@ -237,12 +237,12 @@ main(int argc, char *argv[])
   char* opt_region_start = NULL;
   char* opt_region_end = NULL;
   char* opt_threads = NULL;
-  char* opt_tmp_dir = NULL;
+  char* opt_outdir = NULL;
 
   char* query_fname = NULL;
 
   static char version_banner[] =
-    "    Version: 0.0.6\n"
+    "    Version: 0.0.7\n"
     "  Copyright: 2017 Ryan Moore\n"
     "    Contact: moorer@udel.edu\n"
     "    Website: https://github.com/mooreryan/pasv\n"
@@ -251,7 +251,8 @@ main(int argc, char *argv[])
   static char intro[] =
     "Trust the Process. Trust the PASV PVCpipe.";
   static char usage[] =
-    "[-a aligner] [-p 'alignment params'] [-i 'I/O format string'] [-s region_start] [-e region_end] -d alignment_file_dir -o output_base_name -t num_threads -r ref_seqs -q query_seqs pos1 [pos2 ...]";
+    "[-a aligner] [-p 'alignment params'] [-i 'I/O format string'] [-s region_start] [-e region_end] [-b output_base_name] [-o alignment_file_dir] [-t num_threads] -r ref_seqs -q query_seqs pos1 [pos2 ...]\n\n"
+    "If you are not interested in a spanning region, do not pass -s and -e or pass '-s -1 -e -1'";
   static char options[] =
     "-h           Display help\n\n"
 
@@ -259,10 +260,10 @@ main(int argc, char *argv[])
     "-p <string>  Parameters to send to alignment program (in quotes). E.g., -p '--iter 10' (default: '')\n"
     "-i <string>  IO format string for alignment program. (default: '-i %s -o %s')\n\n"
 
-    "-d <string>  Directory for the alignment files\n"
-    "-o <string>  Output base name\n"
+    "-o <string>  Output directory (default: pasv_outdir)\n"
+    "-b <string>  Output base name (default: 'pasv')\n"
 
-    "-t <integer> Number of threads\n\n"
+    "-t <integer> Number of threads (default: 1)\n\n"
 
     "-r <string>  Fasta file with reference sequences\n"
     "-q <string>  Fasta file with query sequences\n\n"
@@ -288,8 +289,8 @@ main(int argc, char *argv[])
     case 'a':
       opt_aligner = optarg;
       break;
-    case 'd':
-      opt_tmp_dir = optarg;
+    case 'b':
+      opt_out_base = optarg;
       break;
     case 'e':
       opt_region_end = optarg;
@@ -301,7 +302,7 @@ main(int argc, char *argv[])
       opt_io_fmt_str = optarg;
       break;
     case 'o':
-      opt_out_base = optarg;
+      opt_outdir = optarg;
       break;
     case 'p':
       opt_prefs = optarg;
@@ -341,27 +342,23 @@ main(int argc, char *argv[])
            "Missing the -q argument. Try %s -h for help.",
            argv[0]);
 
-  PANIC_IF(opt_tmp_dir == NULL,
-           OPT_ERR,
-           stderr,
-           "Missing the -d argument. Try %s -h for help.",
-           argv[0]);
+  if (opt_outdir == NULL) {
+    opt_outdir = "pasv_outdir";
+  }
+
+  PANIC_UNLESS(mkdir(opt_outdir, 0755) == 0,
+               errno,
+               stderr,
+               "Error running mkdir(%s): %s\n",
+               opt_outdir,
+               strerror(errno));
 
   PANIC_UNLESS_FILE_CAN_BE_READ(stderr, opt_refs);
   PANIC_UNLESS_FILE_CAN_BE_READ(stderr, opt_queries);
 
-  PANIC_UNLESS(mkdir(opt_tmp_dir, 0755) == 0,
-               errno,
-               stderr,
-               "Error running mkdir(%s): %s\n",
-               opt_tmp_dir,
-               strerror(errno));
-
-  PANIC_IF(opt_out_base == NULL,
-           OPT_ERR,
-           stderr,
-           "Missing the -o argument. Try %s -h for help.",
-           argv[0]);
+  if (opt_out_base == NULL) {
+    opt_out_base = "pasv";
+  }
 
   if (opt_aligner == NULL) {
     opt_aligner = "clustalo";
@@ -574,7 +571,8 @@ main(int argc, char *argv[])
                                query_seqs,
                                i,
                                num_threads,
-                               opt_tmp_dir,
+                               opt_outdir,
+                               opt_out_base,
                                query_fname,
                                opt_aligner,
                                opt_prefs,
@@ -617,12 +615,12 @@ main(int argc, char *argv[])
       char* infile = tommy_array_get(ret_val->infiles, j);
       PANIC_UNLESS_FILE_CAN_BE_READ(stderr, infile);
 
-      /* if (unlink(infile) == -1) { */
-      /*   fprintf(stderr, */
-      /*           "WARN -- could not delete tmp file '%s': %s\n", */
-      /*           infile, */
-      /*           strerror(errno)); */
-      /* } */
+      if (unlink(infile) == -1) {
+        fprintf(stderr,
+                "WARN -- could not delete tmp file '%s': %s\n",
+                infile,
+                strerror(errno));
+      }
     }
   }
 
@@ -638,7 +636,7 @@ main(int argc, char *argv[])
   snprintf(outfname,
            1000,
            "%s/%s.type_info.txt",
-           opt_tmp_dir,
+           opt_outdir,
            opt_out_base);
 
   PANIC_IF_FILE_CAN_BE_READ(stderr, outfname);
@@ -649,7 +647,7 @@ main(int argc, char *argv[])
            errno,
            stderr,
            "Could not open '%s': %s",
-           opt_out_base,
+           outfname,
            strerror(errno));
 
   INIT_HASHLIN(type2fs);
@@ -702,8 +700,8 @@ main(int argc, char *argv[])
       /* TODO validate */
       snprintf(fname,
                1000,
-               "%s/%s.type.%s.fa",
-               opt_tmp_dir,
+               "%s/%s.type_%s.fa",
+               opt_outdir,
                opt_out_base,
                type);
 

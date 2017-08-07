@@ -15,6 +15,7 @@ struct aln_arg_t {
   tommy_array* query_seqs;
 
   char* tmp_dir;
+  char* out_basename;
   char* query_fname;
 
   char* aligner;
@@ -32,6 +33,7 @@ aln_arg_init(tommy_array* ref_seqs,
              int tid,
              int num_workers,
              char* tmp_dir,
+             char* out_basename,
              char* query_fname,
              char* aligner,
              char* prefs,

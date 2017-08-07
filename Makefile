@@ -32,8 +32,8 @@ clean:
 	-rm -r $(BIN) $(OBJS) *.o
 
 test: pasv
-	-rm -r output
-	$(BIN)/pasv -d output -o output -t 4 -r test_files/refs.fa -q test_files/queries.fa -s 700 -e 800 762 763
+	-rm -r pasv_outdir
+	$(BIN)/pasv -t 4 -r test_files/refs.fa -q test_files/queries.fa -s 700 -e 800 762 763
 
 lala: $(OBJS)
-	$(CC) $(CFLAGS) -o $(BIN)/$@ $^ $(SRC)/$@.c $(LDFLAGS)
+	$(CC) $(CFLAGS) -o $(BIN)/$@ $^ ignore/$@.c $(LDFLAGS)
