@@ -242,7 +242,7 @@ main(int argc, char *argv[])
   char* query_fname = NULL;
 
   static char version_banner[] =
-    "    Version: 0.0.7\n"
+    "    Version: 0.1.0\n"
     "  Copyright: 2017 Ryan Moore\n"
     "    Contact: moorer@udel.edu\n"
     "    Website: https://github.com/mooreryan/pasv\n"
@@ -353,15 +353,44 @@ main(int argc, char *argv[])
                opt_outdir,
                strerror(errno));
 
+  if (opt_aligner == NULL) {
+    opt_aligner = "clustalo";
+  }
+
+  /* Make the alignment dir */
+  char aln_dir[1000];
+  snprintf(aln_dir,
+           999,
+           "%s/%s_alignments",
+           opt_outdir,
+           opt_aligner);
+
+  PANIC_UNLESS(mkdir(aln_dir, 0755) == 0,
+               errno,
+               stderr,
+               "Error running mkdir(%s): %s\n",
+               aln_dir,
+               strerror(errno));
+
+  /* Make the partitioned seqs dir */
+  char partitions_dir[1000];
+  snprintf(partitions_dir,
+           999,
+           "%s/partitioned_seqs",
+           opt_outdir);
+
+  PANIC_UNLESS(mkdir(partitions_dir, 0755) == 0,
+               errno,
+               stderr,
+               "Error running mkdir(%s): %s\n",
+               partitions_dir,
+               strerror(errno));
+
   PANIC_UNLESS_FILE_CAN_BE_READ(stderr, opt_refs);
   PANIC_UNLESS_FILE_CAN_BE_READ(stderr, opt_queries);
 
   if (opt_out_base == NULL) {
     opt_out_base = "pasv";
-  }
-
-  if (opt_aligner == NULL) {
-    opt_aligner = "clustalo";
   }
 
   /* TODO use hash table lookup? */
@@ -571,7 +600,7 @@ main(int argc, char *argv[])
                                query_seqs,
                                i,
                                num_threads,
-                               opt_outdir,
+                               aln_dir,
                                opt_out_base,
                                query_fname,
                                opt_aligner,
@@ -591,13 +620,13 @@ main(int argc, char *argv[])
   for (i = 0; i < num_threads; ++i) {
     pthread_join(threads[i], (void**)&ret_val);
 
-    fprintf(stderr, "RET CODE: %d\n", ret_val->ret_code);
     /* TODO this check doesn't guard against all alignment failures */
     if (ret_val->ret_code != 0) {
       fprintf(stderr,
               "FATAL -- something went wrong with thread %d (%d)\n",
               i,
               ret_val->ret_code);
+      exit(THREAD_ERR);
     } else {
       tommy_array_insert(ret_vals, ret_val);
     }
@@ -637,7 +666,7 @@ main(int argc, char *argv[])
   char outfname[1000];
   snprintf(outfname,
            1000,
-           "%s/%s.type_info.txt",
+           "%s/%s.partition_info.txt",
            opt_outdir,
            opt_out_base);
 
@@ -654,7 +683,7 @@ main(int argc, char *argv[])
 
   INIT_HASHLIN(type2fs);
 
-  fprintf(outfs, "name\ttype\tspans\toligo");
+  fprintf(outfs, "name\tpartition\tspans\toligo");
   for (int n = 0; n < num_key_posns; ++n) {
     fprintf(outfs, "\tpos.%d", key_posns[n] + 1);
   }
@@ -702,8 +731,8 @@ main(int argc, char *argv[])
       /* TODO validate */
       snprintf(fname,
                1000,
-               "%s/%s.type_%s.fa",
-               opt_outdir,
+               "%s/%s.partition_%s.fa",
+               partitions_dir,
                opt_out_base,
                type);
 

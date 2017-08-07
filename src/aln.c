@@ -168,7 +168,7 @@ aln_arg_init(tommy_array* ref_seqs,
              tommy_array* query_seqs,
              int tid,
              int num_workers,
-             char* tmp_dir,
+             char* outdir,
              char* out_basename,
              char* query_fname,
              char* aligner,
@@ -182,7 +182,7 @@ aln_arg_init(tommy_array* ref_seqs,
   aln_arg->query_seqs   = query_seqs;
   aln_arg->tid          = tid;
   aln_arg->num_workers  = num_workers;
-  aln_arg->tmp_dir      = tmp_dir;
+  aln_arg->outdir      = outdir;
   aln_arg->out_basename = out_basename;
   aln_arg->query_fname  = query_fname;
   aln_arg->aligner      = aligner;
@@ -247,7 +247,7 @@ run_aln(void* the_arg)
       snprintf(aln_infile,
                999,
                "%s/pasv.refs_and_query_%d",
-               aln_arg->tmp_dir,
+               aln_arg->outdir,
                query_i+1);
 
       /* TODO get length dynamically */
