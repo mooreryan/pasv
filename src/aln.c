@@ -222,6 +222,8 @@ run_aln(void* the_arg)
     malloc(sizeof *ret_val);
   PANIC_MEM(ret_val, stderr);
 
+  ret_val->ret_code = 0;
+
   INIT_ARRAY(ret_val->infiles);
   INIT_ARRAY(ret_val->outfiles);
 
@@ -326,8 +328,10 @@ run_aln(void* the_arg)
 
         /* TODO ideally, restart any failed alignments, for now at
            least die when the command failed. */
-        /* TODO execvp doesn't always return if the command failed */
-        PANIC_IF(execvp(aln_arg->aligner, aln_argv) == -1,
+        /* TODO execvp doesn't always return if the command finished
+           but didn't have a zero return value. It will fail if it
+           can't find the aligner however. */
+        PANIC_IF(execvp(aln_arg->aligner, aln_argv),
                  errno,
                  stderr,
                  "The alignment command failed: %s\n",
@@ -340,6 +344,13 @@ run_aln(void* the_arg)
                  "Error while waiting on child process: %s",
                  strerror(errno));
 
+        /* Check if the child exited with 0 status (good exit) */
+        PANIC_IF(WEXITSTATUS(status) != 0,
+                 STD_ERR,
+                 stderr,
+                 "Something went wrong in the child process. "
+                 "The alignment probably failed.\n");
+
         int arg_i = 0;
         for (arg_i = 0; aln_argv[arg_i] != NULL; ++arg_i) {
           free(aln_argv[arg_i]);
@@ -349,6 +360,5 @@ run_aln(void* the_arg)
     }
   }
 
-  ret_val->ret_code = 0;
   pthread_exit(ret_val);
 }

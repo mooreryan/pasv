@@ -591,6 +591,8 @@ main(int argc, char *argv[])
   for (i = 0; i < num_threads; ++i) {
     pthread_join(threads[i], (void**)&ret_val);
 
+    fprintf(stderr, "RET CODE: %d\n", ret_val->ret_code);
+    /* TODO this check doesn't guard against all alignment failures */
     if (ret_val->ret_code != 0) {
       fprintf(stderr,
               "FATAL -- something went wrong with thread %d (%d)\n",
