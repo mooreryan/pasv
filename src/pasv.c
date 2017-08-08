@@ -242,7 +242,7 @@ main(int argc, char *argv[])
   char* query_fname = NULL;
 
   static char version_banner[] =
-    "    Version: 0.1.0\n"
+    "    Version: 0.1.1\n"
     "  Copyright: 2017 Ryan Moore\n"
     "    Contact: moorer@udel.edu\n"
     "    Website: https://github.com/mooreryan/pasv\n"
@@ -268,8 +268,8 @@ main(int argc, char *argv[])
     "-r <string>  Fasta file with reference sequences\n"
     "-q <string>  Fasta file with query sequences\n\n"
 
-    "-s <integer> Region start to check for spanning (deault: -1)\n"
-    "-e <integer> Region end to check for spanning (deault: -1)\n";
+    "-s <integer> Region start to check for spanning (default: -1)\n"
+    "-e <integer> Region end to check for spanning (default: -1)\n";
 
 
 
@@ -284,7 +284,7 @@ main(int argc, char *argv[])
            usage,
            options);
 
-  while ((c = getopt(argc, argv, "a:d:e:hi:o:p:q:r:s:t:")) != -1) {
+  while ((c = getopt(argc, argv, "a:b:e:hi:o:p:q:r:s:t:")) != -1) {
     switch(c) {
     case 'a':
       opt_aligner = optarg;
