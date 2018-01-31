@@ -118,6 +118,11 @@ abort_if opts[:threads] < 1,
 abort_unless opts[:min_count] >= 1,
              "--min-count must be >= 1"
 
+if opts[:aligner] == "mafft"
+  opts[:alignment_parameters] = "--thread 1 --quiet"
+  opts[:io_format_string] = "%s > %s"
+end
+
 # TODO check that the start, end, and key posns are within they key seq.
 
 FileUtils.mkdir_p opts[:outdir]
