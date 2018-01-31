@@ -37,13 +37,13 @@ opts = Trollop.options do
 
   When you specify options for the aligner or I/O string for the
   aligner and those options start with a '-' (dash) character, you
-  must put a '\' (backslash) character in front of the dash like this:
+  must put a '\\' (backslash) character in front of the dash like this:
 
-    -p '\--threads 1 \--iterations 1'
+    -p '\\--threads 1 \\--iterations 1'
 
   or like this
 
-    -i '\-i %s \-o %s'
+    -i '\\-i %s \\-o %s'
 
   If some sequences have identical headers, only the first one will be
   kept.
@@ -206,8 +206,8 @@ begin
 
     oligo = PasvLib.get_oligo gapped_query_seq, KEY_POSNS, pos_to_gapped_pos
 
-    # FileUtils.rm aln_infile
-    # FileUtils.rm aln_outfile
+    FileUtils.rm aln_infile
+    FileUtils.rm aln_outfile
 
     [oligo,
      spans_region,
