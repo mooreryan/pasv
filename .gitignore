@@ -16,3 +16,5 @@ bugs.md
 release
 output
 pasv_outdir
+src/n_fold_splits.c
+test_files/ClassIandII_ref_subset5.fasta
