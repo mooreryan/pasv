@@ -1,0 +1,4 @@
+type	count
+CF_Yes	1
+ED_No	2
+ED_Yes	2

@@ -1,39 +1,10 @@
-CC = gcc
-MKDIR_P = mkdir -p
-
-CFLAGS = -Wall -g -O2 -Wno-unused-function
-LDFLAGS = -lz
-
-VENDOR = vendor
-SRC = src
-BIN = bin
 TEST_D = test_files
 
-OBJS := $(SRC)/aln.o \
-	$(SRC)/rseq.o \
-        $(VENDOR)/tommyarray.o \
-        $(VENDOR)/tommyhashlin.o \
-        $(VENDOR)/tommyhash.o \
-        $(VENDOR)/tommylist.o
-
-.PHONY: all
-.PHONY: clean
 .PHONY: test
 
-all: bin_dir pasv
-
-bin_dir:
-	$(MKDIR_P) $(BIN)
-
-pasv: $(OBJS)
-	$(CC) $(CFLAGS) -o $(BIN)/$@ $^ $(SRC)/$@.c $(LDFLAGS) -lpthread
-
-clean:
-	-rm -r $(BIN) $(OBJS) *.o
-
 test: pasv
-	-rm -r pasv_outdir
-	$(BIN)/pasv -t 4 -r test_files/refs.fa -q test_files/queries.fa -s 700 -e 800 762 763
-
-lala: $(OBJS)
-	$(CC) $(CFLAGS) -o $(BIN)/$@ $^ ignore/$@.c $(LDFLAGS)
+	rm -r pasv_outdir; ruby pasv -a mafft -i '%s > %s' -p '\--thread 1 \--quiet' -m 1 -t 4 -r $(TEST_D)/amk_ref.faa -q $(TEST_D)/amk_queries.faa -s 200 -e 800 -o pasv_outdir 500 501
+	diff pasv_outdir/pasv.partition_CF_Yes.fa $(TEST_D)/expected/pasv.partition_CF_Yes.fa
+	diff pasv_outdir/pasv.partition_ED_No.fa $(TEST_D)/expected/pasv.partition_ED_No.fa
+	diff pasv_outdir/pasv.partition_ED_Yes.fa $(TEST_D)/expected/pasv.partition_ED_Yes.fa
+	diff pasv_outdir/pasv_counts.txt $(TEST_D)/expected/pasv_counts.txt
