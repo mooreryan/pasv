@@ -1,0 +1,308 @@
+#!/usr/bin/env ruby
+Signal.trap("PIPE", "EXIT")
+
+require "abort_if"
+require "fileutils"
+require "parse_fasta"
+require "parallel"
+require "systemu"
+require "trollop"
+
+include AbortIf
+include AbortIf::Assert
+
+module CoreExtensions
+  module Time
+    def date_and_time fmt="%F %T.%L"
+      Object::Time.now.strftime fmt
+    end
+
+    def time_it title="", logger=nil, run: true
+      if run
+        t = Object::Time.now
+
+        yield
+
+        time = Object::Time.now - t
+
+        if title == ""
+          msg = "Finished in #{time} seconds"
+        else
+          msg = "#{title} finished in #{time} seconds"
+        end
+
+        if logger
+          logger.info msg
+        else
+          $stderr.puts msg
+        end
+      end
+    end
+  end
+
+  module Process
+    include CoreExtensions::Time
+
+    def run_it *a, &b
+      exit_status, stdout, stderr = systemu *a, &b
+
+
+      puts stdout unless stdout.empty?
+      unless stderr.empty? || stderr.include?("Insecure world writable dir")
+        $stderr.puts stderr
+      end
+
+      exit_status
+    end
+
+    def run_it! *a, &b
+      exit_status = self.run_it *a, &b
+
+      # Sometimes, exited? is not true and there will be no exit
+      # status. Success should catch all failures.
+      AbortIf.abort_unless exit_status.success?,
+                           "Command failed with status " +
+                           "'#{exit_status.to_s}' " +
+                           "when running '#{a.inspect}', " +
+                           "'#{b.inspect}'"
+
+      exit_status
+    end
+
+    # Examples
+    #
+    # Process.extend CoreExtensions::Process
+    # Time.extend CoreExtensions::Time
+    #
+    # Process.run_and_time_it! "Saying hello",
+    #                          %Q{echo "hello world"}
+    #
+    # Process.run_and_time_it! "This will raise SystemExit",
+    #                          "ls arstoeiarntoairnt" do
+    #   puts "i like pie"
+    # end
+    def run_and_time_it! title="",
+                         cmd="",
+                         logger=AbortIf::logger,
+                         &b
+
+      AbortIf.logger.debug { "Running: #{cmd}" }
+
+      time_it title, logger do
+        run_it! cmd, &b
+      end
+    end
+  end
+end
+
+VERSION = "0.1.1"
+VERSION_BANNER = %Q{  # Pipeline version: #{VERSION}
+  # Copyright 2017 - 2018 Ryan Moore
+  # Contact: moorer@udel.edu
+  # Website: https://github.com/mooreryan/pasv
+  # License: MIT}
+
+Time.extend CoreExtensions::Time
+Process.extend CoreExtensions::Process
+
+opts = Trollop.options do
+  version VERSION_BANNER
+  banner <<-EOS
+
+#{VERSION_BANNER}
+
+  Trust the Process. Trust the PASV.
+
+  Usage: pasv [-a aligner] [-p 'alignment params'] [-i 'I/O format string'] [-s region_start] [-e region_end] [-o outdir] [-t num cpus] -r ref_seqs -q query_seqs pos1 [pos2 ...]
+
+  If you are not interested in a spanning region, do not pass -s and
+  -e or pass '-s -1 -e -1'.
+
+  When you specify options for the aligner or I/O string for the
+  aligner and those options start with a '-' (dash) character, you
+  must put a '\' (backslash) character in front of the dash like this:
+
+    -p '\--threads 1 \--iterations 1'
+
+  or like this
+
+    -i '\-i %s \-o %s'
+
+
+  Options:
+  EOS
+
+  opt(:refs,
+      "(required) Fasta with refs",
+      type: :string)
+  opt(:queries,
+      "(required) Fasta with queries",
+      type: :string)
+
+  opt(:aligner,
+      "Name of alignment program",
+      default: "clustalo")
+  opt(:alignment_parameters,
+      "Parameters to send to alignment program (in quotes). E.g., -p '\--iter 10'",
+      short: "p",
+      types: :strings,
+      default: "\--threads 1")
+  opt(:io_format_string,
+      "IO format string for alignment program (in quotes).",
+      default: "\-i %s \-o %s")
+
+  opt(:start, "Start of ROI", default: -1)
+  opt(:end, "End of ROI", default: -1)
+
+  opt(:threads,
+      "Number of cpus.  If 10, will run 10 alignments at a time.",
+      default: 1)
+
+  opt(:outdir, "Output directory", default: "pasv")
+
+end
+
+opts[:alignment_parameters] = opts[:alignment_parameters].tr("\\", "")
+opts[:io_format_string] = opts[:io_format_string].tr("\\", "")
+
+abort_if File.exist?(opts[:outdir]),
+         "--outdir #{opts[:outdir]} already exists."
+abort_unless_file_exists opts[:queries]
+abort_unless_file_exists opts[:refs]
+
+abort_unless opts[:start] == -1 || opts[:start] >= 1,
+             "--start must be -1 or >= 1, got #{opts[:start]}"
+abort_unless opts[:end] == -1 || opts[:end] >= 1,
+             "--end must be -1 or >= 1, got #{opts[:end]}"
+abort_if opts[:start] >= opts[:end] && opts[:start] != -1 && opts[:end] != -1,
+         "--start must be less than --end unless they are both -1"
+
+abort_if opts[:threads] < 1,
+         "--threads must be >= 1"
+
+# TODO check that the start, end, and key posns are within they key seq.
+
+FileUtils.mkdir_p opts[:outdir]
+
+
+KEY_POSNS = ARGV.map(&:to_i)
+
+abort_if KEY_POSNS.empty?,
+         "Missing key positions.  Provide at least 1."
+
+refs = {}
+n = 0
+ParseFasta::SeqFile.open(opts[:refs]).each_record do |rec|
+  if n.zero?
+    head = "first_pasv_ref"
+  else
+    head = "pasv_ref___#{rec.id}"
+  end
+
+  refs[head] = rec.seq
+
+  n += 1
+
+end
+
+queries = {}
+ParseFasta::SeqFile.open(opts[:queries]).each_record do |rec|
+  queries[rec.header] = rec.seq
+end
+
+aln_infile_base = File.join opts[:outdir], "query"
+
+outfiles = nil
+begin
+  seqs = Parallel.map_with_index(queries, in_processes: opts[:threads]) do |(query_head, query_seq), query_idx|
+    aln_infile = "#{aln_infile_base}_#{query_idx}"
+    aln_outfile = "#{aln_infile_base}_#{query_idx}_aligned"
+
+    File.open(aln_infile, "w") do |f|
+      refs.each do |head, seq|
+        f.puts ">#{head}\n#{seq}"
+      end
+
+      f.puts ">#{query_head}\n#{query_seq}"
+    end
+
+    io_str = opts[:io_format_string] % [aln_infile, aln_outfile]
+    # TODO breaks if aligner expects io info before options
+    cmd = "#{opts[:aligner]} #{opts[:alignment_parameters]} #{io_str}"
+    Process.run_it! cmd
+
+    recs = {}
+    ParseFasta::SeqFile.open(aln_outfile).each_record do |rec|
+      recs[rec.header] = rec.seq
+    end
+
+    key_posns_aln = []
+    key_seq = recs["first_pasv_ref"]
+
+    key_posn_map = {}
+    nongap_idx = 0
+    key_seq.each_char.with_index do |char, idx|
+      unless char == "-"
+        key_posn_map[nongap_idx] = idx
+        nongap_idx += 1
+      end
+    end
+
+    # Now get the query
+    query_rec = recs.reject { |head, seq| head == "first_pasv_ref" || head.start_with?("pasv_ref___") }
+    assert query_rec.count == 1
+    query_seq = query_rec.first.last
+
+
+    if opts[:start] == -1 && opts[:end] == -1
+      spans_region = "NA"
+    else
+      gapped_start = key_posn_map[opts[:start]]
+      gapped_end = key_posn_map[opts[:end]]
+      spans_start = false
+      spans_end = false
+
+      spans_start = !query_seq[0..gapped_start-1].tr("-", "").empty?
+
+      spans_end = !query_seq[gapped_end-1..query_seq.length-1].tr("-", "").empty?
+      spans_region = spans_start && spans_end ? "Yes" : "No"
+    end
+
+
+    key_posns_gapped = KEY_POSNS.map { |pos| key_posn_map[pos-1] }
+    oligo = key_posns_gapped.map do |pos|
+      query_seq[pos]
+    end.join.upcase
+
+    FileUtils.rm aln_infile
+    FileUtils.rm aln_outfile
+
+    [oligo,
+     spans_region,
+     query_rec.first.first,
+     query_rec.first.last.tr("-", "")]
+  end
+
+  outfiles = {}
+
+  seqs.each do |(oligo, spans, header, seq)|
+    if spans == "NA"
+      oligo_outf = File.join opts[:outdir], "pasv.partition_#{oligo}.fa"
+    else
+      oligo_outf = File.join opts[:outdir], "pasv.partition_#{oligo}_#{spans}.fa"
+    end
+
+    unless outfiles.has_key? oligo_outf
+      outfiles[oligo_outf] = File.open(oligo_outf, "w")
+    end
+
+    outfiles[oligo_outf].puts ">#{header}\n#{seq}"
+  end
+rescue Parallel::DeadWorker => e
+  AbortIf::logger.error { "There was an error in one or more of the worker threads." }
+  abort
+end
+
+outfiles.each do |name, f|
+  f.close
+end
