@@ -14,7 +14,7 @@ PasvLib.extend PasvLib::Utils
 Time.extend PasvLib::CoreExtensions::Time
 Process.extend PasvLib::CoreExtensions::Process
 
-PIPELINE_VERSION = "1.0.0"
+PIPELINE_VERSION = "0.99.0"
 VERSION_BANNER = %Q{  # Pipeline version: #{PIPELINE_VERSION}
   # Lib version: #{PasvLib::VERSION}
   # Copyright 2017 - 2018 Ryan Moore

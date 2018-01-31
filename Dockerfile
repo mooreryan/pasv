@@ -8,9 +8,9 @@ COPY vendor/mafft .
 
 RUN gem install bundler
 
-RUN \curl -sSL https://github.com/mooreryan/pasv/archive/v1.0.0.tar.gz \
+RUN \curl -sSL https://github.com/mooreryan/pasv/archive/v0.99.0.tar.gz \
     | tar -v -C /home -xz
-RUN mv /home/pasv-0.11.6 /home/pasv
+RUN mv /home/pasv-0.99.0 /home/pasv
 
 WORKDIR /home/pasv
 RUN bundle install
