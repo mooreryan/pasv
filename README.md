@@ -12,7 +12,7 @@ The user can pick any references with any regions of intersest and with any set 
 
 ### Docker image
 
-If you are not used to using Ruby programs, just use the Docker image that we've made.  Find it [here](TODO).
+If you are not used to using Ruby programs, just use the Docker image that we've made.  As long as you have Docker installed and running on your system, you can just use the `pasv_docker` Perl script located in the `bin` directory instead of the Ruby program.
 
 ### Dependencies
 
