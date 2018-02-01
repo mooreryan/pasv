@@ -6,7 +6,6 @@ ignore
 test_files/*split*
 split_seqs
 test_files/*type*
-bin
 tmp
 stuff.txt
 scratch
@@ -19,3 +18,5 @@ pasv_outdir
 src/n_fold_splits.c
 test_files/ClassIandII_ref_subset5.fasta
 updating.txt
+bin/build_docker
+bin/pasv_bash

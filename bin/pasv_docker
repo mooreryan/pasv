@@ -1,0 +1,60 @@
+#!/usr/bin/perl -w
+
+use File::Spec;
+
+my @args = ();
+my $expand = 1;
+my $last_arg_was_flag = 0;
+
+foreach my $arg (@ARGV) {
+    if ($arg =~ /^-/) { # arg is a flag
+        $last_arg_was_flag = 1;
+
+        # push the flag onto the arg list
+        push @args, $arg;
+
+        # check if next arg should expand or not
+        if (
+            $arg eq "-a" || $arg eq "--aligner" ||
+            $arg eq "-p" || $arg eq "--alignment-parameters" ||
+            $arg eq "-i" || $arg eq "--io-format-string" ||
+            $arg eq "-s" || $arg eq "--start" ||
+            $arg eq "-e" || $arg eq "--end" ||
+            $arg eq "-t" || $arg eq "--threads" ||
+            $arg eq "-s" || $arg eq "--singleton-weight" ||
+            $arg eq "-m" || $arg eq "--min-count" ||
+            $arg eq "-v" || $arg eq "--version" ||
+            $arg eq "-h" || $arg eq "--help") {
+
+            # Arg should not expand
+            $expand = 0;
+        } else {
+            # Arg should expand
+            $expand = 1;
+        }
+        # At the end there is a list of numbers.  Because there are no
+        # flags that take no args that can get here, if the last arg
+        # was not a flag, we are in the position list.
+    } elsif ($expand && $last_arg_was_flag) { # an arg that is a path, expand it
+        my $path = File::Spec->rel2abs($arg);
+        push @args, "\'$path\'";
+        $last_arg_was_flag = 0;
+    } else { # an arg that is not a path and not a flag
+        push @args, "\'$arg\'";
+        $last_arg_was_flag = 0;
+    }
+}
+
+my $img  = "mooreryan/pasv";
+my $pasv  = "/home/pasv/pasv";
+my $pull = "docker pull $img";
+my $run  = "docker run -v \"\$HOME:\$HOME\" $img ruby $pasv @args";
+
+print "\n\n\nRUNNING COMMAND: $pull\n\n\n";
+system("$pull");
+
+print "\n\n\nPASV VERSION\n\n\n";
+system("docker run $img ruby $pasv -v");
+
+print "\n\n\nRUNNING COMMAND: $run\n\n\n";
+exec("$run");
