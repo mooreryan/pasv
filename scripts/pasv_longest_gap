@@ -1,0 +1,204 @@
+#!/usr/bin/env ruby
+Signal.trap("PIPE", "EXIT")
+
+require "abort_if"
+require "fileutils"
+require "parse_fasta"
+require "parallel"
+require "pasv_lib"
+require "trollop"
+
+require "stat_c"
+
+include AbortIf
+include AbortIf::Assert
+PasvLib.extend PasvLib::Utils
+Time.extend PasvLib::CoreExtensions::Time
+Process.extend PasvLib::CoreExtensions::Process
+
+PIPELINE_VERSION = "1.1.0-alpha"
+VERSION_BANNER = %Q{  # Pipeline version: #{PIPELINE_VERSION}
+  # Lib version: #{PasvLib::VERSION}
+  # Copyright 2017 - 2018 Ryan Moore
+  # Contact: moorer@udel.edu
+  # Website: https://github.com/mooreryan/pasv
+  # License: MIT}
+
+opts = Trollop.options do
+  version VERSION_BANNER
+  banner <<-EOS
+
+#{VERSION_BANNER}
+
+  Trust the Process. Trust the PASV.
+
+  Usage: pasv [-a aligner] [-p 'alignment params'] [-i 'I/O format string'] [-s region_start] [-e region_end] [-o outdir] [-t num cpus] -r ref_seqs -q query_seqs pos1 [pos2 ...]
+
+  If you are not interested in a spanning region, do not pass -s and
+  -e or pass '-s -1 -e -1'.
+
+  When you specify options for the aligner or I/O string for the
+  aligner and those options start with a '-' (dash) character, you
+  must put a '\\' (backslash) character in front of the dash like this:
+
+    -p '\\--threads 1 \\--iterations 1'
+
+  or like this
+
+    -i '\\-i %s \\-o %s'
+
+  If some sequences have identical headers, only the first one will be
+  kept.
+
+
+  Options:
+  EOS
+
+  # Input files
+  opt(:refs,
+      "(required) Fasta with refs",
+      type: :string)
+  opt(:queries,
+      "(required) Fasta with queries",
+      type: :string)
+
+  # Alignment options
+  opt(:aligner,
+      "Name of alignment program",
+      default: "clustalo")
+  opt(:alignment_parameters,
+      "Parameters to send to alignment program (in quotes). " +
+      "E.g., -p '\--iter 10'",
+      short: "p",
+      types: :strings,
+      default: "\--threads 1")
+  opt(:io_format_string,
+      "IO format string for alignment program (in quotes).",
+      default: "\-i %s \-o %s")
+
+  # Pipeline opts
+  opt(:threads,
+      "Number of cpus.  If 10, will run 10 alignments at a time.",
+      default: 1)
+
+  # Counting options
+  opt(:count_gaps_on_ends,
+      "Include gaps at the start or the end in the calculation",
+      default: false)
+
+  # Output options
+  opt(:outdir,
+      "Output directory",
+      default: "pasv")
+
+end
+
+opts[:alignment_parameters] = opts[:alignment_parameters].tr("\\", "")
+opts[:io_format_string] = opts[:io_format_string].tr("\\", "")
+
+abort_if File.exist?(opts[:outdir]),
+         "--outdir #{opts[:outdir]} already exists."
+abort_unless_file_exists opts[:queries]
+abort_unless_file_exists opts[:refs]
+
+abort_if opts[:threads] < 1,
+         "--threads must be >= 1"
+
+if opts[:aligner] == "mafft"
+  opts[:alignment_parameters] = "--thread 1 --quiet"
+  opts[:io_format_string] = "%s > %s"
+end
+
+# TODO check that the start, end, and key posns are within they key seq.
+
+FileUtils.mkdir_p opts[:outdir]
+
+outfname = File.join opts[:outdir], "#{File.basename(opts[:queries], File.extname(opts[:queries]))}.longest_gaps.txt"
+
+
+refs = {}
+n = 0
+ParseFasta::SeqFile.open(opts[:refs]).each_record do |rec|
+  if n.zero?
+    head = "first_pasv_ref"
+  else
+    head = "pasv_ref___#{rec.id}"
+  end
+
+  refs[head] = rec.seq
+
+  n += 1
+
+end
+
+queries = {}
+ParseFasta::SeqFile.open(opts[:queries]).each_record do |rec|
+  header = "pasv_query___#{rec.header}"
+  queries[header] = rec.seq
+end
+
+aln_infile_base = File.join opts[:outdir], "query"
+
+outfiles = nil
+begin
+  seqs = Parallel.map_with_index(queries, in_processes: opts[:threads]) do |(query_head, ungapped_query_seq), query_idx|
+    aln_infile = "#{aln_infile_base}_#{query_idx}"
+    aln_outfile = "#{aln_infile_base}_#{query_idx}_aligned"
+
+    File.open(aln_infile, "w") do |f|
+      refs.each do |head, seq|
+        f.puts ">#{head}\n#{seq}"
+      end
+
+      f.puts ">#{query_head}\n#{ungapped_query_seq}"
+    end
+
+    io_str = opts[:io_format_string] % [aln_infile, aln_outfile]
+    # TODO breaks if aligner expects io info before options
+    cmd = "#{opts[:aligner]} #{opts[:alignment_parameters]} #{io_str}"
+    Process.run_it! cmd
+
+    recs = {}
+    query_rec = []
+    ParseFasta::SeqFile.open(aln_outfile).each_record do |rec|
+      if rec.header.start_with? "pasv_query___"
+        orig_header = rec.header[13, rec.header.length]
+
+        query_rec << orig_header << rec.seq
+      else
+        recs[rec.header] = rec.seq
+      end
+    end
+
+
+    longest_gaps = recs.map do |header, seq|
+      tmp = ""
+      if opts[:count_gaps_on_ends]
+        tmp = seq
+      else
+        tmp = seq.sub(/^-*/, "").sub(/-*$/, "")
+      end
+
+      tmp.scan(/(-+)/).flatten.map(&:length).sort.reverse.first
+    end
+
+    mean_longest_gap = StatC::Array.mean longest_gaps
+    sd = StatC::Array.sd(longest_gaps, pop=true)
+    spread = sd / mean_longest_gap.to_f
+
+    FileUtils.rm aln_infile
+    FileUtils.rm aln_outfile
+
+    [query_head[13, query_head.length], (mean_longest_gap).round(3), spread.round(3)]
+  end
+rescue Parallel::DeadWorker => e
+  AbortIf::logger.error { "There was an error in one or more of the worker threads." }
+  abort
+end
+
+File.open(outfname, "w") do |f|
+  f.puts %w[seq longest.gap cov].join "\t"
+  seqs.each do |ary|
+    f.puts ary.join "\t"
+  end
+end
