@@ -80,6 +80,9 @@ opts = Trollop.options do
   opt(:threads,
       "Number of cpus.  If 10, will run 10 alignments at a time.",
       default: 1)
+  opt(:keep_tmp_files,
+      "Keep temp aln files",
+      default: false)
 
   # Counting options
   opt(:count_gaps_on_ends,
@@ -186,8 +189,10 @@ begin
     sd = StatC::Array.sd(longest_gaps, pop=true)
     spread = sd / mean_longest_gap.to_f
 
-    FileUtils.rm aln_infile
-    FileUtils.rm aln_outfile
+    unless opts[:keep_tmp_files]
+      FileUtils.rm aln_infile
+      FileUtils.rm aln_outfile
+    end
 
     [query_head[13, query_head.length], (mean_longest_gap).round(3), spread.round(3)]
   end
