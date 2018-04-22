@@ -185,6 +185,9 @@ begin
       tmp.scan(/(-+)/).flatten.map(&:length).sort.reverse.first
     end
 
+    # Gets the 75% of the data is bigger than this length
+    percentile = longest_gaps.sort[(longest_gaps.length * 0.25).floor]
+
     mean_longest_gap = StatC::Array.mean longest_gaps
     sd = StatC::Array.sd(longest_gaps, pop=true)
     spread = sd / mean_longest_gap.to_f
@@ -194,7 +197,7 @@ begin
       FileUtils.rm aln_outfile
     end
 
-    [query_head[13, query_head.length], (mean_longest_gap).round(3), spread.round(3)]
+    [query_head[13, query_head.length], (mean_longest_gap).round(3), spread.round(3), percentile]
   end
 rescue Parallel::DeadWorker => e
   AbortIf::logger.error { "There was an error in one or more of the worker threads." }
@@ -202,7 +205,7 @@ rescue Parallel::DeadWorker => e
 end
 
 File.open(outfname, "w") do |f|
-  f.puts %w[seq longest.gap cov].join "\t"
+  f.puts %w[seq longest.gap cov 25th].join "\t"
   seqs.each do |ary|
     f.puts ary.join "\t"
   end
