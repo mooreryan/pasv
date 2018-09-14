@@ -14,7 +14,7 @@ PasvLib.extend PasvLib::Utils
 Time.extend PasvLib::CoreExtensions::Time
 Process.extend PasvLib::CoreExtensions::Process
 
-PIPELINE_VERSION = "1.0.0"
+PIPELINE_VERSION = "1.1.0"
 VERSION_BANNER = %Q{  # Pipeline version: #{PIPELINE_VERSION}
   # Lib version: #{PasvLib::VERSION}
   # Copyright 2017 - 2018 Ryan Moore
@@ -33,7 +33,7 @@ opts = Trollop.options do
   Usage: pasv [-a aligner] [-p 'alignment params'] [-i 'I/O format string'] [-s region_start] [-e region_end] [-o outdir] [-t num cpus] -r ref_seqs -q query_seqs pos1 [pos2 ...]
 
   If you are not interested in a spanning region, do not pass -s and
-  -e or pass '-s -1 -e -1'.
+  -e or pass: -s -1 -e -1
 
   When you specify options for the aligner or I/O string for the
   aligner and those options start with a '-' (dash) character, you
@@ -44,6 +44,8 @@ opts = Trollop.options do
   or like this
 
     -i '\\-i %s \\-o %s'
+
+  Also be sure to use single quotes for these types of arguments.
 
   If some sequences have identical headers, only the first one will be
   kept.
@@ -66,7 +68,7 @@ opts = Trollop.options do
       default: "clustalo")
   opt(:alignment_parameters,
       "Parameters to send to alignment program (in quotes). " +
-      "E.g., -p '\--iter 10'",
+      "E.g., -p '\\--iter 10'",
       short: "p",
       types: :strings,
       default: "\--threads 1")
@@ -225,7 +227,7 @@ types = {}
 seqs.each do |(oligo, spans, header, seq)|
   type = PasvLib.get_type oligo, spans
 
-  rec = ">#{header}\n#{seq}"
+  rec = [header, seq]
 
   unless types.has_key? type
     types[type] = []
@@ -234,22 +236,31 @@ seqs.each do |(oligo, spans, header, seq)|
   types[type] << rec
 end
 
-type_counts_fname = File.join opts[:outdir],
-                              "pasv_counts.txt"
+type_counts_fname = File.join opts[:outdir], "pasv_counts.txt"
+pasv_types_fname = File.join opts[:outdir], "pasv_types.txt"
 
-File.open(type_counts_fname, "w") do |type_f|
-  type_f.puts "type\tcount"
+File.open(pasv_types_fname, "w") do |pasv_types_f|
+  pasv_types_f.puts "seq\ttype"
 
-  types.each do |type, seqs|
-    oligo_outf = File.join opts[:outdir], "pasv.partition_#{type}.fa"
-    count = seqs.count
+  File.open(type_counts_fname, "w") do |type_counts_f|
+    type_counts_f.puts "type\tcount"
 
-    type_f.puts "#{type}\t#{count}"
+    types.each do |type, seqs|
+      # Write the type for each seq
+      seqs.each do |(header, seq)|
+        pasv_types_f.puts [header, type].join "\t"
+      end
 
-    if count >= opts[:min_count]
-      File.open(oligo_outf, "w") do |f|
-        seqs.each do |seq|
-          f.puts seq
+      oligo_outf = File.join opts[:outdir], "pasv.partition_#{type}.fa"
+      count = seqs.count
+
+      type_counts_f.puts "#{type}\t#{count}"
+
+      if count >= opts[:min_count]
+        File.open(oligo_outf, "w") do |f|
+          seqs.each do |(header, seq)|
+            f.puts ">#{header}\n#{seq}"
+          end
         end
       end
     end

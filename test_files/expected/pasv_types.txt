@@ -1,0 +1,6 @@
+seq	type
+AMK99662_CF_Yes	CF_Yes
+AMK99662_spans_end_350_928_ED_No	ED_No
+AMK99662_spans_start_1_650_ED_No	ED_No
+AMK99662_exact_start_200_928_ED_Yes	ED_Yes
+AMK99662_exact_end_1_800_ED_Yes	ED_Yes
