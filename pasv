@@ -14,13 +14,13 @@ PasvLib.extend PasvLib::Utils
 Time.extend PasvLib::CoreExtensions::Time
 Process.extend PasvLib::CoreExtensions::Process
 
-PIPELINE_VERSION = "1.1.0"
+PIPELINE_VERSION = "1.1.1"
 VERSION_BANNER = %Q{  # Pipeline version: #{PIPELINE_VERSION}
-  # Lib version: #{PasvLib::VERSION}
-  # Copyright 2017 - 2018 Ryan Moore
-  # Contact: moorer@udel.edu
-  # Website: https://github.com/mooreryan/pasv
-  # License: MIT}
+# Lib version: #{PasvLib::VERSION}
+# Copyright 2017 - 2018 Ryan Moore
+# Contact: moorer@udel.edu
+# Website: https://github.com/mooreryan/pasv
+# License: MIT}
 
 opts = Trollop.options do
   version VERSION_BANNER
@@ -159,72 +159,105 @@ end
 aln_infile_base = File.join opts[:outdir], "query"
 
 outfiles = nil
-begin
-  seqs = Parallel.map_with_index(queries, in_processes: opts[:threads]) do |(query_head, ungapped_query_seq), query_idx|
-    aln_infile = "#{aln_infile_base}_#{query_idx}"
-    aln_outfile = "#{aln_infile_base}_#{query_idx}_aligned"
 
-    File.open(aln_infile, "w") do |f|
-      refs.each do |head, seq|
-        f.puts ">#{head}\n#{seq}"
-      end
-
-      f.puts ">#{query_head}\n#{ungapped_query_seq}"
-    end
-
-    io_str = opts[:io_format_string] % [aln_infile, aln_outfile]
-    # TODO breaks if aligner expects io info before options
-    cmd = "#{opts[:aligner]} #{opts[:alignment_parameters]} #{io_str}"
-    Process.run_it! cmd
-
-    recs = {}
-    query_rec = []
-    ParseFasta::SeqFile.open(aln_outfile).each_record do |rec|
-      if rec.header.start_with? "pasv_query___"
-        orig_header = rec.header[13, rec.header.length]
-
-        query_rec << orig_header << rec.seq
-      else
-        recs[rec.header] = rec.seq
-      end
-    end
-
-    gapped_key_seq = recs["first_pasv_ref"]
-    pos_to_gapped_pos = PasvLib.pos_to_gapped_pos gapped_key_seq
-
-    query_header = query_rec[0]
-    gapped_query_seq = query_rec[1]
-
-    if opts[:start] == -1 && opts[:end] == -1
-      spans_region = "NA"
-    else
-      gapped_start = pos_to_gapped_pos[opts[:start]]
-      gapped_end = pos_to_gapped_pos[opts[:end]]
-
-      spans_start = PasvLib.spans_start gapped_query_seq, gapped_start
-      spans_end = PasvLib.spans_end gapped_query_seq, gapped_end
-      spans_region = spans_start && spans_end ? "Yes" : "No"
-    end
-
-    oligo = PasvLib.get_oligo gapped_query_seq, KEY_POSNS, pos_to_gapped_pos
-
-    FileUtils.rm aln_infile
-    FileUtils.rm aln_outfile
-
-    [oligo,
-     spans_region,
-     query_header,
-     ungapped_query_seq]
-  end
-rescue Parallel::DeadWorker => e
-  AbortIf::logger.error { "There was an error in one or more of the worker threads." }
-  abort
+unfinished_queries = queries.map.with_index do |(query_head, ungapped_query_seq), query_idx|
+  [query_head, ungapped_query_seq, query_idx]
 end
 
+finished_seqs = []
+
+until unfinished_queries.empty?
+  begin
+    seqs = Parallel.map_with_index(unfinished_queries, in_processes: opts[:threads]) do |(query_head, ungapped_query_seq, query_idx)|
+      aln_infile = "#{aln_infile_base}_#{query_idx}"
+      aln_outfile = "#{aln_infile_base}_#{query_idx}_aligned"
+
+      File.open(aln_infile, "w") do |f|
+        refs.each do |head, seq|
+          f.puts ">#{head}\n#{seq}"
+        end
+
+        f.puts ">#{query_head}\n#{ungapped_query_seq}"
+      end
+
+      io_str = opts[:io_format_string] % [aln_infile, aln_outfile]
+      # TODO breaks if aligner expects io info before options
+      cmd = "#{opts[:aligner]} #{opts[:alignment_parameters]} #{io_str}"
+
+      begin
+        Process.run_it! cmd
+        recs = {}
+        query_rec = []
+        ParseFasta::SeqFile.open(aln_outfile).each_record do |rec|
+          if rec.header.start_with? "pasv_query___"
+            orig_header = rec.header[13, rec.header.length]
+
+            query_rec << orig_header << rec.seq
+          else
+            recs[rec.header] = rec.seq
+          end
+        end
+
+        gapped_key_seq = recs["first_pasv_ref"]
+        pos_to_gapped_pos = PasvLib.pos_to_gapped_pos gapped_key_seq
+
+        query_header = query_rec[0]
+        gapped_query_seq = query_rec[1]
+
+        if opts[:start] == -1 && opts[:end] == -1
+          spans_region = "NA"
+        else
+          gapped_start = pos_to_gapped_pos[opts[:start]]
+          gapped_end = pos_to_gapped_pos[opts[:end]]
+
+          spans_start = PasvLib.spans_start gapped_query_seq, gapped_start
+          spans_end = PasvLib.spans_end gapped_query_seq, gapped_end
+          spans_region = spans_start && spans_end ? "Yes" : "No"
+        end
+
+        oligo = PasvLib.get_oligo gapped_query_seq, KEY_POSNS, pos_to_gapped_pos
+
+        FileUtils.rm aln_infile
+        FileUtils.rm aln_outfile
+
+        [:done, [oligo,
+                 spans_region,
+                 query_header,
+                 ungapped_query_seq]]
+
+      rescue AbortIf::Exit
+        # it failed so mark it and keep going
+        AbortIf.logger.error { "Query #{query_idx} failed.  Will try again later." }
+
+
+        [:not_done, [query_head, ungapped_query_seq, query_idx]]
+      end
+    end
+  rescue Parallel::DeadWorker => e
+    # In case anything goes wrong outside of the mafft alignment.
+    AbortIf::logger.error { "There was an error in one or more of the worker threads." }
+    abort
+  end
+
+  # Separate the good from the bad.
+  bad_count = 0
+  unfinished_queries = []
+  seqs.each do |status, data|
+    if status == :done
+      finished_seqs << data
+    else
+      unfinished_queries << data
+      bad_count += 1
+    end
+  end
+
+  perc_failed_jobs = (bad_count / seqs.count.to_f * 100).round 2
+  AbortIf.logger.debug { "Failed jobs: #{bad_count} of #{seqs.count} (#{perc_failed_jobs}%)" }
+end
 
 # Gather sequences into pasv types
 types = {}
-seqs.each do |(oligo, spans, header, seq)|
+finished_seqs.each do |(oligo, spans, header, seq)|
   type = PasvLib.get_type oligo, spans
 
   rec = [header, seq]
