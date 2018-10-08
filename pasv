@@ -14,13 +14,15 @@ PasvLib.extend PasvLib::Utils
 Time.extend PasvLib::CoreExtensions::Time
 Process.extend PasvLib::CoreExtensions::Process
 
-PIPELINE_VERSION = "1.1.2"
+PIPELINE_VERSION = "1.1.3"
 VERSION_BANNER = %Q{  # Pipeline version: #{PIPELINE_VERSION}
 # Lib version: #{PasvLib::VERSION}
 # Copyright 2017 - 2018 Ryan Moore
 # Contact: moorer@udel.edu
 # Website: https://github.com/mooreryan/pasv
 # License: MIT}
+
+MAX_RETRIES = 100
 
 opts = Trollop.options do
   version VERSION_BANNER
@@ -96,7 +98,6 @@ opts = Trollop.options do
   opt(:min_count,
       "Minimum count for a type to be written",
       default: 2)
-
 end
 
 opts[:alignment_parameters] = opts[:alignment_parameters].tr("\\", "")
@@ -166,7 +167,11 @@ end
 
 finished_seqs = []
 
+num_iters = 0
 until unfinished_queries.empty?
+  abort_if num_iters > MAX_RETRIES,
+           "Too many errors.  Exceeded max number of retries (#{MAX_RETRIES}).  Please try again."
+
   begin
     seqs = Parallel.map_with_index(unfinished_queries, in_processes: opts[:threads]) do |(query_head, ungapped_query_seq, query_idx)|
       aln_infile = "#{aln_infile_base}_#{query_idx}"
@@ -271,6 +276,8 @@ until unfinished_queries.empty?
 
   perc_failed_jobs = (bad_count / seqs.count.to_f * 100).round 5
   AbortIf.logger.debug { "Failed jobs: #{bad_count} of #{seqs.count} (#{perc_failed_jobs}%)" }
+
+  num_iters += 1
 end
 
 # Gather sequences into pasv types
