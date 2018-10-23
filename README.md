@@ -33,7 +33,7 @@ The following Gems:
 - parse_fasta, ~> 2.3
 - parallel, ~> 1.12, >= 1.12.1
 - pasv_lib, ~> 0.1.1
-- trollop, ~> 2.1, >= 2.1.2
+- optimist, ~> 3
 
 See how to install these below.
 
