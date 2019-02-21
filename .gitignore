@@ -20,3 +20,5 @@ test_files/ClassIandII_ref_subset5.fasta
 updating.txt
 bin/build_docker
 bin/pasv_bash
+
+.idea
