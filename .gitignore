@@ -22,3 +22,5 @@ bin/build_docker
 bin/pasv_bash
 
 .idea
+
+.ruby-*
