@@ -14,10 +14,10 @@ PasvLib.extend PasvLib::Utils
 Time.extend PasvLib::CoreExtensions::Time
 Process.extend PasvLib::CoreExtensions::Process
 
-PIPELINE_VERSION = "1.1.9"
+PIPELINE_VERSION = "1.1.10"
 VERSION_BANNER = %Q{  # Pipeline version: #{PIPELINE_VERSION}
   # Lib version: #{PasvLib::VERSION}
-  # Copyright 2017 - 2018 Ryan Moore
+  # Copyright 2017 - 2019 Ryan Moore
   # Contact: moorer@udel.edu
   # Website: https://github.com/mooreryan/pasv
   # License: MIT}
@@ -216,6 +216,15 @@ until unfinished_queries.empty?
           else
             gapped_start = pos_to_gapped_pos[opts[:start]]
             gapped_end = pos_to_gapped_pos[opts[:end]]
+a
+            abort_if gapped_start.nil?,
+                     "gapped_start was nil.  Make sure the first " \
+                     "reference spans the ROI start that you " \
+                     "specified."
+            abort_if gapped_end.nil?,
+                     "gapped_end was nil.  Make sure the first " \
+                     "reference spans the ROI start that you " \
+                     "specified."
 
             spans_start = PasvLib.spans_start gapped_query_seq, gapped_start
             spans_end = PasvLib.spans_end gapped_query_seq, gapped_end
