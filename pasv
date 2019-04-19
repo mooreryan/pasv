@@ -216,7 +216,7 @@ until unfinished_queries.empty?
           else
             gapped_start = pos_to_gapped_pos[opts[:start]]
             gapped_end = pos_to_gapped_pos[opts[:end]]
-a
+
             abort_if gapped_start.nil?,
                      "gapped_start was nil.  Make sure the first " \
                      "reference spans the ROI start that you " \
