@@ -2,10 +2,12 @@ GEM
   remote: https://rubygems.org/
   specs:
     abort_if (0.2.0)
+    blosum (0.1.0)
     optimist (3.0.0)
     parallel (1.13.0)
     parse_fasta (2.5.2)
-    pasv_lib (0.3.0)
+    pasv_lib (0.4.1)
+      blosum (~> 0.1.0)
 
 PLATFORMS
   ruby
@@ -15,7 +17,7 @@ DEPENDENCIES
   optimist (~> 3.0)
   parallel (~> 1.12, >= 1.12.1)
   parse_fasta (~> 2.3)
-  pasv_lib (~> 0.3)
+  pasv_lib (~> 0.4)
 
 BUNDLED WITH
-   1.17.2
+   1.17.3

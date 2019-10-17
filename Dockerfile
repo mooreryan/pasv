@@ -11,9 +11,9 @@ RUN mv mafft-linux64/* .
 
 RUN gem install bundler
 
-RUN \curl -sSL https://github.com/mooreryan/pasv/archive/v1.1.11.tar.gz \
+RUN \curl -sSL https://github.com/mooreryan/pasv/archive/v1.2.0.tar.gz \
     | tar -v -C /home -xz
-RUN mv /home/pasv-1.1.11 /home/pasv
+RUN mv /home/pasv-1.2.0 /home/pasv
 
 RUN chmod 755 /home/pasv/pasv
 RUN ln -s /home/pasv/pasv /usr/local/bin

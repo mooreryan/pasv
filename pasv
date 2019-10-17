@@ -2,6 +2,7 @@
 Signal.trap("PIPE", "EXIT")
 
 require "abort_if"
+require "blosum"
 require "fileutils"
 require "parse_fasta"
 require "parallel"
@@ -14,7 +15,9 @@ PasvLib.extend PasvLib::Utils
 Time.extend PasvLib::CoreExtensions::Time
 Process.extend PasvLib::CoreExtensions::Process
 
-PIPELINE_VERSION = "1.1.11"
+Alignment = Class.new { extend PasvLib::Alignment }
+
+PIPELINE_VERSION = "1.2.0"
 VERSION_BANNER = %Q{  # Pipeline version: #{PIPELINE_VERSION}
   # Lib version: #{PasvLib::VERSION}
   # Copyright 2017 - 2019 Ryan Moore
@@ -30,7 +33,7 @@ opts = Optimist.options do
 
 #{VERSION_BANNER}
 
-  Trust the Process. Trust the PASV.
+  Use PASV to validate your sequences based on conserved residues in an alignment.
 
   Usage: pasv [-a aligner] [-p 'alignment params'] [-i 'I/O format string'] [-s region_start] [-e region_end] [-o outdir] [-t num cpus] -r ref_seqs -q query_seqs pos1 [pos2 ...]
 
@@ -148,7 +151,6 @@ ParseFasta::SeqFile.open(opts[:refs]).each_record do |rec|
   refs[head] = rec.seq
 
   n += 1
-
 end
 
 queries = {}
@@ -158,8 +160,6 @@ ParseFasta::SeqFile.open(opts[:queries]).each_record do |rec|
 end
 
 aln_infile_base = File.join opts[:outdir], "query"
-
-outfiles = nil
 
 unfinished_queries = queries.map.with_index do |(query_head, ungapped_query_seq), query_idx|
   [query_head, ungapped_query_seq, query_idx]
@@ -204,6 +204,27 @@ until unfinished_queries.empty?
           end
         end
 
+        # Check the alignment quality.
+        full_alignment = [query_rec.last]
+        recs.each do |header, seq|
+          full_alignment << seq
+        end
+
+        begin
+          scoring_matrix = Alignment.adjust_scoring_matrix Blosum::BLOSUM62
+          similarity_score = Alignment.similarity_score full_alignment, scoring_matrix
+          geometric_index = Alignment.geometric_index full_alignment
+        rescue PasvLib::Error => e
+          AbortIf.logger.error { "Query #{query_idx} failed.  Will try again later.  Caught PasvLib::Error while scoring the alignment. #{e.inspect}" }
+
+          FileUtils.rm aln_infile if File.exist? aln_infile
+          FileUtils.rm aln_outfile if File.exist? aln_outfile
+
+          # TODO the use of `next` like this is kind of ugly.  Consider refactoring.
+          # map() will return this
+          next [:not_done, [query_head, ungapped_query_seq, query_idx, nil, nil]]
+        end
+
         gapped_key_seq = recs["first_pasv_ref"]
         pos_to_gapped_pos = PasvLib.pos_to_gapped_pos gapped_key_seq
 
@@ -236,11 +257,14 @@ until unfinished_queries.empty?
           FileUtils.rm aln_infile if File.exist? aln_infile
           FileUtils.rm aln_outfile if File.exist? aln_outfile
 
+          # TODO the use of `next` like this is kind of ugly.  Consider refactoring.
           # map() will return this
-          [:done, [oligo,
-                   spans_region,
-                   query_header,
-                   ungapped_query_seq]]
+          next [:done, [oligo,
+                        spans_region,
+                        query_header,
+                        ungapped_query_seq,
+                        similarity_score,
+                        geometric_index]]
         rescue NoMethodError => e
           # Occasionally the tr() method in spans_end will fail as it
           # tries to call on nil.  For now, just mark it as a fail and
@@ -251,8 +275,9 @@ until unfinished_queries.empty?
           FileUtils.rm aln_infile if File.exist? aln_infile
           FileUtils.rm aln_outfile if File.exist? aln_outfile
 
+          # TODO the use of `next` like this is kind of ugly.  Consider refactoring.
           # map() will return this
-          [:not_done, [query_head, ungapped_query_seq, query_idx]]
+          next [:not_done, [query_head, ungapped_query_seq, query_idx, nil, nil]]
         end
       rescue AbortIf::Exit, SystemUniversal::Error => e
         # it failed so mark it and keep going
@@ -261,8 +286,9 @@ until unfinished_queries.empty?
         FileUtils.rm aln_infile if File.exist? aln_infile
         FileUtils.rm aln_outfile if File.exist? aln_outfile
 
+        # TODO the use of `next` like this is kind of ugly.  Consider refactoring.
         # map() will return this
-        [:not_done, [query_head, ungapped_query_seq, query_idx]]
+        next [:not_done, [query_head, ungapped_query_seq, query_idx, nil, nil]]
       end
     end
   rescue Parallel::DeadWorker => e
@@ -293,10 +319,10 @@ end
 
 # Gather sequences into pasv types
 types = {}
-finished_seqs.each do |(oligo, spans, header, seq)|
+finished_seqs.each do |(oligo, spans, header, seq, similarity_score, geometrix_index)|
   type = PasvLib.get_type oligo, spans
 
-  rec = [header, seq]
+  rec = [header, seq, similarity_score, geometrix_index]
 
   unless types.has_key? type
     types[type] = []
@@ -309,15 +335,18 @@ type_counts_fname = File.join opts[:outdir], "pasv_counts.txt"
 pasv_types_fname = File.join opts[:outdir], "pasv_types.txt"
 
 File.open(pasv_types_fname, "w") do |pasv_types_f|
-  pasv_types_f.puts "seq\ttype"
+  pasv_types_f.puts "seq\ttype\tsimilarity_score\tgeometric_index"
 
   File.open(type_counts_fname, "w") do |type_counts_f|
     type_counts_f.puts "type\tcount"
 
     types.each do |type, seqs|
       # Write the type for each seq
-      seqs.each do |(header, seq)|
-        pasv_types_f.puts [header, type].join "\t"
+      seqs.each do |(header, seq, similarity_score, geometrix_index)|
+        pasv_types_f.puts [header,
+                           type,
+                           similarity_score.round(3),
+                           geometrix_index.round(3)].join "\t"
       end
 
       oligo_outf = File.join opts[:outdir], "pasv.partition_#{type}.fa"
