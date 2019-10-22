@@ -44,7 +44,7 @@ foreach my $arg (@ARGV) {
     }
 }
 
-my $img  = "mooreryan/pasv:1.2.1-slim";
+my $img  = "mooreryan/pasv:1.2.1";
 my $pasv  = "pasv";
 my $run  = "docker run --rm -it -v \"\$HOME:\$HOME\" $img $pasv @args";
 
