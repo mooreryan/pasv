@@ -1,26 +1,5 @@
-*.o
-*.dSYM
-group_proteins
-.DS_Store
-ignore
-test_files/*split*
-split_seqs
-test_files/*type*
-tmp
-stuff.txt
-scratch
-ext
-check.sh
-bugs.md
-release
-output
-pasv_outdir
-src/n_fold_splits.c
-test_files/ClassIandII_ref_subset5.fasta
-updating.txt
-bin/build_docker
-bin/pasv_bash
+# Ignore everything
+*
 
-.idea
-
-.ruby-*
+# Include only Dockerfile
+!Dockerfile
