@@ -17,10 +17,10 @@ Process.extend PasvLib::CoreExtensions::Process
 
 Alignment = Class.new { extend PasvLib::Alignment }
 
-PIPELINE_VERSION = "1.2.0"
+PIPELINE_VERSION = "1.2.2"
 VERSION_BANNER = %Q{  # Pipeline version: #{PIPELINE_VERSION}
   # Lib version: #{PasvLib::VERSION}
-  # Copyright 2017 - 2019 Ryan Moore
+  # Copyright 2017 - 2020 Ryan Moore
   # Contact: moorer@udel.edu
   # Website: https://github.com/mooreryan/pasv
   # License: MIT}
