@@ -108,8 +108,18 @@ opts[:io_format_string]     = opts[:io_format_string].tr("\\", "")
 
 abort_if File.exist?(opts[:outdir]),
          "--outdir #{opts[:outdir]} already exists."
-abort_unless_file_exists opts[:queries]
-abort_unless_file_exists opts[:refs]
+
+# Check refs arg
+abort_unless opts[:refs_given],
+             "--refs is a required argument"
+abort_unless File.exist?(opts[:refs]),
+             "Refs file '#{opts[:refs]}' doesn't exist!"
+
+# Check queries arg.
+abort_unless opts[:queries_given],
+             "--queries is a required argument"
+abort_unless File.exist?(opts[:queries]),
+             "Refs file '#{opts[:queries]}' doesn't exist!"
 
 abort_unless opts[:start] == -1 || opts[:start] >= 1,
              "--start must be -1 or >= 1, got #{opts[:start]}"
