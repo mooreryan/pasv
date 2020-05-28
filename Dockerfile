@@ -11,7 +11,7 @@ ARG ncpus=4
 ARG prefix=/opt/pasv
 ARG setup_env=${prefix}/setup_env
 
-ENV app_version 1.2.2
+ENV app_version 1.3.0
 
 WORKDIR ${prefix}
 
