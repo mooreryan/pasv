@@ -19,12 +19,13 @@ Alignment = Class.new { extend PasvLib::Alignment }
 Io        = Class.new { extend PasvLib::Io }
 
 PIPELINE_VERSION = "1.3.0"
-VERSION_BANNER   = %Q{  # Pipeline version: #{PIPELINE_VERSION}
-  # Lib version: #{PasvLib::VERSION}
-  # Copyright 2017 - 2020 Ryan Moore
-  # Contact: moorer@udel.edu
-  # Website: https://github.com/mooreryan/pasv
-  # License: MIT}
+VERSION_BANNER   = %Q{  - Pipeline version: #{PIPELINE_VERSION}
+  - Lib version: #{PasvLib::VERSION}
+  - Copyright 2017 - 2020 Ryan Moore
+  - Website: https://github.com/mooreryan/pasv
+  - Wiki: https://github.com/mooreryan/pasv/wiki
+  - Issues: https://github.com/mooreryan/pasv/issues
+  - License: MIT}
 
 MAX_RETRIES = 100
 
@@ -32,18 +33,45 @@ opts = Optimist.options do
   version VERSION_BANNER
   banner <<-EOS
 
+  PASV -- Protein Active Site Validation
+  ======================================
+
 #{VERSION_BANNER}
 
-  Use PASV to validate your sequences based on conserved residues in an alignment.
+  Overview
+  --------
 
-  Usage: pasv [-a aligner] [-p 'alignment params'] [-i 'I/O format string'] [-s region_start] [-e region_end] [-o outdir] [-t num cpus] -r ref_seqs -q query_seqs pos1 [pos2 ...]
+  Use PASV to validate your sequences based on conserved residues in
+  an alignment.
 
-  If you are not interested in a spanning region, do not pass -s and
-  -e or pass: -s -1 -e -1
+  For full documentation, please see the PASV wiki!
+  (https://github.com/mooreryan/pasv/wiki).
+
+  Quick Start
+  -----------
+
+  Here is a quick example of how you might run PASV:
+
+  $ pasv --refs ~/path/to/refs.faa \\
+      --queries ~/path/to/queries.faa \\
+      437 439 441 462
+
+  Usage Notes
+  -----------
+  
+  pasv [-a aligner] [-p 'alignment params'] [-i 'I/O format string'] \\
+    [-s region_start] [-e region_end] [-o outdir] [-t num cpus] \\
+    [-m min count] \\
+    <-r ref_seqs> <-q query_seqs> \\
+    <pos1 [pos2 ...]>
+
+  If you are not interested in a spanning region (aka region of
+  interest), do not pass -s and -e or pass: `-s -1 -e -1`.
 
   When you specify options for the aligner or I/O string for the
   aligner and those options start with a '-' (dash) character, you
-  must put a '\\' (backslash) character in front of the dash like this:
+  must put a '\\' (backslash) character in front of the dash like
+  this:
 
     -p '\\--threads 1 \\--iterations 1'
 
@@ -55,7 +83,6 @@ opts = Optimist.options do
 
   If some sequences have identical headers, only the first one will be
   kept.
-
 
   Options:
   EOS
