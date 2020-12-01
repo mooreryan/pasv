@@ -10,6 +10,8 @@ One thing to note is that the numbers you see for the key residues are those mot
 
 ## Run PASV
 
+Note:  I'm using [PASV v1.3.0](https://github.com/mooreryan/pasv/releases/tag/v1.3.0) for these examples.
+
 ### With AOX References
 
 The wrapper script to run PASV with the AOX references.  If you want to use a different amount of threads, feel free to change it in the script.
