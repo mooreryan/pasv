@@ -1,0 +1,9 @@
+{:infile "rnr_and_bycatch/pasv_types.txt"
+ :outbase "rnr_and_bycatch/network"
+ :key-positions ["437" "439" "441" "462"]
+ ;; The function used to get the acutal signature used.
+ :get-pasv-signature (fn [s] (subs s 0 4))
+ :get-rnr-annotation {:pattern "^gov_good" :match "RNR" :no-match "non-RNR"}
+ :collapse-nodes true
+ :min-degree 2
+ :min-count 1000}

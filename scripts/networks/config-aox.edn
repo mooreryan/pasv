@@ -1,0 +1,10 @@
+{:infile "aox_ptox/aox_pasv_types.txt"
+ :outbase "aox_ptox/aox_network"
+ :key-positions ["233" "234" "235" "236" "237" "238" "239" "283" "284" "285" "286" "287"]
+ ;; The function used to get the acutal signature used.
+ :get-pasv-signature identity
+ :get-rnr-annotation {:pattern "^aox" :match "aox" :no-match "ptox"}
+ :collapse-nodes false
+ :min-degree nil
+ :min-count nil}
+

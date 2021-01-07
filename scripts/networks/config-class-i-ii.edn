@@ -1,0 +1,9 @@
+{:infile "rnr_class_i_ii/pasv_types.txt"
+ :outbase "rnr_class_i_ii/network"
+ :key-positions ["437" "438" "439" "441" "462"]
+ ;; The function used to get the acutal signature used.
+ :get-pasv-signature (fn [s] (subs s 0 5))
+ :get-rnr-annotation {:pattern "___nrdj" :match "class_ii" :no-match "class_i_a"}
+ :collapse-nodes false
+ :min-degree nil
+ :min-count nil}
