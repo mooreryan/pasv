@@ -1,5 +1,7 @@
 # PASV
 
+[![Build and test](https://github.com/mooreryan/pasv/actions/workflows/build_and_test.yml/badge.svg)](https://github.com/mooreryan/pasv/actions/workflows/build_and_test.yml)
+
 **P**rotein **A**ctive **S**ite **V**alidation
 
 - Post-homology search validation and partitioning of specific sequences of interest
@@ -8,7 +10,7 @@
 
 ## Documentation
 
-For background and motivation as well as information on installation and usage, please visit the [PASV Wiki](https://github.com/mooreryan/pasv/wiki/)! 
+For background and motivation as well as information on installation and usage, please visit the [PASV Wiki](https://github.com/mooreryan/pasv/wiki/)!
 
 ## License
 
