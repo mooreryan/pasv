@@ -1,0 +1,70 @@
+name: Build and test
+
+on:
+  push:
+    branches:
+      - '*'
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+  build_and_test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - macos-latest
+          - ubuntu-latest
+        ruby-version: [2.5, 2.6, 2.7, '3.0']
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - run: echo "LOCAL_PATH=$HOME/.local/bin" >> $GITHUB_ENV
+      - run: echo "CLUSTALO_EXE=$LOCAL_PATH/clustalo" >> $GITHUB_ENV
+
+      - name: Setup path
+        run: |
+          mkdir -p "$LOCAL_PATH"
+          echo "$LOCAL_PATH" >> $GITHUB_PATH
+
+      - name: Download Clustal Omega (Linux)
+        run: |
+          \curl -L http://www.clustal.org/omega/clustalo-1.2.4-Ubuntu-x86_64 > "$CLUSTALO_EXE"
+        if: matrix.os == 'ubuntu-latest'
+
+      - name: Download Clustal Omega (MacOS)
+        # 1.2.4 isn't available for MacOS
+        run: |
+          \curl -L http://www.clustal.org/omega/clustal-omega-1.2.3-macosx > "$CLUSTALO_EXE"
+        if: matrix.os == 'macos-latest'
+
+      - name: Setup and check Clustal Omega
+        run: |
+          chmod 755 "$CLUSTALO_EXE"
+          clustalo --version
+
+      - name: Download MAFFT
+        run: |
+          \curl -L https://mafft.cbrc.jp/alignment/software/mafft-7.481-without-extensions-src.tgz \
+          | tar xz
+
+      - name: Install MAFFT
+        run: cd mafft-*/core/ && make clean && make && sudo make install
+
+      - name: Set up Ruby ${{ matrix.ruby-version }}
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby-version }}
+          bundler-cache: true
+
+      - name: Install dependencies
+        run: bundle install
+
+      - name: Run tests
+        # Need the bundle exec because it is a local bundle.
+        run: bundle exec make test
