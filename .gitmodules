@@ -1,0 +1,3 @@
+[submodule "lib/vendor/little_logger"]
+	path = lib/vendor/little_logger
+	url = https://github.com/mooreryan/little_logger.git

@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# Make the "expected" outfile
+printf "some stuff\n" > apple/amk_queries.aln.fa
+
+printf "a bad thing happened...\n" 1>&2
+exit 47

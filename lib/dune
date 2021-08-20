@@ -1,0 +1,9 @@
+(library
+ (name pasv_lib)
+ (libraries async bio_io core re2 pasv.little_logger cmdliner)
+ (instrumentation
+  (backend bisect_ppx))
+ (preprocess
+  (pps ppx_jane ppx_expect)))
+
+(vendored_dirs vendor)

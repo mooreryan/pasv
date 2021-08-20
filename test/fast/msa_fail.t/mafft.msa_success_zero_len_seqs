@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# Make a fake outfile to ensure it's deleted.
+printf ">______pasv_key_reference______\nACTG\n>s2\n"
+
+exit 0

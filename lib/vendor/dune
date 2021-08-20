@@ -1,0 +1,8 @@
+(data_only_dirs *)
+
+(subdir little_logger/lib
+ (library
+ (name little_logger)
+ (public_name pasv.little_logger)
+ (libraries core)
+ (preprocess (pps ppx_compare))))

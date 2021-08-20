@@ -1,0 +1,4 @@
+#!/bin/bash
+
+printf "a good thing\n"
+exit 0  

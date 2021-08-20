@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# Make a fake outfile to ensure it's deleted.
+printf ">______pasv_key_reference______\nACTG\n>s2\n" > apple/amk_queries.aln.fa
+
+printf "good...\n"
+exit 0

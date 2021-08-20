@@ -1,0 +1,8 @@
+(executable
+ (public_name pasv)
+ (name pasv)
+ (libraries bio_io core cmdliner re2 pasv_lib)
+ (instrumentation
+  (backend bisect_ppx))
+ (preprocess
+  (pps ppx_jane ppx_expect)))

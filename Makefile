@@ -1,51 +1,39 @@
-TEST_D = test_files
-OUT_D = pasv_outdir
-TMP_TYPES_FILE = $(OUT_D)/tmparstoienarstoien
+BROWSER = firefox
+NAME=pasv
+TEST_COV_D = /tmp/pasv
 
-.PHONY: test_clustalo
-.PHONY: test_mafft
+.PHONY: build
+build:
+	dune build
+
+.PHONY: test_slow
+test_slow: build
+	dune test test/slow
+
+.PHONY: test_medium
+test_medium: build
+	dune test test/medium
+
+.PHONY: test_fast
+test_fast: build
+	dune test test/fast
+
 .PHONY: test
+test: test_fast test_medium test_slow
 
-test_clustalo:
-	rm -r $(OUT_D); ruby pasv -a clustalo -m 1 -t 4 -r $(TEST_D)/amk_ref.faa -q $(TEST_D)/amk_queries.faa -s 200 -e 800 -o $(OUT_D) 500 501
-	diff $(OUT_D)/pasv.partition_CF_Yes.fa $(TEST_D)/expected/pasv.partition_CF_Yes.fa
-	diff $(OUT_D)/pasv.partition_ED_No.fa $(TEST_D)/expected/pasv.partition_ED_No.fa
-	diff $(OUT_D)/pasv.partition_ED_Yes.fa $(TEST_D)/expected/pasv.partition_ED_Yes.fa
-	diff $(OUT_D)/pasv_counts.txt $(TEST_D)/expected/pasv_counts.txt
-	cut -f1,2 $(OUT_D)/pasv_types.txt > $(TMP_TYPES_FILE) && diff $(TMP_TYPES_FILE) $(TEST_D)/expected/pasv_types.txt && rm $(TMP_TYPES_FILE)
+.PHONY: test_coverage
+test_coverage:
+	if [ -d $(TEST_COV_D) ]; then rm -r $(TEST_COV_D); fi
+	mkdir -p $(TEST_COV_D)
+	BISECT_FILE=$(TEST_COV_D)/$(NAME) dune runtest --no-print-directory \
+	  --instrument-with bisect_ppx --force
+	bisect-ppx-report html --coverage-path $(TEST_COV_D)
+	bisect-ppx-report summary --coverage-path $(TEST_COV_D)
 
-test_mafft:
-	rm -r $(OUT_D); ruby pasv -a mafft -m 1 -t 4 -r $(TEST_D)/amk_ref.faa -q $(TEST_D)/amk_queries.faa -s 200 -e 800 -o $(OUT_D) 500 501
-	diff $(OUT_D)/pasv.partition_CF_Yes.fa $(TEST_D)/expected/pasv.partition_CF_Yes.fa
-	diff $(OUT_D)/pasv.partition_ED_No.fa $(TEST_D)/expected/pasv.partition_ED_No.fa
-	diff $(OUT_D)/pasv.partition_ED_Yes.fa $(TEST_D)/expected/pasv.partition_ED_Yes.fa
-	diff $(OUT_D)/pasv_counts.txt $(TEST_D)/expected/pasv_counts.txt
-	cut -f1,2 $(OUT_D)/pasv_types.txt > $(TMP_TYPES_FILE) && diff $(TMP_TYPES_FILE) $(TEST_D)/expected/pasv_types.txt && rm $(TMP_TYPES_FILE)
+.PHONY: test_coverage_open
+test_coverage_open: test_coverage
+	$(BROWSER) _coverage/index.html
 
-test_mafft_multi_ref:
-	rm -r $(OUT_D); ruby pasv -a mafft -m 1 -t 4 -r $(TEST_D)/16_references.fasta -q $(TEST_D)/amk_queries.faa -s 200 -e 800 -o $(OUT_D) 500 501
-	diff $(OUT_D)/pasv.partition_CF_Yes.fa $(TEST_D)/expected/pasv.partition_CF_Yes.fa
-	diff $(OUT_D)/pasv.partition_ED_No.fa $(TEST_D)/expected/pasv.partition_ED_No.fa
-	diff $(OUT_D)/pasv.partition_ED_Yes.fa $(TEST_D)/expected/pasv.partition_ED_Yes.fa
-	diff $(OUT_D)/pasv_counts.txt $(TEST_D)/expected/pasv_counts.txt
-	cut -f1,2 $(OUT_D)/pasv_types.txt > $(TMP_TYPES_FILE) && diff $(TMP_TYPES_FILE) $(TEST_D)/expected/pasv_types.txt && rm $(TMP_TYPES_FILE)
-
-
-test_clustalo_docker:
-	rm -r $(OUT_D); bin/pasv_docker -a clustalo -m 1 -t 4 -r $(TEST_D)/amk_ref.faa -q $(TEST_D)/amk_queries.faa -s 200 -e 800 -o $(OUT_D) 500 501
-	diff $(OUT_D)/pasv.partition_CF_Yes.fa $(TEST_D)/expected/pasv.partition_CF_Yes.fa
-	diff $(OUT_D)/pasv.partition_ED_No.fa $(TEST_D)/expected/pasv.partition_ED_No.fa
-	diff $(OUT_D)/pasv.partition_ED_Yes.fa $(TEST_D)/expected/pasv.partition_ED_Yes.fa
-	diff $(OUT_D)/pasv_counts.txt $(TEST_D)/expected/pasv_counts.txt
-	cut -f1,2 $(OUT_D)/pasv_types.txt > $(TMP_TYPES_FILE) && diff $(TMP_TYPES_FILE) $(TEST_D)/expected/pasv_types.txt && rm $(TMP_TYPES_FILE)
-
-test_mafft_docker:
-	rm -r $(OUT_D); bin/pasv_docker -a mafft -m 1 -t 4 -r $(TEST_D)/amk_ref.faa -q $(TEST_D)/amk_queries.faa -s 200 -e 800 -o $(OUT_D) 500 501
-	diff $(OUT_D)/pasv.partition_CF_Yes.fa $(TEST_D)/expected/pasv.partition_CF_Yes.fa
-	diff $(OUT_D)/pasv.partition_ED_No.fa $(TEST_D)/expected/pasv.partition_ED_No.fa
-	diff $(OUT_D)/pasv.partition_ED_Yes.fa $(TEST_D)/expected/pasv.partition_ED_Yes.fa
-	diff $(OUT_D)/pasv_counts.txt $(TEST_D)/expected/pasv_counts.txt
-	cut -f1,2 $(OUT_D)/pasv_types.txt > $(TMP_TYPES_FILE) && diff $(TMP_TYPES_FILE) $(TEST_D)/expected/pasv_types.txt && rm $(TMP_TYPES_FILE)
-
-test: test_clustalo test_mafft
-test_docker: test_clustalo_docker test_mafft_docker
+.PHONY: send_coverage
+send_coverage: test_coverage
+	bisect-ppx-report send-to Coveralls --coverage-path $(TEST_COV_D)

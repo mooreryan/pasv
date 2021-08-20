@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# Make a fake outfile to ensure it's deleted.
+printf ">s1\nACTG\n>s2\nAAAA\n"
+
+exit 0

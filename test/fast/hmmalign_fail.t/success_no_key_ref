@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# Make a fake outfile to ensure it's deleted.
+printf ">s1\nACTG\n>s2\nAAAA\n" > apple/amk_queries.aln.fa
+
+printf "good...\n"
+exit 0

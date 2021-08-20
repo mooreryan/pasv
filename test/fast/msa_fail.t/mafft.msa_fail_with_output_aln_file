@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# Make a fake outfile to ensure it's deleted.
+printf "some stuff" > apple/refs_and_query_0.aln.fa
+
+printf "a bad thing happened...\n" 1>&2
+exit 47
