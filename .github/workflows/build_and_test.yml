@@ -24,6 +24,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        with:
+          submodules: recursive
 
       - run: echo "LOCAL_PATH=$HOME/.local/bin" >> $GITHUB_ENV
       - run: echo "CLUSTALO_EXE=$LOCAL_PATH/clustalo" >> $GITHUB_ENV
