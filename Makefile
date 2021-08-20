@@ -4,7 +4,11 @@ TEST_COV_D = /tmp/pasv
 
 .PHONY: build
 build:
-	dune build
+	dune build --profile=release
+
+.PHONY: install
+install: build
+	dune install
 
 .PHONY: test_slow
 test_slow: build
