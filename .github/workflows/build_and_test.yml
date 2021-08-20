@@ -63,7 +63,7 @@ jobs:
         run: \curl -L http://eddylab.org/software/hmmer/hmmer-3.3.2.tar.gz | tar xz
 
       - name: Install HMMER
-        run: cd hmmer-3.3.2 && make && sudo make install
+        run: cd hmmer-3.3.2 && ./configure && make && sudo make install
 
       - name: Use OCaml ${{ matrix.ocaml-compiler }}
         uses: ocaml/setup-ocaml@v2
