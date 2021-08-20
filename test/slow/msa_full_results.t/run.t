@@ -29,7 +29,7 @@ order may be different since it's async.
 
   $ rm -r "${OUTDIR}" pasv.tmp.* "${ACTUAL_SIGNATURES}" 2> /dev/null
   [1]
-  $ pasv msa -vv --jobs=4 --outdir="${OUTDIR}" --roi-start="${ROI_START}" --roi-end="${ROI_END}" "${QUERIES}" "${REFS}" "${RESIDUES}" 2> err
+  $ pasv msa -vv --alignment-parameters=--threads=1 --jobs=4 --outdir="${OUTDIR}" --roi-start="${ROI_START}" --roi-end="${ROI_END}" "${QUERIES}" "${REFS}" "${RESIDUES}" 2> err
   $ bash check_results.sh "${EXPECTED_SIGNATURES_WITH_ROI}" "${OUTDIR}/${ACTUAL_SIGNATURES}"
   $ bash sanitize_logs.sh err > err_sanitized
   $ diff "${EXPECTED_VV_LOG}" err_sanitized

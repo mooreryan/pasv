@@ -42,8 +42,11 @@ Help screen
   
          --alignment-parameters=ALIGNMENT_PARAMETERS (absent=--threads=1)
              Other alignment params. If the you need spaces, put single quotes
-             around them. If the parameters include '-' characters, do it like
-             so --alignment-parameters='--threads 1 --thingies 46'. The default
+             around them. This is very important...you need to use the `=`
+             between the flag and the argument like this:
+             --alignment-parameters=--auto, or whatever args you want. If the
+             parameters include '-' characters, do it like so
+             --alignment-parameters='--threads 1 --thingies 46'. The default
              shown is for clustalo. If the aligner is set to mafft (eg with
              --aligner=mafft), then the default will be '--thread 1 --auto'. If
              you don't want that, you can specify the this option in the usual

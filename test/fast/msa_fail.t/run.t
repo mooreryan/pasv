@@ -960,3 +960,14 @@ but keeps the --threads=1 from clustalo.
   [1]
   $ bash "${SANITIZE_LOGS}" err
   F, [DATE TIME PID] FATAL -- --other-parameters contains --threads.  This is valid for clustalo but not for mafft.  Did you use the correct aligner?  If you meant to use mafft, and you want a single thread, use --thread.  E.g., for mafft, try pasv msa --aligner=mafft --alignment-parameters='--thread 1 --auto' ...
+
+Setting alignment parameters in weird ways raises errors.
+
+  $ rm -r "${OUTDIR}" pasv.tmp.* "${ACTUAL_SIGNATURES}" 2> /dev/null
+  [1]
+  $ pasv msa -vv --aligner=mafft --alignment-parameters '--auto' --outdir="${OUTDIR}" "${QUERIES}" "${REFS}" "${RESIDUES}" 2> err
+  [1]
+  $ bash "${SANITIZE_LOGS}" err
+  pasv: unknown option `--auto', did you mean `-a' ?
+  Usage: pasv msa [OPTION]... QUERIES REFERENCES KEY_RESIDUES
+  Try `pasv msa --help' or `pasv --help' for more information.

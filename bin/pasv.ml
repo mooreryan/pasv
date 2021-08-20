@@ -48,9 +48,11 @@ let aligner_other_params_term =
   let doc =
     [%string
       "Other alignment params.  If the you need spaces, put single quotes \
-       around them.  If the parameters include '-' characters, do it like so \
-       --alignment-parameters='--threads 1 --thingies 46'.  The default shown \
-       is for clustalo.  If the aligner is set to mafft (eg with \
+       around them.  This is very important...you need to use the `=` between \
+       the flag and the argument like this: --alignment-parameters=--auto, or \
+       whatever args you want.  If the parameters include '-' characters, do \
+       it like so --alignment-parameters='--threads 1 --thingies 46'.  The \
+       default shown is for clustalo.  If the aligner is set to mafft (eg with \
        --aligner=mafft), then the default will be \
        '%{Utils.default_mafft_other_aln_params}'.  If you don't want that, you \
        can specify the this option in the usual way."]
