@@ -25,9 +25,8 @@ Bad exit code
   == hmmalign stderr ==
   a bad thing happened...
   
-  $ ls "${ALN_OUTFILE}"
-  ls: cannot access 'apple/amk_queries.aln.fa': No such file or directory
-  [2]
+  $ ./does_file_exist "${ALN_OUTFILE}"
+  no
 
 Good exit code, but the outfile doesn't exist.  
 

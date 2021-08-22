@@ -177,15 +177,14 @@ Bad exit code, no output file is made.
   F, [DATE TIME PID] FATAL -- Could not get signatures for any of the queries!
 
 
-Bad exit code, output file is made.
+Bad exit code, output file made, but pasv still removes it.
 
   $ rm -r "${OUTDIR}" pasv.tmp.* "${ACTUAL_SIGNATURES}" 2> /dev/null
   [1]
   $ pasv msa -vv --aligner=./clustalo.msa_fail_with_output_aln_file --outdir="${OUTDIR}" "${QUERIES}" "${REFS}" "${RESIDUES}" 2> err
   [1]
-  $ ls "${ALN_OUTFILE}"
-  ls: cannot access 'apple/refs_and_query_0.aln.fa': No such file or directory
-  [2]
+  $ ./does_file_exist "${ALN_OUTFILE}"
+  no
   $ bash "${SANITIZE_LOGS}" err
   I, [DATE TIME PID] INFO -- Working on query 1
   D, [DATE TIME PID] DEBUG -- Running command: ./clustalo.msa_fail_with_output_aln_file --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa
@@ -456,9 +455,8 @@ Bad exit code, output file is made.
   [1]
   $ pasv msa -vv --aligner=./mafft.msa_fail_with_output_aln_file --alignment-parameters='--auto --thread 1' --outdir="${OUTDIR}" "${QUERIES}" "${REFS}" "${RESIDUES}" 2> err
   [1]
-  $ ls "${ALN_OUTFILE}"
-  ls: cannot access 'apple/refs_and_query_0.aln.fa': No such file or directory
-  [2]
+  $ ./does_file_exist "${ALN_OUTFILE}"
+  no
   $ bash "${SANITIZE_LOGS}" err
   I, [DATE TIME PID] INFO -- Working on query 1
   D, [DATE TIME PID] DEBUG -- Running command: ./mafft.msa_fail_with_output_aln_file --auto --thread 1 apple/refs_and_query_0.fa
