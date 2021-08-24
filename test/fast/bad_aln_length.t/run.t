@@ -1,8 +1,12 @@
+Set up environment.
+
+  $ export SANITIZE_LOGS=$PWD/../../helpers/sanitize_logs
+
 Bad alignment length.
 
   $ pasv check --outdir=apple bad.aln.fa 50,52,54 2> err
   [1]
-  $ bash sanitize_logs.sh err
+  $ "${SANITIZE_LOGS}" err
   F, [DATE TIME PID] FATAL -- 
   ("Error running pasv check"
    ("error in check_alignment"

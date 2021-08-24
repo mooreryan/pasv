@@ -14,6 +14,8 @@ Set up environment variables.
   $ export ACTUAL_SIGNATURES=amk_queries.pasv_signatures.tsv
   $ export ROI_START=20
   $ export ROI_END=80
+  $ export SANITIZE_LOGS=./sanitize_logs
+
 
 Without ROI.
 
@@ -21,7 +23,7 @@ Without ROI.
   [1]
   $ pasv msa -v --jobs=4 --outdir="${OUTDIR}" "${QUERIES}" "${REFS}" "${RESIDUES}" 2> err
   $ bash check_results.sh "${EXPECTED_SIGNATURES}" "${OUTDIR}/${ACTUAL_SIGNATURES}"
-  $ bash sanitize_logs.sh err > err_sanitized
+  $ "${SANITIZE_LOGS}" err > err_sanitized
   $ diff "${EXPECTED_V_LOG}" err_sanitized
 
 With ROI.  Note that the log sanitizing is a bit different as the
@@ -31,7 +33,7 @@ order may be different since it's async.
   [1]
   $ pasv msa -vv --alignment-parameters=--threads=1 --jobs=4 --outdir="${OUTDIR}" --roi-start="${ROI_START}" --roi-end="${ROI_END}" "${QUERIES}" "${REFS}" "${RESIDUES}" 2> err
   $ bash check_results.sh "${EXPECTED_SIGNATURES_WITH_ROI}" "${OUTDIR}/${ACTUAL_SIGNATURES}"
-  $ bash sanitize_logs.sh err > err_sanitized
+  $ "${SANITIZE_LOGS}" err > err_sanitized
   $ diff "${EXPECTED_VV_LOG}" err_sanitized
 
 #########################################
@@ -44,7 +46,7 @@ Without ROI.
   [1]
   $ pasv msa -v --aligner=mafft --alignment-parameters='--thread 1 --auto' --jobs=4 --outdir="${OUTDIR}" "${QUERIES}" "${REFS}" "${RESIDUES}" 2> err
   $ bash check_results.sh "${EXPECTED_SIGNATURES}" "${OUTDIR}/${ACTUAL_SIGNATURES}"
-  $ bash sanitize_logs.sh err > err_sanitized
+  $ "${SANITIZE_LOGS}" err > err_sanitized
   $ diff "${EXPECTED_V_LOG}" err_sanitized
 
 With ROI.  Note that the log sanitizing is a bit different as the
@@ -54,6 +56,6 @@ order may be different since it's async.
   [1]
   $ pasv msa -vv --aligner=mafft --alignment-parameters='--thread 1 --auto' --jobs=4 --outdir="${OUTDIR}" --roi-start="${ROI_START}" --roi-end="${ROI_END}" "${QUERIES}" "${REFS}" "${RESIDUES}" 2> err
   $ bash check_results.sh "${EXPECTED_SIGNATURES_WITH_ROI}" "${OUTDIR}/${ACTUAL_SIGNATURES}"
-  $ bash sanitize_logs.sh err > err_sanitized
+  $ "${SANITIZE_LOGS}" err > err_sanitized
   $ diff "${EXPECTED_VV_LOG}" err_sanitized
 

@@ -9,6 +9,7 @@ Set up environment variables.
   $ export RESIDUES=50,52,54
   $ export ROI_START=20
   $ export ROI_END=80
+  $ export SANITIZE_LOGS=$PWD/../../helpers/sanitize_logs
 
 Help screen
 
@@ -126,7 +127,7 @@ Non empty (default) outdir without --force gives error.
   [1]
   $ pasv msa "${QUERIES}" "${REFS}" "${RESIDUES}" 2> err
   [1]
-  $ bash sanitize_logs.sh err
+  $ "${SANITIZE_LOGS}" err
   F, [DATE TIME PID] FATAL -- --outdir '.' already exists but --force was not given
 
 Non empty outdir without --force gives error.
@@ -136,7 +137,7 @@ Non empty outdir without --force gives error.
   $ mkdir "${OUTDIR}"
   $ pasv msa --outdir="${OUTDIR}" "${QUERIES}" "${REFS}" "${RESIDUES}" 2> err
   [1]
-  $ bash sanitize_logs.sh err
+  $ "${SANITIZE_LOGS}" err
   F, [DATE TIME PID] FATAL -- --outdir 'apple' already exists but --force was not given
 
 
@@ -147,6 +148,6 @@ Running twice with same args will give an error.
   $ pasv msa --outdir="${OUTDIR}" "${QUERIES}" "${REFS}" "${RESIDUES}"
   $ pasv msa --outdir="${OUTDIR}" "${QUERIES}" "${REFS}" "${RESIDUES}" 2> err
   [1]
-  $ bash sanitize_logs.sh err
+  $ "${SANITIZE_LOGS}" err
   F, [DATE TIME PID] FATAL -- --outdir 'apple' already exists but --force was not given
 

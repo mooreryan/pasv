@@ -1,6 +1,5 @@
 Set up environment variables.
 
-  $ export SANITIZE_LOGS=sanitize_logs.sh
   $ export QUERIES=amk_queries.fa
   $ export REFS=P00582.refs.aln.hmm
   $ export MAIN_REF=amk_main_ref.fa
@@ -11,6 +10,8 @@ Set up environment variables.
   $ export ROI_START=20
   $ export ROI_END=80
   $ export EXPECTED_SIGNATURES_WITH_ROI=expected.with_roi.amk_queries.pasv_signatures.tsv
+  $ export SANITIZE_LOGS=$PWD/../../helpers/sanitize_logs
+
 
 ######################
 #### Bad residues ####
@@ -60,7 +61,7 @@ Actually parsing residues that are too high.
   [1]
   $ pasv hmm --outdir="${OUTDIR}" "${QUERIES}" "${REFS}" "${MAIN_REF}" 20,200000 2> err
   [1]
-  $ bash "${SANITIZE_LOGS}" err
+  $ "${SANITIZE_LOGS}" err
   F, [DATE TIME PID] FATAL -- 
   ("Error running pasv hmm"
    ("error in check_alignment"
@@ -157,7 +158,7 @@ ROI start equals ROI end gives error.
   [1]
   $ pasv hmm --roi-start=80 --roi-end=80 --outdir="${OUTDIR}" "${QUERIES}" "${REFS}" "${MAIN_REF}" "${RESIDUES}" 2> err
   [1]
-  $ bash "${SANITIZE_LOGS}" err
+  $ "${SANITIZE_LOGS}" err
   F, [DATE TIME PID] FATAL -- ROI start (79) is should be strictly less than ROI end (79)
 
 ROI start greater than ROI end gives error.
@@ -166,7 +167,7 @@ ROI start greater than ROI end gives error.
   [1]
   $ pasv hmm --roi-start=80 --roi-end=20 --outdir="${OUTDIR}" "${QUERIES}" "${REFS}" "${MAIN_REF}" "${RESIDUES}" 2> err
   [1]
-  $ bash "${SANITIZE_LOGS}" err
+  $ "${SANITIZE_LOGS}" err
   F, [DATE TIME PID] FATAL -- ROI start (79) is should be strictly less than ROI end (19)
 
 ###############################
@@ -179,7 +180,7 @@ Passing fasta when I expect hmm file.
   [1]
   $ pasv hmm --roi-start=80 --roi-end=20 --outdir="${OUTDIR}" "${QUERIES}" "${MAIN_REF}" "${MAIN_REF}" "${RESIDUES}" 2> err
   [1]
-  $ bash "${SANITIZE_LOGS}" err
+  $ "${SANITIZE_LOGS}" err
   F, [DATE TIME PID] FATAL -- file 'amk_main_ref.fa' doesn't look like an hmm file.  Check the file format!
 
 Passing hmm file to queries.
@@ -188,7 +189,7 @@ Passing hmm file to queries.
   [1]
   $ pasv hmm --roi-start=80 --roi-end=20 --outdir="${OUTDIR}" "${REFS}" "${REFS}" "${MAIN_REF}" "${RESIDUES}" 2> err
   [1]
-  $ bash "${SANITIZE_LOGS}" err
+  $ "${SANITIZE_LOGS}" err
   F, [DATE TIME PID] FATAL -- file 'P00582.refs.aln.hmm' doesn't look like an fasta file.  Check the file format!
 
 Passing hmm file to key ref.
@@ -197,12 +198,12 @@ Passing hmm file to key ref.
   [1]
   $ pasv hmm --roi-start=80 --roi-end=20 --outdir="${OUTDIR}" "${QUERIES}" "${REFS}" "${REFS}" "${RESIDUES}" 2> err
   [1]
-  $ bash "${SANITIZE_LOGS}" err
+  $ "${SANITIZE_LOGS}" err
   F, [DATE TIME PID] FATAL -- file 'P00582.refs.aln.hmm' doesn't look like an fasta file.  Check the file format!
 
 
 
-
+########
 
 
 
@@ -212,7 +213,7 @@ Empty queries.
   [1]
   $ pasv hmm --roi-start=80 --roi-end=20 --outdir="${OUTDIR}" empty.txt "${REFS}" "${MAIN_REF}" "${RESIDUES}" 2> err
   [1]
-  $ bash "${SANITIZE_LOGS}" err
+  $ "${SANITIZE_LOGS}" err
   F, [DATE TIME PID] FATAL -- file 'empty.txt' doesn't look like an fasta file.  Check the file format!
 
 Empty refs.
@@ -221,7 +222,7 @@ Empty refs.
   [1]
   $ pasv hmm --roi-start=80 --roi-end=20 --outdir="${OUTDIR}" "${QUERIES}" empty.txt "${MAIN_REF}" "${RESIDUES}" 2> err
   [1]
-  $ bash "${SANITIZE_LOGS}" err
+  $ "${SANITIZE_LOGS}" err
   F, [DATE TIME PID] FATAL -- file 'empty.txt' doesn't look like an hmm file.  Check the file format!
 
 Empty key sequence.
@@ -230,6 +231,6 @@ Empty key sequence.
   [1]
   $ pasv hmm --roi-start=80 --roi-end=20 --outdir="${OUTDIR}" "${QUERIES}" "${REFS}" empty.txt "${RESIDUES}" 2> err
   [1]
-  $ bash "${SANITIZE_LOGS}" err
+  $ "${SANITIZE_LOGS}" err
   F, [DATE TIME PID] FATAL -- file 'empty.txt' doesn't look like an fasta file.  Check the file format!
 

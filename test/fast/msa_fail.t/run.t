@@ -8,14 +8,13 @@ Set up environment variables.
   $ export RESIDUES=50,52,54
   $ export ROI_START=20
   $ export ROI_END=80
+  $ export SANITIZE_LOGS=./sanitize_logs
 
 This aln outfile is okay as our query set only has one sequence.
 
   $ export ALN_OUTFILE=apple/refs_and_query_0.aln.fa
 
-
 TODO need a way to test one of the queries failing but the others being okay.
-
 
 ###############################
 #### Mixing up input files ####
@@ -27,7 +26,7 @@ Queries is not a fasta.
   [1]
   $ pasv msa --roi-start=80 --roi-end=20 --outdir="${OUTDIR}" bad_fa.txt "${REFS}" "${RESIDUES}" 2> err
   [1]
-  $ bash "${SANITIZE_LOGS}" err
+  $ "${SANITIZE_LOGS}" err
   F, [DATE TIME PID] FATAL -- file 'bad_fa.txt' doesn't look like an fasta file.  Check the file format!
 
 Refs is not a fasta.
@@ -36,7 +35,7 @@ Refs is not a fasta.
   [1]
   $ pasv msa --roi-start=80 --roi-end=20 --outdir="${OUTDIR}" "${QUERIES}" bad_fa.txt "${RESIDUES}" 2> err
   [1]
-  $ bash "${SANITIZE_LOGS}" err
+  $ "${SANITIZE_LOGS}" err
   F, [DATE TIME PID] FATAL -- file 'bad_fa.txt' doesn't look like an fasta file.  Check the file format!
 
 Queries is empty
@@ -45,7 +44,7 @@ Queries is empty
   [1]
   $ pasv msa --roi-start=80 --roi-end=20 --outdir="${OUTDIR}" empty.txt "${REFS}" "${RESIDUES}" 2> err
   [1]
-  $ bash "${SANITIZE_LOGS}" err
+  $ "${SANITIZE_LOGS}" err
   F, [DATE TIME PID] FATAL -- file 'empty.txt' doesn't look like an fasta file.  Check the file format!
 
 Refs is empty.
@@ -54,7 +53,7 @@ Refs is empty.
   [1]
   $ pasv msa --roi-start=80 --roi-end=20 --outdir="${OUTDIR}" "${QUERIES}" empty.txt "${RESIDUES}" 2> err
   [1]
-  $ bash "${SANITIZE_LOGS}" err
+  $ "${SANITIZE_LOGS}" err
   F, [DATE TIME PID] FATAL -- file 'empty.txt' doesn't look like an fasta file.  Check the file format!
 
 #### Real zany stuff here
@@ -65,7 +64,7 @@ Bad exit code, no output file is made.
   [1]
   $ pasv msa -vv --aligner=./clustalo.msa_fail --outdir="${OUTDIR}" "${QUERIES}" "${REFS}" "${RESIDUES}" 2> err
   [1]
-  $ bash "${SANITIZE_LOGS}" err
+  $ "${SANITIZE_LOGS}" err
   I, [DATE TIME PID] INFO -- Working on query 1
   D, [DATE TIME PID] DEBUG -- Running command: ./clustalo.msa_fail --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa
   E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
@@ -185,7 +184,7 @@ Bad exit code, output file made, but pasv still removes it.
   [1]
   $ ./does_file_exist "${ALN_OUTFILE}"
   no
-  $ bash "${SANITIZE_LOGS}" err
+  $ "${SANITIZE_LOGS}" err
   I, [DATE TIME PID] INFO -- Working on query 1
   D, [DATE TIME PID] DEBUG -- Running command: ./clustalo.msa_fail_with_output_aln_file --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa
   E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
@@ -303,7 +302,7 @@ the MSA software.
   [1]
   $ pasv msa -vv --aligner=./clustalo.msa_success_no_outfile --outdir="${OUTDIR}" "${QUERIES}" "${REFS}" "${RESIDUES}" 2> err
   [1]
-  $ bash "${SANITIZE_LOGS}" err
+  $ "${SANITIZE_LOGS}" err
   I, [DATE TIME PID] INFO -- Working on query 1
   D, [DATE TIME PID] DEBUG -- Running command: ./clustalo.msa_success_no_outfile --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa
   E, [DATE TIME PID] ERROR -- Error running msa: Command (./clustalo.msa_success_no_outfile --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa) succeeded, but the outfile (apple/refs_and_query_0.aln.fa) does not exist!
@@ -314,7 +313,7 @@ This one outputs "fake" aln file without key reference.
   [1]
   $ pasv msa -vv --aligner=./clustalo.msa_success_no_key_ref --outdir="${OUTDIR}" "${QUERIES}" "${REFS}" "${RESIDUES}" 2> err
   [1]
-  $ bash "${SANITIZE_LOGS}" err
+  $ "${SANITIZE_LOGS}" err
   I, [DATE TIME PID] INFO -- Working on query 1
   D, [DATE TIME PID] DEBUG -- Running command: ./clustalo.msa_success_no_key_ref --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa
   E, [DATE TIME PID] ERROR -- ("error in check_alignment"
@@ -327,7 +326,7 @@ This one outputs "fake" aln file with zero length query seq.
   [1]
   $ pasv msa -vv --aligner=./clustalo.msa_success_zero_len_seqs --outdir="${OUTDIR}" "${QUERIES}" "${REFS}" "${RESIDUES}" 2> err
   [1]
-  $ bash "${SANITIZE_LOGS}" err
+  $ "${SANITIZE_LOGS}" err
   I, [DATE TIME PID] INFO -- Working on query 1
   D, [DATE TIME PID] DEBUG -- Running command: ./clustalo.msa_success_zero_len_seqs --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa
   E, [DATE TIME PID] ERROR -- ("error in check_alignment"
@@ -342,7 +341,7 @@ This one outputs "fake" aln file with no queries, just key seqs.
   [1]
   $ pasv msa -vv --aligner=./clustalo.msa_success_only_key_seqs --outdir="${OUTDIR}" "${QUERIES}" "${REFS}" "${RESIDUES}" 2> err
   [1]
-  $ bash "${SANITIZE_LOGS}" err
+  $ "${SANITIZE_LOGS}" err
   I, [DATE TIME PID] INFO -- Working on query 1
   D, [DATE TIME PID] DEBUG -- Running command: ./clustalo.msa_success_only_key_seqs --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa
   E, [DATE TIME PID] ERROR -- ("error in check_alignment"
@@ -361,7 +360,7 @@ Bad exit code, no output file is made.
   [1]
   $ pasv msa -vv --aligner=./mafft.msa_fail --alignment-parameters='--auto --thread 1' --outdir="${OUTDIR}" "${QUERIES}" "${REFS}" "${RESIDUES}" 2> err
   [1]
-  $ bash "${SANITIZE_LOGS}" err
+  $ "${SANITIZE_LOGS}" err
   I, [DATE TIME PID] INFO -- Working on query 1
   D, [DATE TIME PID] DEBUG -- Running command: ./mafft.msa_fail --auto --thread 1 apple/refs_and_query_0.fa
   E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
@@ -457,7 +456,7 @@ Bad exit code, output file is made.
   [1]
   $ ./does_file_exist "${ALN_OUTFILE}"
   no
-  $ bash "${SANITIZE_LOGS}" err
+  $ "${SANITIZE_LOGS}" err
   I, [DATE TIME PID] INFO -- Working on query 1
   D, [DATE TIME PID] DEBUG -- Running command: ./mafft.msa_fail_with_output_aln_file --auto --thread 1 apple/refs_and_query_0.fa
   E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
@@ -551,7 +550,7 @@ nothing to stdout.  This would be a weird mafft bug.
   [1]
   $ pasv msa -vv --aligner=./mafft.msa_success_no_outfile --alignment-parameters='--auto --thread 1' --outdir="${OUTDIR}" "${QUERIES}" "${REFS}" "${RESIDUES}" 2> err
   [1]
-  $ bash "${SANITIZE_LOGS}" err
+  $ "${SANITIZE_LOGS}" err
   I, [DATE TIME PID] INFO -- Working on query 1
   D, [DATE TIME PID] DEBUG -- Running command: ./mafft.msa_success_no_outfile --auto --thread 1 apple/refs_and_query_0.fa
   E, [DATE TIME PID] ERROR -- ("error in check_alignment"
@@ -566,7 +565,7 @@ This one outputs "fake" aln file without key reference.
   [1]
   $ pasv msa -vv --aligner=./mafft.msa_success_no_key_ref --alignment-parameters='--auto --thread 1' --outdir="${OUTDIR}" "${QUERIES}" "${REFS}" "${RESIDUES}" 2> err
   [1]
-  $ bash "${SANITIZE_LOGS}" err
+  $ "${SANITIZE_LOGS}" err
   I, [DATE TIME PID] INFO -- Working on query 1
   D, [DATE TIME PID] DEBUG -- Running command: ./mafft.msa_success_no_key_ref --auto --thread 1 apple/refs_and_query_0.fa
   E, [DATE TIME PID] ERROR -- ("error in check_alignment"
@@ -579,7 +578,7 @@ This one outputs "fake" aln file with zero length query seq.
   [1]
   $ pasv msa -vv --aligner=./mafft.msa_success_zero_len_seqs --alignment-parameters='--auto --thread 1' --outdir="${OUTDIR}" "${QUERIES}" "${REFS}" "${RESIDUES}" 2> err
   [1]
-  $ bash "${SANITIZE_LOGS}" err
+  $ "${SANITIZE_LOGS}" err
   I, [DATE TIME PID] INFO -- Working on query 1
   D, [DATE TIME PID] DEBUG -- Running command: ./mafft.msa_success_zero_len_seqs --auto --thread 1 apple/refs_and_query_0.fa
   E, [DATE TIME PID] ERROR -- ("error in check_alignment"
@@ -595,7 +594,7 @@ This one outputs "fake" aln file with no queries, just key seqs.
   [1]
   $ pasv msa -vv --aligner=./mafft.msa_success_only_key_seqs --alignment-parameters='--auto --thread 1' --outdir="${OUTDIR}" "${QUERIES}" "${REFS}" "${RESIDUES}" 2> err
   [1]
-  $ bash "${SANITIZE_LOGS}" err
+  $ "${SANITIZE_LOGS}" err
   I, [DATE TIME PID] INFO -- Working on query 1
   D, [DATE TIME PID] DEBUG -- Running command: ./mafft.msa_success_only_key_seqs --auto --thread 1 apple/refs_and_query_0.fa
   E, [DATE TIME PID] ERROR -- ("error in check_alignment"
@@ -612,7 +611,7 @@ Bogus mafft parameters is an error.
   [1]
   $ pasv msa -vv --aligner=mafft --alignment-parameters=teehee --outdir="${OUTDIR}" "${QUERIES}" "${REFS}" "${RESIDUES}" 2> err
   [1]
-  $ bash "${SANITIZE_LOGS}" err
+  $ "${SANITIZE_LOGS}" err
   I, [DATE TIME PID] INFO -- Working on query 1
   D, [DATE TIME PID] DEBUG -- Running command: mafft teehee apple/refs_and_query_0.fa
   E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
@@ -933,7 +932,7 @@ Using the default parameters with mafft works.
   $ rm -r "${OUTDIR}" pasv.tmp.* "${ACTUAL_SIGNATURES}" 2> /dev/null
   [1]
   $ pasv msa -vv --aligner=mafft --outdir="${OUTDIR}" "${QUERIES}" "${REFS}" "${RESIDUES}" 2> err
-  $ bash "${SANITIZE_LOGS}" err
+  $ "${SANITIZE_LOGS}" err
   I, [DATE TIME PID] INFO -- Working on query 1
   D, [DATE TIME PID] DEBUG -- Running command: mafft --thread 1 --auto apple/refs_and_query_0.fa
 
@@ -944,7 +943,7 @@ but keeps the --threads=1 from clustalo.
   [1]
   $ pasv msa -vv --aligner=mafft --alignment-parameters='--threads=1 --auto' --outdir="${OUTDIR}" "${QUERIES}" "${REFS}" "${RESIDUES}" 2> err
   [1]
-  $ bash "${SANITIZE_LOGS}" err
+  $ "${SANITIZE_LOGS}" err
   F, [DATE TIME PID] FATAL -- --other-parameters contains --threads.  This is valid for clustalo but not for mafft.  Did you use the correct aligner?  If you meant to use mafft, and you want a single thread, use --thread.  E.g., for mafft, try pasv msa --aligner=mafft --alignment-parameters='--thread 1 --auto' ...
 
 Setting alignment parameters in weird ways raises errors.
@@ -953,7 +952,7 @@ Setting alignment parameters in weird ways raises errors.
   [1]
   $ pasv msa -vv --aligner=mafft --alignment-parameters '--auto' --outdir="${OUTDIR}" "${QUERIES}" "${REFS}" "${RESIDUES}" 2> err
   [1]
-  $ bash "${SANITIZE_LOGS}" err
+  $ "${SANITIZE_LOGS}" err
   pasv: unknown option `--auto', did you mean `-a' ?
   Usage: pasv msa [OPTION]... QUERIES REFERENCES KEY_RESIDUES
   Try `pasv msa --help' or `pasv --help' for more information.

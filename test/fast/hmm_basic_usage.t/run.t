@@ -10,6 +10,8 @@ Set up environment variables.
   $ export ROI_START=20
   $ export ROI_END=80
   $ export EXPECTED_SIGNATURES_WITH_ROI=expected.with_roi.amk_queries.pasv_signatures.tsv
+  $ export SANITIZE_LOGS=$PWD/../../helpers/sanitize_logs
+
 
 Help screen
 
@@ -115,7 +117,7 @@ Non empty (default) outdir without --force gives error.
   [1]
   $ pasv hmm "${QUERIES}" "${REFS}" "${MAIN_REF}" "${RESIDUES}" 2> err
   [1]
-  $ bash sanitize_logs.sh err
+  $ "${SANITIZE_LOGS}" err
   F, [DATE TIME PID] FATAL -- --outdir '.' already exists but --force was not given
 
 Non empty (default) outdir with --force works
@@ -132,7 +134,7 @@ Non empty outdir without --force gives error.
   $ mkdir "${OUTDIR}"
   $ pasv hmm --outdir="${OUTDIR}" "${QUERIES}" "${REFS}" "${MAIN_REF}" "${RESIDUES}" 2> err
   [1]
-  $ bash sanitize_logs.sh err
+  $ "${SANITIZE_LOGS}" err
   F, [DATE TIME PID] FATAL -- --outdir 'apple' already exists but --force was not given
 
 Non empty outdir with --force works.
@@ -157,7 +159,7 @@ Running twice with same args will give an error.
   $ pasv hmm --outdir="${OUTDIR}" "${QUERIES}" "${REFS}" "${MAIN_REF}" "${RESIDUES}"
   $ pasv hmm --outdir="${OUTDIR}" "${QUERIES}" "${REFS}" "${MAIN_REF}" "${RESIDUES}" 2> err
   [1]
-  $ bash sanitize_logs.sh err
+  $ "${SANITIZE_LOGS}" err
   F, [DATE TIME PID] FATAL -- --outdir 'apple' already exists but --force was not given
 
 Running twice with same args with --force works.

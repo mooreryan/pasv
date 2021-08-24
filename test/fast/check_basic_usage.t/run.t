@@ -14,6 +14,7 @@ Set up environment variables.
   $ export EXPECTED_SIGNATURES_WITH_ROI=expected.with_roi.amk_main_ref_queries.aln.pasv_signatures.tsv
   $ export EXPECTED_SIGNATURES_WITH_ROI_START=expected.with_start.amk_main_ref_queries.aln.pasv_signatures.tsv
   $ export EXPECTED_SIGNATURES_WITH_ROI_END=expected.with_end.amk_main_ref_queries.aln.pasv_signatures.tsv
+  $ export SANITIZE_LOGS=$PWD/../../helpers/sanitize_logs
 
 Help screen
 
@@ -107,7 +108,7 @@ Non empty (default) outdir without --force gives error.
   [1]
   $ pasv check "${ALN}" "${RESIDUES}" 2> err
   [1]
-  $ bash sanitize_logs.sh err
+  $ "${SANITIZE_LOGS}" err
   F, [DATE TIME PID] FATAL -- --outdir '.' already exists but --force was not given
 
 Non empty (default) outdir with --force works
@@ -124,7 +125,7 @@ Non empty outdir without --force gives error.
   $ mkdir "${OUTDIR}"
   $ pasv check --outdir="${OUTDIR}" "${ALN}" "${RESIDUES}" 2> err
   [1]
-  $ bash sanitize_logs.sh err
+  $ "${SANITIZE_LOGS}" err
   F, [DATE TIME PID] FATAL -- --outdir 'apple' already exists but --force was not given
 
 Non empty outdir with --force works.
@@ -142,7 +143,7 @@ Running twice with same args will give an error.
   $ pasv check --outdir="${OUTDIR}" "${ALN}" "${RESIDUES}"
   $ pasv check --outdir="${OUTDIR}" "${ALN}" "${RESIDUES}" 2> err
   [1]
-  $ bash sanitize_logs.sh err
+  $ "${SANITIZE_LOGS}" err
   F, [DATE TIME PID] FATAL -- --outdir 'apple' already exists but --force was not given
 
 Running twice with same args with --force works.
@@ -180,7 +181,7 @@ Bad fasta
   [1]
   $ pasv check --outdir="${OUTDIR}" --roi-start="${ROI_START}" --roi-end="${ROI_END}" bad_fa.txt "${RESIDUES}" 2> err
   [1]
-  $ bash sanitize_logs.sh err
+  $ "${SANITIZE_LOGS}" err
   F, [DATE TIME PID] FATAL -- file 'bad_fa.txt' doesn't look like an fasta file.  Check the file format!
 
 ROI start isn't a string
@@ -189,7 +190,7 @@ ROI start isn't a string
   [1]
   $ pasv check --outdir="${OUTDIR}" --roi-start=apple "${ALN}" "${RESIDUES}" 2> err
   [1]
-  $ bash sanitize_logs.sh err
+  $ "${SANITIZE_LOGS}" err
   pasv: option `--roi-start': invalid value 'apple', expected a number >= 1
   Usage: pasv check [OPTION]... ALIGNMENT KEY_RESIDUES
   Try `pasv check --help' or `pasv --help' for more information.
@@ -200,7 +201,7 @@ ROI end isn't a string
   [1]
   $ pasv check --outdir="${OUTDIR}" --roi-end=apple "${ALN}" "${RESIDUES}" 2> err
   [1]
-  $ bash sanitize_logs.sh err
+  $ "${SANITIZE_LOGS}" err
   pasv: option `--roi-end': invalid value 'apple', expected a number >= 1
   Usage: pasv check [OPTION]... ALIGNMENT KEY_RESIDUES
   Try `pasv check --help' or `pasv --help' for more information.
