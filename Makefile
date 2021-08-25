@@ -12,7 +12,7 @@ build_release:
 
 .PHONY: install
 install: build_release
-	dune install
+	dune install --profile=release
 
 .PHONY: test_slow
 test_slow: build
