@@ -37,12 +37,36 @@ let counting_number_converter =
   let num_printer : int Arg.printer = Format.pp_print_int in
   Arg.conv (num_parser, num_printer)
 
+(* aka positive integer >= 0 *)
+let positive_number_converter =
+  let num_parser s =
+    Arg.parser_of_kind_of_string ~kind:"a number >= 0"
+      (fun s ->
+        let open Option.Let_syntax in
+        let%bind n = try Some (Int.of_string s) with _ -> None in
+        if n < 0 then None else Some n)
+      s
+  in
+  let num_printer : int Arg.printer = Format.pp_print_int in
+  Arg.conv (num_parser, num_printer)
+
 let jobs_term =
   let doc = "Number of jobs to run." in
   Arg.(
     value
     & opt counting_number_converter 1
     & info [ "j"; "jobs" ] ~docv:"JOBS" ~doc)
+
+let max_retries_term =
+  let doc =
+    "Maximum number of job retries.  Sometimes the MSA software will fail, so \
+     individual jobs will be retried until they succeed or until this number \
+     of tries is reached."
+  in
+  Arg.(
+    value
+    & opt positive_number_converter 10
+    & info [ "r"; "max-retries" ] ~docv:"MAX_RETRIES" ~doc)
 
 let aligner_other_params_term =
   let doc =
@@ -220,7 +244,7 @@ let pasv_hmm_term =
 let pasv_msa_term =
   let msa_opts_term =
     let make_msa_opts queries references key_residues keep_intermediate_files
-        aligner other_parameters jobs : Pasv.Msa.opts =
+        aligner other_parameters jobs max_retries : Pasv.Msa.opts =
       {
         queries;
         references;
@@ -229,12 +253,13 @@ let pasv_msa_term =
         aligner;
         other_parameters;
         jobs;
+        max_retries;
       }
     in
     Term.(
       const make_msa_opts $ queries_term $ references_fasta_term
       $ key_residues_msa_term $ keep_intermediate_files_term $ aligner_term
-      $ aligner_other_params_term $ jobs_term)
+      $ aligner_other_params_term $ jobs_term $ max_retries_term)
   in
   let combine_terms common_opts hmm_opts : Pasv.common_opts * Pasv.specific_opts
       =

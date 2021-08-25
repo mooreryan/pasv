@@ -1,6 +1,9 @@
 open! Core
 open Little_logger
 
+(* Note: some of these have type annotations to help Merlin out with making the
+   inferred types look nicer. *)
+
 module Msa = struct
   type aligner = Clustalo of string | Mafft of string
 
@@ -14,9 +17,12 @@ module Msa = struct
     else if String.is_substring s' ~substring:"mafft" then Some (Mafft s)
     else None
 
-  let max_tries = 10
-
-  type opts = { infile : string; outfile : string; other_parameters : string }
+  type opts = {
+    infile : string;
+    outfile : string;
+    other_parameters : string;
+    max_retries : int;
+  }
 
   type out = {
     result : unit Or_error.t;
@@ -46,7 +52,7 @@ module Msa = struct
     let args = [%string "%{opts.other_parameters} %{opts.infile}"] in
     String.split args ~on:' '
 
-  let run_clustalo opts exe =
+  let run_clustalo opts exe : string Async.Deferred.Or_error.t =
     (* We do this weird looping thing because with pasv v1 using mafft, mafft
        will just randomly fail when running a lot of threads on a server with a
        lot of CPUs and other jobs. Generally just rerunning the jobs would fix
@@ -73,20 +79,20 @@ module Msa = struct
             else Deferred.return ()
           in
           Logger.error (fun () ->
-              if num_tries < max_tries then
+              if num_tries < opts.max_retries then
                 [%string "MSA failed.  Will retry.\n%{Error.to_string_hum err}"]
               else
                 [%string
                   "MSA failed.  Max attempts exceeded.\n\
                    %{Error.to_string_hum err}"]);
-          if num_tries < max_tries then loop (num_tries + 1)
+          if num_tries < opts.max_retries then loop (num_tries + 1)
           else
             Deferred.Or_error.fail err
-            |> Deferred.Or_error.tag ~tag:"msa failed after 10 tries"
+            |> Deferred.Or_error.tag ~tag:"msa failed after max-retries"
     in
     loop 0
 
-  let run_mafft opts exe =
+  let run_mafft opts exe : string Async.Deferred.Or_error.t =
     let open Async in
     let rec loop num_tries =
       let args = make_mafft_args opts in
@@ -107,16 +113,16 @@ module Msa = struct
           Deferred.Or_error.return ""
       | Error err ->
           Logger.error (fun () ->
-              if num_tries < max_tries then
+              if num_tries < opts.max_retries then
                 [%string "MSA failed.  Will retry.\n%{Error.to_string_hum err}"]
               else
                 [%string
                   "MSA failed.  Max attempts exceeded.\n\
                    %{Error.to_string_hum err}"]);
-          if num_tries < max_tries then loop (num_tries + 1)
+          if num_tries < opts.max_retries then loop (num_tries + 1)
           else
             Deferred.Or_error.fail err
-            |> Deferred.Or_error.tag ~tag:"msa failed after 10 tries"
+            |> Deferred.Or_error.tag ~tag:"msa failed after max-retries"
     in
     loop 0
 

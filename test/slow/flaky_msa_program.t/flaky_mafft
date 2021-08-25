@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# Example
+#
+# $ RUN_FLAKY_MAFFT=apple_pie ./flaky_mafft 
+# mafft failed :(
+# $ RUN_FLAKY_MAFFT=apple_pie ./flaky_mafft 
+# mafft succeeded :)
+# $ RUN_FLAKY_MAFFT=apple_pie ./flaky_mafft 
+# mafft failed :(
+
+
+if [ -f $RUN_FLAKY_MAFFT ]; then
+    rm $RUN_FLAKY_MAFFT
+    mafft "$@"
+    # printf "mafft succeeded :)\n"
+else
+    touch $RUN_FLAKY_MAFFT
+    printf "mafft failed :(\n" 2>&1
+    exit 1
+fi
+

@@ -192,6 +192,7 @@ module Msa = struct
     aligner : Runners.Msa.aligner;
     other_parameters : string;
     jobs : int;
+    max_retries : int;
   }
 
   let get_signature msa_out outfile common_opts (opts : opts) =
@@ -251,6 +252,7 @@ module Msa = struct
           infile = msa_infile_name;
           outfile = msa_outfile_name;
           other_parameters = opts.other_parameters;
+          max_retries = opts.max_retries;
         }
       in
       Runners.Msa.run msa_opts opts.aligner

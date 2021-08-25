@@ -165,7 +165,7 @@ Bad exit code, no output file is made.
       apple/refs_and_query_0.aln.fa))
     (exit_status (Exit_non_zero 47)) (stdout "")
     (stderr ("a bad thing happened..." ""))))
-  E, [DATE TIME PID] ERROR -- Error running msa: ("msa failed after 10 tries"
+  E, [DATE TIME PID] ERROR -- Error running msa: ("msa failed after max-retries"
    ("Process.run failed"
     ((prog ./clustalo.msa_fail)
      (args
@@ -285,7 +285,7 @@ Bad exit code, output file made, but pasv still removes it.
       apple/refs_and_query_0.aln.fa))
     (exit_status (Exit_non_zero 47)) (stdout "")
     (stderr ("a bad thing happened..." ""))))
-  E, [DATE TIME PID] ERROR -- Error running msa: ("msa failed after 10 tries"
+  E, [DATE TIME PID] ERROR -- Error running msa: ("msa failed after max-retries"
    ("Process.run failed"
     ((prog ./clustalo.msa_fail_with_output_aln_file)
      (args
@@ -439,7 +439,7 @@ Bad exit code, no output file is made.
     (args (--auto --thread 1 apple/refs_and_query_0.fa))
     (exit_status (Exit_non_zero 47)) (stdout "")
     (stderr ("a bad thing happened..." ""))))
-  E, [DATE TIME PID] ERROR -- Error running msa: ("msa failed after 10 tries"
+  E, [DATE TIME PID] ERROR -- Error running msa: ("msa failed after max-retries"
    ("Process.run failed"
     ((prog ./mafft.msa_fail)
      (args (--auto --thread 1 apple/refs_and_query_0.fa))
@@ -535,7 +535,7 @@ Bad exit code, output file is made.
     (args (--auto --thread 1 apple/refs_and_query_0.fa))
     (exit_status (Exit_non_zero 47)) (stdout "")
     (stderr ("a bad thing happened..." ""))))
-  E, [DATE TIME PID] ERROR -- Error running msa: ("msa failed after 10 tries"
+  E, [DATE TIME PID] ERROR -- Error running msa: ("msa failed after max-retries"
    ("Process.run failed"
     ((prog ./mafft.msa_fail_with_output_aln_file)
      (args (--auto --thread 1 apple/refs_and_query_0.fa))
@@ -899,7 +899,7 @@ Bogus mafft parameters is an error.
       "--thread # :     Number of threads (if unsure, --thread -1)"
       "--dash :         Add structural information (Rozewicki et al, submitted)"
       ""))))
-  E, [DATE TIME PID] ERROR -- Error running msa: ("msa failed after 10 tries"
+  E, [DATE TIME PID] ERROR -- Error running msa: ("msa failed after max-retries"
    ("Process.run failed"
     ((prog mafft) (args (teehee apple/refs_and_query_0.fa))
      (exit_status (Exit_non_zero 1)) (stdout "")

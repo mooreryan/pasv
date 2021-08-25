@@ -59,6 +59,11 @@ Help screen
          -k, --keep
              Keep intermediate files
   
+         -r MAX_RETRIES, --max-retries=MAX_RETRIES (absent=10)
+             Maximum number of job retries. Sometimes the MSA software will
+             fail, so individual jobs will be retried until they succeed or
+             until this number of tries is reached.
+  
   COMMON OPTIONS
          These options are common to all commands.
   
