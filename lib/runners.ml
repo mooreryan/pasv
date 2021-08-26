@@ -77,13 +77,20 @@ module Msa = struct
     in
     Logger.serror msg
 
-  let run_until_succes_or_error prog args max_retries =
+  let run_until_succes_or_error ?(delay = 0.1) prog args max_retries =
+    let delay =
+      if Float.(delay <= 0.0) then sec 0.0
+      else Time.Span.randomize (sec delay) ~percent:(Percent.of_percentage 25.)
+    in
     let rec loop num_tries =
       match%bind Process.run ~prog ~args () with
       | Ok stdout -> Deferred.Or_error.return stdout
       | Error err ->
           if num_tries < max_retries then (
             log_retryable_error prog args err;
+            (* We want to give just a little bit of delay before retrying the
+               job again. *)
+            let%bind (_ : unit) = after delay in
             loop (num_tries + 1))
           else (
             log_final_error prog args err;
