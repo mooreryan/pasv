@@ -67,112 +67,103 @@ Bad exit code, no output file is made.
   $ "${SANITIZE_LOGS}" err
   I, [DATE TIME PID] INFO -- Working on query 1
   D, [DATE TIME PID] DEBUG -- Running command: ./clustalo.msa_fail --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
-  ("Process.run failed"
+  W, [DATE TIME PID] WARN -- Command (./clustalo.msa_fail --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa) failed.  Will retry.
+  Error was: ("Process.run failed"
    ((prog ./clustalo.msa_fail)
     (args
      (--threads=1 -i apple/refs_and_query_0.fa -o
       apple/refs_and_query_0.aln.fa))
     (exit_status (Exit_non_zero 47)) (stdout "")
     (stderr ("a bad thing happened..." ""))))
-  D, [DATE TIME PID] DEBUG -- Running command: ./clustalo.msa_fail --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
-  ("Process.run failed"
+  W, [DATE TIME PID] WARN -- Command (./clustalo.msa_fail --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa) failed.  Will retry.
+  Error was: ("Process.run failed"
    ((prog ./clustalo.msa_fail)
     (args
      (--threads=1 -i apple/refs_and_query_0.fa -o
       apple/refs_and_query_0.aln.fa))
     (exit_status (Exit_non_zero 47)) (stdout "")
     (stderr ("a bad thing happened..." ""))))
-  D, [DATE TIME PID] DEBUG -- Running command: ./clustalo.msa_fail --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
-  ("Process.run failed"
+  W, [DATE TIME PID] WARN -- Command (./clustalo.msa_fail --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa) failed.  Will retry.
+  Error was: ("Process.run failed"
    ((prog ./clustalo.msa_fail)
     (args
      (--threads=1 -i apple/refs_and_query_0.fa -o
       apple/refs_and_query_0.aln.fa))
     (exit_status (Exit_non_zero 47)) (stdout "")
     (stderr ("a bad thing happened..." ""))))
-  D, [DATE TIME PID] DEBUG -- Running command: ./clustalo.msa_fail --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
-  ("Process.run failed"
+  W, [DATE TIME PID] WARN -- Command (./clustalo.msa_fail --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa) failed.  Will retry.
+  Error was: ("Process.run failed"
    ((prog ./clustalo.msa_fail)
     (args
      (--threads=1 -i apple/refs_and_query_0.fa -o
       apple/refs_and_query_0.aln.fa))
     (exit_status (Exit_non_zero 47)) (stdout "")
     (stderr ("a bad thing happened..." ""))))
-  D, [DATE TIME PID] DEBUG -- Running command: ./clustalo.msa_fail --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
-  ("Process.run failed"
+  W, [DATE TIME PID] WARN -- Command (./clustalo.msa_fail --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa) failed.  Will retry.
+  Error was: ("Process.run failed"
    ((prog ./clustalo.msa_fail)
     (args
      (--threads=1 -i apple/refs_and_query_0.fa -o
       apple/refs_and_query_0.aln.fa))
     (exit_status (Exit_non_zero 47)) (stdout "")
     (stderr ("a bad thing happened..." ""))))
-  D, [DATE TIME PID] DEBUG -- Running command: ./clustalo.msa_fail --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
-  ("Process.run failed"
+  W, [DATE TIME PID] WARN -- Command (./clustalo.msa_fail --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa) failed.  Will retry.
+  Error was: ("Process.run failed"
    ((prog ./clustalo.msa_fail)
     (args
      (--threads=1 -i apple/refs_and_query_0.fa -o
       apple/refs_and_query_0.aln.fa))
     (exit_status (Exit_non_zero 47)) (stdout "")
     (stderr ("a bad thing happened..." ""))))
-  D, [DATE TIME PID] DEBUG -- Running command: ./clustalo.msa_fail --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
-  ("Process.run failed"
+  W, [DATE TIME PID] WARN -- Command (./clustalo.msa_fail --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa) failed.  Will retry.
+  Error was: ("Process.run failed"
    ((prog ./clustalo.msa_fail)
     (args
      (--threads=1 -i apple/refs_and_query_0.fa -o
       apple/refs_and_query_0.aln.fa))
     (exit_status (Exit_non_zero 47)) (stdout "")
     (stderr ("a bad thing happened..." ""))))
-  D, [DATE TIME PID] DEBUG -- Running command: ./clustalo.msa_fail --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
-  ("Process.run failed"
+  W, [DATE TIME PID] WARN -- Command (./clustalo.msa_fail --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa) failed.  Will retry.
+  Error was: ("Process.run failed"
    ((prog ./clustalo.msa_fail)
     (args
      (--threads=1 -i apple/refs_and_query_0.fa -o
       apple/refs_and_query_0.aln.fa))
     (exit_status (Exit_non_zero 47)) (stdout "")
     (stderr ("a bad thing happened..." ""))))
-  D, [DATE TIME PID] DEBUG -- Running command: ./clustalo.msa_fail --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
-  ("Process.run failed"
+  W, [DATE TIME PID] WARN -- Command (./clustalo.msa_fail --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa) failed.  Will retry.
+  Error was: ("Process.run failed"
    ((prog ./clustalo.msa_fail)
     (args
      (--threads=1 -i apple/refs_and_query_0.fa -o
       apple/refs_and_query_0.aln.fa))
     (exit_status (Exit_non_zero 47)) (stdout "")
     (stderr ("a bad thing happened..." ""))))
-  D, [DATE TIME PID] DEBUG -- Running command: ./clustalo.msa_fail --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
-  ("Process.run failed"
+  W, [DATE TIME PID] WARN -- Command (./clustalo.msa_fail --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa) failed.  Will retry.
+  Error was: ("Process.run failed"
    ((prog ./clustalo.msa_fail)
     (args
      (--threads=1 -i apple/refs_and_query_0.fa -o
       apple/refs_and_query_0.aln.fa))
     (exit_status (Exit_non_zero 47)) (stdout "")
     (stderr ("a bad thing happened..." ""))))
-  D, [DATE TIME PID] DEBUG -- Running command: ./clustalo.msa_fail --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Max attempts exceeded.
-  ("Process.run failed"
+  E, [DATE TIME PID] ERROR -- Command (./clustalo.msa_fail --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa) failed.  Max attempts exceeded.
+  Error was: ("Process.run failed"
    ((prog ./clustalo.msa_fail)
     (args
      (--threads=1 -i apple/refs_and_query_0.fa -o
       apple/refs_and_query_0.aln.fa))
     (exit_status (Exit_non_zero 47)) (stdout "")
     (stderr ("a bad thing happened..." ""))))
-  E, [DATE TIME PID] ERROR -- Error running msa: ("msa failed after max-retries"
-   ("Process.run failed"
-    ((prog ./clustalo.msa_fail)
-     (args
-      (--threads=1 -i apple/refs_and_query_0.fa -o
-       apple/refs_and_query_0.aln.fa))
-     (exit_status (Exit_non_zero 47)) (stdout "")
-     (stderr ("a bad thing happened..." "")))))
+  E, [DATE TIME PID] ERROR -- Error running msa: ("clustalo failed"
+   ("job failed after max-retries"
+    ("Process.run failed"
+     ((prog ./clustalo.msa_fail)
+      (args
+       (--threads=1 -i apple/refs_and_query_0.fa -o
+        apple/refs_and_query_0.aln.fa))
+      (exit_status (Exit_non_zero 47)) (stdout "")
+      (stderr ("a bad thing happened..." ""))))))
   F, [DATE TIME PID] FATAL -- Could not get signatures for any of the queries!
 
 
@@ -187,112 +178,103 @@ Bad exit code, output file made, but pasv still removes it.
   $ "${SANITIZE_LOGS}" err
   I, [DATE TIME PID] INFO -- Working on query 1
   D, [DATE TIME PID] DEBUG -- Running command: ./clustalo.msa_fail_with_output_aln_file --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
-  ("Process.run failed"
+  W, [DATE TIME PID] WARN -- Command (./clustalo.msa_fail_with_output_aln_file --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa) failed.  Will retry.
+  Error was: ("Process.run failed"
    ((prog ./clustalo.msa_fail_with_output_aln_file)
     (args
      (--threads=1 -i apple/refs_and_query_0.fa -o
       apple/refs_and_query_0.aln.fa))
     (exit_status (Exit_non_zero 47)) (stdout "")
     (stderr ("a bad thing happened..." ""))))
-  D, [DATE TIME PID] DEBUG -- Running command: ./clustalo.msa_fail_with_output_aln_file --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
-  ("Process.run failed"
+  W, [DATE TIME PID] WARN -- Command (./clustalo.msa_fail_with_output_aln_file --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa) failed.  Will retry.
+  Error was: ("Process.run failed"
    ((prog ./clustalo.msa_fail_with_output_aln_file)
     (args
      (--threads=1 -i apple/refs_and_query_0.fa -o
       apple/refs_and_query_0.aln.fa))
     (exit_status (Exit_non_zero 47)) (stdout "")
     (stderr ("a bad thing happened..." ""))))
-  D, [DATE TIME PID] DEBUG -- Running command: ./clustalo.msa_fail_with_output_aln_file --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
-  ("Process.run failed"
+  W, [DATE TIME PID] WARN -- Command (./clustalo.msa_fail_with_output_aln_file --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa) failed.  Will retry.
+  Error was: ("Process.run failed"
    ((prog ./clustalo.msa_fail_with_output_aln_file)
     (args
      (--threads=1 -i apple/refs_and_query_0.fa -o
       apple/refs_and_query_0.aln.fa))
     (exit_status (Exit_non_zero 47)) (stdout "")
     (stderr ("a bad thing happened..." ""))))
-  D, [DATE TIME PID] DEBUG -- Running command: ./clustalo.msa_fail_with_output_aln_file --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
-  ("Process.run failed"
+  W, [DATE TIME PID] WARN -- Command (./clustalo.msa_fail_with_output_aln_file --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa) failed.  Will retry.
+  Error was: ("Process.run failed"
    ((prog ./clustalo.msa_fail_with_output_aln_file)
     (args
      (--threads=1 -i apple/refs_and_query_0.fa -o
       apple/refs_and_query_0.aln.fa))
     (exit_status (Exit_non_zero 47)) (stdout "")
     (stderr ("a bad thing happened..." ""))))
-  D, [DATE TIME PID] DEBUG -- Running command: ./clustalo.msa_fail_with_output_aln_file --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
-  ("Process.run failed"
+  W, [DATE TIME PID] WARN -- Command (./clustalo.msa_fail_with_output_aln_file --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa) failed.  Will retry.
+  Error was: ("Process.run failed"
    ((prog ./clustalo.msa_fail_with_output_aln_file)
     (args
      (--threads=1 -i apple/refs_and_query_0.fa -o
       apple/refs_and_query_0.aln.fa))
     (exit_status (Exit_non_zero 47)) (stdout "")
     (stderr ("a bad thing happened..." ""))))
-  D, [DATE TIME PID] DEBUG -- Running command: ./clustalo.msa_fail_with_output_aln_file --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
-  ("Process.run failed"
+  W, [DATE TIME PID] WARN -- Command (./clustalo.msa_fail_with_output_aln_file --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa) failed.  Will retry.
+  Error was: ("Process.run failed"
    ((prog ./clustalo.msa_fail_with_output_aln_file)
     (args
      (--threads=1 -i apple/refs_and_query_0.fa -o
       apple/refs_and_query_0.aln.fa))
     (exit_status (Exit_non_zero 47)) (stdout "")
     (stderr ("a bad thing happened..." ""))))
-  D, [DATE TIME PID] DEBUG -- Running command: ./clustalo.msa_fail_with_output_aln_file --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
-  ("Process.run failed"
+  W, [DATE TIME PID] WARN -- Command (./clustalo.msa_fail_with_output_aln_file --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa) failed.  Will retry.
+  Error was: ("Process.run failed"
    ((prog ./clustalo.msa_fail_with_output_aln_file)
     (args
      (--threads=1 -i apple/refs_and_query_0.fa -o
       apple/refs_and_query_0.aln.fa))
     (exit_status (Exit_non_zero 47)) (stdout "")
     (stderr ("a bad thing happened..." ""))))
-  D, [DATE TIME PID] DEBUG -- Running command: ./clustalo.msa_fail_with_output_aln_file --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
-  ("Process.run failed"
+  W, [DATE TIME PID] WARN -- Command (./clustalo.msa_fail_with_output_aln_file --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa) failed.  Will retry.
+  Error was: ("Process.run failed"
    ((prog ./clustalo.msa_fail_with_output_aln_file)
     (args
      (--threads=1 -i apple/refs_and_query_0.fa -o
       apple/refs_and_query_0.aln.fa))
     (exit_status (Exit_non_zero 47)) (stdout "")
     (stderr ("a bad thing happened..." ""))))
-  D, [DATE TIME PID] DEBUG -- Running command: ./clustalo.msa_fail_with_output_aln_file --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
-  ("Process.run failed"
+  W, [DATE TIME PID] WARN -- Command (./clustalo.msa_fail_with_output_aln_file --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa) failed.  Will retry.
+  Error was: ("Process.run failed"
    ((prog ./clustalo.msa_fail_with_output_aln_file)
     (args
      (--threads=1 -i apple/refs_and_query_0.fa -o
       apple/refs_and_query_0.aln.fa))
     (exit_status (Exit_non_zero 47)) (stdout "")
     (stderr ("a bad thing happened..." ""))))
-  D, [DATE TIME PID] DEBUG -- Running command: ./clustalo.msa_fail_with_output_aln_file --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
-  ("Process.run failed"
+  W, [DATE TIME PID] WARN -- Command (./clustalo.msa_fail_with_output_aln_file --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa) failed.  Will retry.
+  Error was: ("Process.run failed"
    ((prog ./clustalo.msa_fail_with_output_aln_file)
     (args
      (--threads=1 -i apple/refs_and_query_0.fa -o
       apple/refs_and_query_0.aln.fa))
     (exit_status (Exit_non_zero 47)) (stdout "")
     (stderr ("a bad thing happened..." ""))))
-  D, [DATE TIME PID] DEBUG -- Running command: ./clustalo.msa_fail_with_output_aln_file --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Max attempts exceeded.
-  ("Process.run failed"
+  E, [DATE TIME PID] ERROR -- Command (./clustalo.msa_fail_with_output_aln_file --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa) failed.  Max attempts exceeded.
+  Error was: ("Process.run failed"
    ((prog ./clustalo.msa_fail_with_output_aln_file)
     (args
      (--threads=1 -i apple/refs_and_query_0.fa -o
       apple/refs_and_query_0.aln.fa))
     (exit_status (Exit_non_zero 47)) (stdout "")
     (stderr ("a bad thing happened..." ""))))
-  E, [DATE TIME PID] ERROR -- Error running msa: ("msa failed after max-retries"
-   ("Process.run failed"
-    ((prog ./clustalo.msa_fail_with_output_aln_file)
-     (args
-      (--threads=1 -i apple/refs_and_query_0.fa -o
-       apple/refs_and_query_0.aln.fa))
-     (exit_status (Exit_non_zero 47)) (stdout "")
-     (stderr ("a bad thing happened..." "")))))
+  E, [DATE TIME PID] ERROR -- Error running msa: ("clustalo failed"
+   ("job failed after max-retries"
+    ("Process.run failed"
+     ((prog ./clustalo.msa_fail_with_output_aln_file)
+      (args
+       (--threads=1 -i apple/refs_and_query_0.fa -o
+        apple/refs_and_query_0.aln.fa))
+      (exit_status (Exit_non_zero 47)) (stdout "")
+      (stderr ("a bad thing happened..." ""))))))
   F, [DATE TIME PID] FATAL -- Could not get signatures for any of the queries!
 
 Good exit code, but the outfile doesn't exist.  This would be a bug in
@@ -363,88 +345,79 @@ Bad exit code, no output file is made.
   $ "${SANITIZE_LOGS}" err
   I, [DATE TIME PID] INFO -- Working on query 1
   D, [DATE TIME PID] DEBUG -- Running command: ./mafft.msa_fail --auto --thread 1 apple/refs_and_query_0.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
-  ("Process.run failed"
+  W, [DATE TIME PID] WARN -- Command (./mafft.msa_fail --auto --thread 1 apple/refs_and_query_0.fa) failed.  Will retry.
+  Error was: ("Process.run failed"
    ((prog ./mafft.msa_fail)
     (args (--auto --thread 1 apple/refs_and_query_0.fa))
     (exit_status (Exit_non_zero 47)) (stdout "")
     (stderr ("a bad thing happened..." ""))))
-  D, [DATE TIME PID] DEBUG -- Running command: ./mafft.msa_fail --auto --thread 1 apple/refs_and_query_0.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
-  ("Process.run failed"
+  W, [DATE TIME PID] WARN -- Command (./mafft.msa_fail --auto --thread 1 apple/refs_and_query_0.fa) failed.  Will retry.
+  Error was: ("Process.run failed"
    ((prog ./mafft.msa_fail)
     (args (--auto --thread 1 apple/refs_and_query_0.fa))
     (exit_status (Exit_non_zero 47)) (stdout "")
     (stderr ("a bad thing happened..." ""))))
-  D, [DATE TIME PID] DEBUG -- Running command: ./mafft.msa_fail --auto --thread 1 apple/refs_and_query_0.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
-  ("Process.run failed"
+  W, [DATE TIME PID] WARN -- Command (./mafft.msa_fail --auto --thread 1 apple/refs_and_query_0.fa) failed.  Will retry.
+  Error was: ("Process.run failed"
    ((prog ./mafft.msa_fail)
     (args (--auto --thread 1 apple/refs_and_query_0.fa))
     (exit_status (Exit_non_zero 47)) (stdout "")
     (stderr ("a bad thing happened..." ""))))
-  D, [DATE TIME PID] DEBUG -- Running command: ./mafft.msa_fail --auto --thread 1 apple/refs_and_query_0.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
-  ("Process.run failed"
+  W, [DATE TIME PID] WARN -- Command (./mafft.msa_fail --auto --thread 1 apple/refs_and_query_0.fa) failed.  Will retry.
+  Error was: ("Process.run failed"
    ((prog ./mafft.msa_fail)
     (args (--auto --thread 1 apple/refs_and_query_0.fa))
     (exit_status (Exit_non_zero 47)) (stdout "")
     (stderr ("a bad thing happened..." ""))))
-  D, [DATE TIME PID] DEBUG -- Running command: ./mafft.msa_fail --auto --thread 1 apple/refs_and_query_0.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
-  ("Process.run failed"
+  W, [DATE TIME PID] WARN -- Command (./mafft.msa_fail --auto --thread 1 apple/refs_and_query_0.fa) failed.  Will retry.
+  Error was: ("Process.run failed"
    ((prog ./mafft.msa_fail)
     (args (--auto --thread 1 apple/refs_and_query_0.fa))
     (exit_status (Exit_non_zero 47)) (stdout "")
     (stderr ("a bad thing happened..." ""))))
-  D, [DATE TIME PID] DEBUG -- Running command: ./mafft.msa_fail --auto --thread 1 apple/refs_and_query_0.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
-  ("Process.run failed"
+  W, [DATE TIME PID] WARN -- Command (./mafft.msa_fail --auto --thread 1 apple/refs_and_query_0.fa) failed.  Will retry.
+  Error was: ("Process.run failed"
    ((prog ./mafft.msa_fail)
     (args (--auto --thread 1 apple/refs_and_query_0.fa))
     (exit_status (Exit_non_zero 47)) (stdout "")
     (stderr ("a bad thing happened..." ""))))
-  D, [DATE TIME PID] DEBUG -- Running command: ./mafft.msa_fail --auto --thread 1 apple/refs_and_query_0.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
-  ("Process.run failed"
+  W, [DATE TIME PID] WARN -- Command (./mafft.msa_fail --auto --thread 1 apple/refs_and_query_0.fa) failed.  Will retry.
+  Error was: ("Process.run failed"
    ((prog ./mafft.msa_fail)
     (args (--auto --thread 1 apple/refs_and_query_0.fa))
     (exit_status (Exit_non_zero 47)) (stdout "")
     (stderr ("a bad thing happened..." ""))))
-  D, [DATE TIME PID] DEBUG -- Running command: ./mafft.msa_fail --auto --thread 1 apple/refs_and_query_0.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
-  ("Process.run failed"
+  W, [DATE TIME PID] WARN -- Command (./mafft.msa_fail --auto --thread 1 apple/refs_and_query_0.fa) failed.  Will retry.
+  Error was: ("Process.run failed"
    ((prog ./mafft.msa_fail)
     (args (--auto --thread 1 apple/refs_and_query_0.fa))
     (exit_status (Exit_non_zero 47)) (stdout "")
     (stderr ("a bad thing happened..." ""))))
-  D, [DATE TIME PID] DEBUG -- Running command: ./mafft.msa_fail --auto --thread 1 apple/refs_and_query_0.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
-  ("Process.run failed"
+  W, [DATE TIME PID] WARN -- Command (./mafft.msa_fail --auto --thread 1 apple/refs_and_query_0.fa) failed.  Will retry.
+  Error was: ("Process.run failed"
    ((prog ./mafft.msa_fail)
     (args (--auto --thread 1 apple/refs_and_query_0.fa))
     (exit_status (Exit_non_zero 47)) (stdout "")
     (stderr ("a bad thing happened..." ""))))
-  D, [DATE TIME PID] DEBUG -- Running command: ./mafft.msa_fail --auto --thread 1 apple/refs_and_query_0.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
-  ("Process.run failed"
+  W, [DATE TIME PID] WARN -- Command (./mafft.msa_fail --auto --thread 1 apple/refs_and_query_0.fa) failed.  Will retry.
+  Error was: ("Process.run failed"
    ((prog ./mafft.msa_fail)
     (args (--auto --thread 1 apple/refs_and_query_0.fa))
     (exit_status (Exit_non_zero 47)) (stdout "")
     (stderr ("a bad thing happened..." ""))))
-  D, [DATE TIME PID] DEBUG -- Running command: ./mafft.msa_fail --auto --thread 1 apple/refs_and_query_0.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Max attempts exceeded.
-  ("Process.run failed"
+  E, [DATE TIME PID] ERROR -- Command (./mafft.msa_fail --auto --thread 1 apple/refs_and_query_0.fa) failed.  Max attempts exceeded.
+  Error was: ("Process.run failed"
    ((prog ./mafft.msa_fail)
     (args (--auto --thread 1 apple/refs_and_query_0.fa))
     (exit_status (Exit_non_zero 47)) (stdout "")
     (stderr ("a bad thing happened..." ""))))
-  E, [DATE TIME PID] ERROR -- Error running msa: ("msa failed after max-retries"
-   ("Process.run failed"
-    ((prog ./mafft.msa_fail)
-     (args (--auto --thread 1 apple/refs_and_query_0.fa))
-     (exit_status (Exit_non_zero 47)) (stdout "")
-     (stderr ("a bad thing happened..." "")))))
+  E, [DATE TIME PID] ERROR -- Error running msa: ("mafft failed"
+   ("job failed after max-retries"
+    ("Process.run failed"
+     ((prog ./mafft.msa_fail)
+      (args (--auto --thread 1 apple/refs_and_query_0.fa))
+      (exit_status (Exit_non_zero 47)) (stdout "")
+      (stderr ("a bad thing happened..." ""))))))
   F, [DATE TIME PID] FATAL -- Could not get signatures for any of the queries!
 
 
@@ -459,88 +432,79 @@ Bad exit code, output file is made.
   $ "${SANITIZE_LOGS}" err
   I, [DATE TIME PID] INFO -- Working on query 1
   D, [DATE TIME PID] DEBUG -- Running command: ./mafft.msa_fail_with_output_aln_file --auto --thread 1 apple/refs_and_query_0.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
-  ("Process.run failed"
+  W, [DATE TIME PID] WARN -- Command (./mafft.msa_fail_with_output_aln_file --auto --thread 1 apple/refs_and_query_0.fa) failed.  Will retry.
+  Error was: ("Process.run failed"
    ((prog ./mafft.msa_fail_with_output_aln_file)
     (args (--auto --thread 1 apple/refs_and_query_0.fa))
     (exit_status (Exit_non_zero 47)) (stdout "")
     (stderr ("a bad thing happened..." ""))))
-  D, [DATE TIME PID] DEBUG -- Running command: ./mafft.msa_fail_with_output_aln_file --auto --thread 1 apple/refs_and_query_0.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
-  ("Process.run failed"
+  W, [DATE TIME PID] WARN -- Command (./mafft.msa_fail_with_output_aln_file --auto --thread 1 apple/refs_and_query_0.fa) failed.  Will retry.
+  Error was: ("Process.run failed"
    ((prog ./mafft.msa_fail_with_output_aln_file)
     (args (--auto --thread 1 apple/refs_and_query_0.fa))
     (exit_status (Exit_non_zero 47)) (stdout "")
     (stderr ("a bad thing happened..." ""))))
-  D, [DATE TIME PID] DEBUG -- Running command: ./mafft.msa_fail_with_output_aln_file --auto --thread 1 apple/refs_and_query_0.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
-  ("Process.run failed"
+  W, [DATE TIME PID] WARN -- Command (./mafft.msa_fail_with_output_aln_file --auto --thread 1 apple/refs_and_query_0.fa) failed.  Will retry.
+  Error was: ("Process.run failed"
    ((prog ./mafft.msa_fail_with_output_aln_file)
     (args (--auto --thread 1 apple/refs_and_query_0.fa))
     (exit_status (Exit_non_zero 47)) (stdout "")
     (stderr ("a bad thing happened..." ""))))
-  D, [DATE TIME PID] DEBUG -- Running command: ./mafft.msa_fail_with_output_aln_file --auto --thread 1 apple/refs_and_query_0.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
-  ("Process.run failed"
+  W, [DATE TIME PID] WARN -- Command (./mafft.msa_fail_with_output_aln_file --auto --thread 1 apple/refs_and_query_0.fa) failed.  Will retry.
+  Error was: ("Process.run failed"
    ((prog ./mafft.msa_fail_with_output_aln_file)
     (args (--auto --thread 1 apple/refs_and_query_0.fa))
     (exit_status (Exit_non_zero 47)) (stdout "")
     (stderr ("a bad thing happened..." ""))))
-  D, [DATE TIME PID] DEBUG -- Running command: ./mafft.msa_fail_with_output_aln_file --auto --thread 1 apple/refs_and_query_0.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
-  ("Process.run failed"
+  W, [DATE TIME PID] WARN -- Command (./mafft.msa_fail_with_output_aln_file --auto --thread 1 apple/refs_and_query_0.fa) failed.  Will retry.
+  Error was: ("Process.run failed"
    ((prog ./mafft.msa_fail_with_output_aln_file)
     (args (--auto --thread 1 apple/refs_and_query_0.fa))
     (exit_status (Exit_non_zero 47)) (stdout "")
     (stderr ("a bad thing happened..." ""))))
-  D, [DATE TIME PID] DEBUG -- Running command: ./mafft.msa_fail_with_output_aln_file --auto --thread 1 apple/refs_and_query_0.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
-  ("Process.run failed"
+  W, [DATE TIME PID] WARN -- Command (./mafft.msa_fail_with_output_aln_file --auto --thread 1 apple/refs_and_query_0.fa) failed.  Will retry.
+  Error was: ("Process.run failed"
    ((prog ./mafft.msa_fail_with_output_aln_file)
     (args (--auto --thread 1 apple/refs_and_query_0.fa))
     (exit_status (Exit_non_zero 47)) (stdout "")
     (stderr ("a bad thing happened..." ""))))
-  D, [DATE TIME PID] DEBUG -- Running command: ./mafft.msa_fail_with_output_aln_file --auto --thread 1 apple/refs_and_query_0.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
-  ("Process.run failed"
+  W, [DATE TIME PID] WARN -- Command (./mafft.msa_fail_with_output_aln_file --auto --thread 1 apple/refs_and_query_0.fa) failed.  Will retry.
+  Error was: ("Process.run failed"
    ((prog ./mafft.msa_fail_with_output_aln_file)
     (args (--auto --thread 1 apple/refs_and_query_0.fa))
     (exit_status (Exit_non_zero 47)) (stdout "")
     (stderr ("a bad thing happened..." ""))))
-  D, [DATE TIME PID] DEBUG -- Running command: ./mafft.msa_fail_with_output_aln_file --auto --thread 1 apple/refs_and_query_0.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
-  ("Process.run failed"
+  W, [DATE TIME PID] WARN -- Command (./mafft.msa_fail_with_output_aln_file --auto --thread 1 apple/refs_and_query_0.fa) failed.  Will retry.
+  Error was: ("Process.run failed"
    ((prog ./mafft.msa_fail_with_output_aln_file)
     (args (--auto --thread 1 apple/refs_and_query_0.fa))
     (exit_status (Exit_non_zero 47)) (stdout "")
     (stderr ("a bad thing happened..." ""))))
-  D, [DATE TIME PID] DEBUG -- Running command: ./mafft.msa_fail_with_output_aln_file --auto --thread 1 apple/refs_and_query_0.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
-  ("Process.run failed"
+  W, [DATE TIME PID] WARN -- Command (./mafft.msa_fail_with_output_aln_file --auto --thread 1 apple/refs_and_query_0.fa) failed.  Will retry.
+  Error was: ("Process.run failed"
    ((prog ./mafft.msa_fail_with_output_aln_file)
     (args (--auto --thread 1 apple/refs_and_query_0.fa))
     (exit_status (Exit_non_zero 47)) (stdout "")
     (stderr ("a bad thing happened..." ""))))
-  D, [DATE TIME PID] DEBUG -- Running command: ./mafft.msa_fail_with_output_aln_file --auto --thread 1 apple/refs_and_query_0.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
-  ("Process.run failed"
+  W, [DATE TIME PID] WARN -- Command (./mafft.msa_fail_with_output_aln_file --auto --thread 1 apple/refs_and_query_0.fa) failed.  Will retry.
+  Error was: ("Process.run failed"
    ((prog ./mafft.msa_fail_with_output_aln_file)
     (args (--auto --thread 1 apple/refs_and_query_0.fa))
     (exit_status (Exit_non_zero 47)) (stdout "")
     (stderr ("a bad thing happened..." ""))))
-  D, [DATE TIME PID] DEBUG -- Running command: ./mafft.msa_fail_with_output_aln_file --auto --thread 1 apple/refs_and_query_0.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Max attempts exceeded.
-  ("Process.run failed"
+  E, [DATE TIME PID] ERROR -- Command (./mafft.msa_fail_with_output_aln_file --auto --thread 1 apple/refs_and_query_0.fa) failed.  Max attempts exceeded.
+  Error was: ("Process.run failed"
    ((prog ./mafft.msa_fail_with_output_aln_file)
     (args (--auto --thread 1 apple/refs_and_query_0.fa))
     (exit_status (Exit_non_zero 47)) (stdout "")
     (stderr ("a bad thing happened..." ""))))
-  E, [DATE TIME PID] ERROR -- Error running msa: ("msa failed after max-retries"
-   ("Process.run failed"
-    ((prog ./mafft.msa_fail_with_output_aln_file)
-     (args (--auto --thread 1 apple/refs_and_query_0.fa))
-     (exit_status (Exit_non_zero 47)) (stdout "")
-     (stderr ("a bad thing happened..." "")))))
+  E, [DATE TIME PID] ERROR -- Error running msa: ("mafft failed"
+   ("job failed after max-retries"
+    ("Process.run failed"
+     ((prog ./mafft.msa_fail_with_output_aln_file)
+      (args (--auto --thread 1 apple/refs_and_query_0.fa))
+      (exit_status (Exit_non_zero 47)) (stdout "")
+      (stderr ("a bad thing happened..." ""))))))
   F, [DATE TIME PID] FATAL -- Could not get signatures for any of the queries!
 
 Good exit code, but the outfile doesn't exist.  For mafft it means
@@ -614,8 +578,8 @@ Bogus mafft parameters is an error.
   $ "${SANITIZE_LOGS}" err
   I, [DATE TIME PID] INFO -- Working on query 1
   D, [DATE TIME PID] DEBUG -- Running command: mafft teehee apple/refs_and_query_0.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
-  ("Process.run failed"
+  W, [DATE TIME PID] WARN -- Command (mafft teehee apple/refs_and_query_0.fa) failed.  Will retry.
+  Error was: ("Process.run failed"
    ((prog mafft) (args (teehee apple/refs_and_query_0.fa))
     (exit_status (Exit_non_zero 1)) (stdout "")
     (stderr
@@ -639,9 +603,8 @@ Bogus mafft parameters is an error.
       "--thread # :     Number of threads (if unsure, --thread -1)"
       "--dash :         Add structural information (Rozewicki et al, submitted)"
       ""))))
-  D, [DATE TIME PID] DEBUG -- Running command: mafft teehee apple/refs_and_query_0.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
-  ("Process.run failed"
+  W, [DATE TIME PID] WARN -- Command (mafft teehee apple/refs_and_query_0.fa) failed.  Will retry.
+  Error was: ("Process.run failed"
    ((prog mafft) (args (teehee apple/refs_and_query_0.fa))
     (exit_status (Exit_non_zero 1)) (stdout "")
     (stderr
@@ -665,9 +628,8 @@ Bogus mafft parameters is an error.
       "--thread # :     Number of threads (if unsure, --thread -1)"
       "--dash :         Add structural information (Rozewicki et al, submitted)"
       ""))))
-  D, [DATE TIME PID] DEBUG -- Running command: mafft teehee apple/refs_and_query_0.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
-  ("Process.run failed"
+  W, [DATE TIME PID] WARN -- Command (mafft teehee apple/refs_and_query_0.fa) failed.  Will retry.
+  Error was: ("Process.run failed"
    ((prog mafft) (args (teehee apple/refs_and_query_0.fa))
     (exit_status (Exit_non_zero 1)) (stdout "")
     (stderr
@@ -691,9 +653,8 @@ Bogus mafft parameters is an error.
       "--thread # :     Number of threads (if unsure, --thread -1)"
       "--dash :         Add structural information (Rozewicki et al, submitted)"
       ""))))
-  D, [DATE TIME PID] DEBUG -- Running command: mafft teehee apple/refs_and_query_0.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
-  ("Process.run failed"
+  W, [DATE TIME PID] WARN -- Command (mafft teehee apple/refs_and_query_0.fa) failed.  Will retry.
+  Error was: ("Process.run failed"
    ((prog mafft) (args (teehee apple/refs_and_query_0.fa))
     (exit_status (Exit_non_zero 1)) (stdout "")
     (stderr
@@ -717,9 +678,8 @@ Bogus mafft parameters is an error.
       "--thread # :     Number of threads (if unsure, --thread -1)"
       "--dash :         Add structural information (Rozewicki et al, submitted)"
       ""))))
-  D, [DATE TIME PID] DEBUG -- Running command: mafft teehee apple/refs_and_query_0.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
-  ("Process.run failed"
+  W, [DATE TIME PID] WARN -- Command (mafft teehee apple/refs_and_query_0.fa) failed.  Will retry.
+  Error was: ("Process.run failed"
    ((prog mafft) (args (teehee apple/refs_and_query_0.fa))
     (exit_status (Exit_non_zero 1)) (stdout "")
     (stderr
@@ -743,9 +703,8 @@ Bogus mafft parameters is an error.
       "--thread # :     Number of threads (if unsure, --thread -1)"
       "--dash :         Add structural information (Rozewicki et al, submitted)"
       ""))))
-  D, [DATE TIME PID] DEBUG -- Running command: mafft teehee apple/refs_and_query_0.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
-  ("Process.run failed"
+  W, [DATE TIME PID] WARN -- Command (mafft teehee apple/refs_and_query_0.fa) failed.  Will retry.
+  Error was: ("Process.run failed"
    ((prog mafft) (args (teehee apple/refs_and_query_0.fa))
     (exit_status (Exit_non_zero 1)) (stdout "")
     (stderr
@@ -769,9 +728,8 @@ Bogus mafft parameters is an error.
       "--thread # :     Number of threads (if unsure, --thread -1)"
       "--dash :         Add structural information (Rozewicki et al, submitted)"
       ""))))
-  D, [DATE TIME PID] DEBUG -- Running command: mafft teehee apple/refs_and_query_0.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
-  ("Process.run failed"
+  W, [DATE TIME PID] WARN -- Command (mafft teehee apple/refs_and_query_0.fa) failed.  Will retry.
+  Error was: ("Process.run failed"
    ((prog mafft) (args (teehee apple/refs_and_query_0.fa))
     (exit_status (Exit_non_zero 1)) (stdout "")
     (stderr
@@ -795,9 +753,8 @@ Bogus mafft parameters is an error.
       "--thread # :     Number of threads (if unsure, --thread -1)"
       "--dash :         Add structural information (Rozewicki et al, submitted)"
       ""))))
-  D, [DATE TIME PID] DEBUG -- Running command: mafft teehee apple/refs_and_query_0.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
-  ("Process.run failed"
+  W, [DATE TIME PID] WARN -- Command (mafft teehee apple/refs_and_query_0.fa) failed.  Will retry.
+  Error was: ("Process.run failed"
    ((prog mafft) (args (teehee apple/refs_and_query_0.fa))
     (exit_status (Exit_non_zero 1)) (stdout "")
     (stderr
@@ -821,9 +778,8 @@ Bogus mafft parameters is an error.
       "--thread # :     Number of threads (if unsure, --thread -1)"
       "--dash :         Add structural information (Rozewicki et al, submitted)"
       ""))))
-  D, [DATE TIME PID] DEBUG -- Running command: mafft teehee apple/refs_and_query_0.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
-  ("Process.run failed"
+  W, [DATE TIME PID] WARN -- Command (mafft teehee apple/refs_and_query_0.fa) failed.  Will retry.
+  Error was: ("Process.run failed"
    ((prog mafft) (args (teehee apple/refs_and_query_0.fa))
     (exit_status (Exit_non_zero 1)) (stdout "")
     (stderr
@@ -847,9 +803,8 @@ Bogus mafft parameters is an error.
       "--thread # :     Number of threads (if unsure, --thread -1)"
       "--dash :         Add structural information (Rozewicki et al, submitted)"
       ""))))
-  D, [DATE TIME PID] DEBUG -- Running command: mafft teehee apple/refs_and_query_0.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Will retry.
-  ("Process.run failed"
+  W, [DATE TIME PID] WARN -- Command (mafft teehee apple/refs_and_query_0.fa) failed.  Will retry.
+  Error was: ("Process.run failed"
    ((prog mafft) (args (teehee apple/refs_and_query_0.fa))
     (exit_status (Exit_non_zero 1)) (stdout "")
     (stderr
@@ -873,9 +828,8 @@ Bogus mafft parameters is an error.
       "--thread # :     Number of threads (if unsure, --thread -1)"
       "--dash :         Add structural information (Rozewicki et al, submitted)"
       ""))))
-  D, [DATE TIME PID] DEBUG -- Running command: mafft teehee apple/refs_and_query_0.fa
-  E, [DATE TIME PID] ERROR -- MSA failed.  Max attempts exceeded.
-  ("Process.run failed"
+  E, [DATE TIME PID] ERROR -- Command (mafft teehee apple/refs_and_query_0.fa) failed.  Max attempts exceeded.
+  Error was: ("Process.run failed"
    ((prog mafft) (args (teehee apple/refs_and_query_0.fa))
     (exit_status (Exit_non_zero 1)) (stdout "")
     (stderr
@@ -899,32 +853,33 @@ Bogus mafft parameters is an error.
       "--thread # :     Number of threads (if unsure, --thread -1)"
       "--dash :         Add structural information (Rozewicki et al, submitted)"
       ""))))
-  E, [DATE TIME PID] ERROR -- Error running msa: ("msa failed after max-retries"
-   ("Process.run failed"
-    ((prog mafft) (args (teehee apple/refs_and_query_0.fa))
-     (exit_status (Exit_non_zero 1)) (stdout "")
-     (stderr
-      ("Unknown option:  teehee"
-       ------------------------------------------------------------------------------
-       "  https://mafft.cbrc.jp/alignment/software/"
-       "  MBE 30:772-780 (2013), NAR 30:3059-3066 (2002)"
-       ------------------------------------------------------------------------------
-       "High speed:" "  % mafft in > out"
-       "  % mafft --retree 1 in > out (fast)" ""
-       "High accuracy (for <~200 sequences x <~2,000 aa/nt):"
-       "  % mafft --maxiterate 1000 --localpair  in > out (% linsi in > out is also ok)"
-       "  % mafft --maxiterate 1000 --genafpair  in > out (% einsi in > out)"
-       "  % mafft --maxiterate 1000 --globalpair in > out (% ginsi in > out)"
-       "" "If unsure which option to use:" "  % mafft --auto in > out" ""
-       "--op # :         Gap opening penalty, default: 1.53"
-       "--ep # :         Offset (works like gap extension penalty), default: 0.0"
-       "--maxiterate # : Maximum number of iterative refinement, default: 0"
-       "--clustalout :   Output: clustal format, default: fasta"
-       "--reorder :      Outorder: aligned, default: input order"
-       "--quiet :        Do not report progress"
-       "--thread # :     Number of threads (if unsure, --thread -1)"
-       "--dash :         Add structural information (Rozewicki et al, submitted)"
-       "")))))
+  E, [DATE TIME PID] ERROR -- Error running msa: ("mafft failed"
+   ("job failed after max-retries"
+    ("Process.run failed"
+     ((prog mafft) (args (teehee apple/refs_and_query_0.fa))
+      (exit_status (Exit_non_zero 1)) (stdout "")
+      (stderr
+       ("Unknown option:  teehee"
+        ------------------------------------------------------------------------------
+        "  https://mafft.cbrc.jp/alignment/software/"
+        "  MBE 30:772-780 (2013), NAR 30:3059-3066 (2002)"
+        ------------------------------------------------------------------------------
+        "High speed:" "  % mafft in > out"
+        "  % mafft --retree 1 in > out (fast)" ""
+        "High accuracy (for <~200 sequences x <~2,000 aa/nt):"
+        "  % mafft --maxiterate 1000 --localpair  in > out (% linsi in > out is also ok)"
+        "  % mafft --maxiterate 1000 --genafpair  in > out (% einsi in > out)"
+        "  % mafft --maxiterate 1000 --globalpair in > out (% ginsi in > out)"
+        "" "If unsure which option to use:" "  % mafft --auto in > out" ""
+        "--op # :         Gap opening penalty, default: 1.53"
+        "--ep # :         Offset (works like gap extension penalty), default: 0.0"
+        "--maxiterate # : Maximum number of iterative refinement, default: 0"
+        "--clustalout :   Output: clustal format, default: fasta"
+        "--reorder :      Outorder: aligned, default: input order"
+        "--quiet :        Do not report progress"
+        "--thread # :     Number of threads (if unsure, --thread -1)"
+        "--dash :         Add structural information (Rozewicki et al, submitted)"
+        ""))))))
   F, [DATE TIME PID] FATAL -- Could not get signatures for any of the queries!
 
 Using the default parameters with mafft works.

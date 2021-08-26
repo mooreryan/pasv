@@ -5,6 +5,8 @@ open Little_logger
    inferred types look nicer. *)
 
 module Msa = struct
+  open Async
+
   type aligner = Clustalo of string | Mafft of string
 
   let pp_aligner ppf = function
@@ -31,13 +33,6 @@ module Msa = struct
     opts : opts;
   }
 
-  (* let make_msa_args opts =
-   *   (\* A user provided format string with 2 string args. *\)
-   *   let io_str_fmt = Scanf.format_from_string opts.io_format "%s %s" in
-   *   let io_str = Printf.sprintf io_str_fmt opts.infile opts.outfile in
-   *   let args = [%string "%{opts.other_parameters} %{io_str}"] in
-   *   String.split args ~on:' ' *)
-
   let make_clustalo_args opts =
     (* There may be lots of other args, so just set them up in a single string,
        then split them. *)
@@ -52,79 +47,89 @@ module Msa = struct
     let args = [%string "%{opts.other_parameters} %{opts.infile}"] in
     String.split args ~on:' '
 
-  let run_clustalo opts exe : string Async.Deferred.Or_error.t =
-    (* We do this weird looping thing because with pasv v1 using mafft, mafft
-       will just randomly fail when running a lot of threads on a server with a
-       lot of CPUs and other jobs. Generally just rerunning the jobs would fix
-       things. *)
+  let remove_if_exists filename =
+    if Utils.is_file filename then Sys.remove filename else return ()
+
+  (* Printable representation of a command run by Process.run *)
+  let cmd_to_string (prog : string) args =
+    let args = String.concat args ~sep:" " in
+    [%string "%{prog} %{args}"]
+
+  (* Some errors we will retry. Let the user know we will retry and what the
+     command was. *)
+  let log_retryable_error prog args err =
+    let msg =
+      let cmd = cmd_to_string prog args in
+      [%string
+        "Command (%{cmd}) failed.  Will retry.\n\
+         Error was: %{Error.to_string_hum err}"]
+    in
+    Logger.swarning msg
+
+  (* Eventually, we stop retrying. Let the user know there will be no more
+     retries and what the error was. *)
+  let log_final_error prog args err =
+    let msg =
+      let cmd = cmd_to_string prog args in
+      [%string
+        "Command (%{cmd}) failed.  Max attempts exceeded.\n\
+         Error was: %{Error.to_string_hum err}"]
+    in
+    Logger.serror msg
+
+  let run_until_succes_or_error prog args max_retries =
     let rec loop num_tries =
-      let open Async in
-      let args = make_clustalo_args opts in
-      Logger.debug (fun () ->
-          let cmd_args = Core.String.concat args ~sep:" " in
-          [%string "Running command: %{exe} %{cmd_args}"]);
-      let%bind out = Process.run ~prog:exe ~args () in
-      match out with
-      | Ok stdout ->
-          if Utils.is_file opts.outfile then Deferred.Or_error.return stdout
-          else
-            let cmd_args = Core.String.concat args ~sep:" " in
-            Deferred.Or_error.errorf
-              "Command (%s) succeeded, but the outfile (%s) does not exist!"
-              [%string "%{exe} %{cmd_args}"] opts.outfile
+      match%bind Process.run ~prog ~args () with
+      | Ok stdout -> Deferred.Or_error.return stdout
       | Error err ->
-          (* Aligner failed so make sure the outfile is cleaned up. *)
-          let%bind _x =
-            if Utils.is_file opts.outfile then Sys.remove opts.outfile
-            else Deferred.return ()
-          in
-          Logger.error (fun () ->
-              if num_tries < opts.max_retries then
-                [%string "MSA failed.  Will retry.\n%{Error.to_string_hum err}"]
-              else
-                [%string
-                  "MSA failed.  Max attempts exceeded.\n\
-                   %{Error.to_string_hum err}"]);
-          if num_tries < opts.max_retries then loop (num_tries + 1)
-          else
+          if num_tries < max_retries then (
+            log_retryable_error prog args err;
+            loop (num_tries + 1))
+          else (
+            log_final_error prog args err;
             Deferred.Or_error.fail err
-            |> Deferred.Or_error.tag ~tag:"msa failed after max-retries"
+            |> Deferred.Or_error.tag ~tag:"job failed after max-retries")
     in
     loop 0
 
-  let run_mafft opts exe : string Async.Deferred.Or_error.t =
-    let open Async in
-    let rec loop num_tries =
-      let args = make_mafft_args opts in
-      Logger.debug (fun () ->
-          let cmd_args = Core.String.concat args ~sep:" " in
-          [%string "Running command: %{exe} %{cmd_args}"]);
-      match%bind Process.run ~prog:exe ~args () with
-      | Ok stdout ->
-          (* stdout for mafft is the actual alignment *)
-          let%bind (_ : unit) =
-            Writer.with_file opts.outfile ~perm:0o644 ~f:(fun writer ->
-                Deferred.return @@ Writer.write_line writer stdout)
-          in
-          (* The stdout gets written to the aln file. Stderr is lost this
-             way...if you need it, you will need to change to a lower level
-             function that Process.run. Return a string here to match with
-             run_clustalo. *)
-          Deferred.Or_error.return ""
-      | Error err ->
-          Logger.error (fun () ->
-              if num_tries < opts.max_retries then
-                [%string "MSA failed.  Will retry.\n%{Error.to_string_hum err}"]
-              else
-                [%string
-                  "MSA failed.  Max attempts exceeded.\n\
-                   %{Error.to_string_hum err}"]);
-          if num_tries < opts.max_retries then loop (num_tries + 1)
-          else
-            Deferred.Or_error.fail err
-            |> Deferred.Or_error.tag ~tag:"msa failed after max-retries"
-    in
-    loop 0
+  let run_mafft opts exe : string Deferred.Or_error.t =
+    let args = make_mafft_args opts in
+    Logger.debug (fun () ->
+        let cmd = cmd_to_string exe args in
+        "Running command: " ^ cmd);
+    match%bind run_until_succes_or_error exe args opts.max_retries with
+    | Ok stdout ->
+        (* stdout for mafft is the actual alignment *)
+        let%bind (_ : unit) =
+          Writer.with_file opts.outfile ~perm:0o644 ~f:(fun writer ->
+              Deferred.return @@ Writer.write_line writer stdout)
+        in
+        (* The stdout gets written to the aln file. Stderr is lost this way...if
+           you need it, you will need to change to a lower level function that
+           Process.run. Return a string here to match with run_clustalo. *)
+        Deferred.Or_error.return ""
+    | Error err ->
+        Deferred.Or_error.fail err |> Deferred.Or_error.tag ~tag:"mafft failed"
+
+  (* Similar to run_mafft, except that clustalo outputs files to deal with. *)
+  let run_clustalo opts exe : string Deferred.Or_error.t =
+    let args = make_clustalo_args opts in
+    let cmd = cmd_to_string exe args in
+    Logger.debug (fun () -> "Running command: " ^ cmd);
+    match%bind run_until_succes_or_error exe args opts.max_retries with
+    | Ok stdout ->
+        (* We double check the the outfile actually exists. *)
+        if Utils.is_file opts.outfile then Deferred.Or_error.return stdout
+          (* And if not return an informative error. *)
+        else
+          Deferred.Or_error.errorf
+            "Command (%s) succeeded, but the outfile (%s) does not exist!" cmd
+            opts.outfile
+    | Error err ->
+        (* Aligner failed so make sure the outfile is cleaned up. *)
+        let%bind (_ : unit) = remove_if_exists opts.outfile in
+        Deferred.Or_error.fail err
+        |> Deferred.Or_error.tag ~tag:"clustalo failed"
 
   let run opts = function
     | Clustalo exe -> run_clustalo opts exe
