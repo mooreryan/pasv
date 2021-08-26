@@ -9,6 +9,7 @@ Set up environment variables.
   $ export ROI_START=20
   $ export ROI_END=80
   $ export SANITIZE_LOGS=./sanitize_logs
+  $ export DOES_FILE_EXIST=../../helpers/does_file_exist
 
 This aln outfile is okay as our query set only has one sequence.
 
@@ -173,7 +174,7 @@ Bad exit code, output file made, but pasv still removes it.
   [1]
   $ pasv msa -vv --aligner=./clustalo.msa_fail_with_output_aln_file --outdir="${OUTDIR}" "${QUERIES}" "${REFS}" "${RESIDUES}" 2> err
   [1]
-  $ ./does_file_exist "${ALN_OUTFILE}"
+  $ "${DOES_FILE_EXIST}" "${ALN_OUTFILE}"
   no
   $ "${SANITIZE_LOGS}" err
   I, [DATE TIME PID] INFO -- Working on query 1
@@ -427,7 +428,7 @@ Bad exit code, output file is made.
   [1]
   $ pasv msa -vv --aligner=./mafft.msa_fail_with_output_aln_file --alignment-parameters='--auto --thread 1' --outdir="${OUTDIR}" "${QUERIES}" "${REFS}" "${RESIDUES}" 2> err
   [1]
-  $ ./does_file_exist "${ALN_OUTFILE}"
+  $ "${DOES_FILE_EXIST}" "${ALN_OUTFILE}"
   no
   $ "${SANITIZE_LOGS}" err
   I, [DATE TIME PID] INFO -- Working on query 1

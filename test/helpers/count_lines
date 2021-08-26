@@ -1,0 +1,3 @@
+#!/usr/bin/env perl
+
+open(FILE, "< $ARGV[0]"); 1 while <FILE>; print "$.\n"

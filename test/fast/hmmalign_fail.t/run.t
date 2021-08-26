@@ -10,6 +10,8 @@ Set up environment variables.
   $ export ROI_END=80
   $ export ALN_OUTFILE=apple/amk_queries.aln.fa
   $ export SANITIZE_LOGS=./sanitize_logs
+  $ export DOES_FILE_EXIST=../../helpers/does_file_exist
+
 
 Bad exit code
 
@@ -26,7 +28,7 @@ Bad exit code
   == hmmalign stderr ==
   a bad thing happened...
   
-  $ ./does_file_exist "${ALN_OUTFILE}"
+  $ "${DOES_FILE_EXIST}" "${ALN_OUTFILE}"
   no
 
 Good exit code, but the outfile doesn't exist.  

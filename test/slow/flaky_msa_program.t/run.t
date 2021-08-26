@@ -13,6 +13,7 @@ Set up environment variables.
   $ export ROI_START=20
   $ export ROI_END=80
   $ export SANITIZE_LOGS=./sanitize_logs
+  $ export COUNT_LINES=../../helpers/count_lines
 
 Flaky failing jobs restart.
 
@@ -35,5 +36,5 @@ a single threaded environment, so half the jobs will fail.
 Half of those jobs should fail, so this should be 13.  (12 query rows
 and the header)
 
-  $ wc -l "${OUTDIR}/${ACTUAL_SIGNATURES}"
-  13 apple/amk_queries.pasv_signatures.tsv
+  $ "${COUNT_LINES}" "${OUTDIR}/${ACTUAL_SIGNATURES}"
+  13

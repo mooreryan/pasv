@@ -1,3 +1,0 @@
-#!/usr/bin/env perl
-
-if (-e $ARGV[0]) { print "yes\n" } else { print "no\n" }
