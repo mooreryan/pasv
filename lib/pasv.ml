@@ -25,17 +25,216 @@ let assert_roi_good_or_exit ~(roi_start : ('indexing, 'wrt) Position.t option)
 (* The pasv-select program opts and runner. *)
 module Select = struct
   type opts = {
+    query_file : string;
     signature_file : string;
     signature_list : string list;
     reject : bool;
+    fixed_strings : bool;
   }
 
+  (* Zero-based indexing from the end. *)
+  let get_from_end ary i = Array.get ary (Array.length ary - (i + 1))
+
+  let all_true l = List.fold l ~init:true ~f:( && )
+  let any_true l = List.fold l ~init:false ~f:( || )
+
+  (* Checks a bunch of stuff. Logs errors if things fail. Returns true if there
+     were no failures, false if there was at least one failure. *)
+  let check_sig_file_header line =
+    (* This is kind of weird code, but I want to warn the user about every error
+       that we can see rather than the first failing error. *)
+    let check_length ary =
+      let len = Array.length ary in
+      let is_good = len > 5 in
+      if not is_good then
+        Logger.error (fun () ->
+            [%string
+              "Signature file should have 6 or more columns.  Got %{len#Int}."]);
+      is_good
+    in
+    let check_name_col ary =
+      let s = ary.(0) in
+      let is_good = String.(s = "name") in
+      if not is_good then
+        Logger.error (fun () ->
+            [%string
+              "The first column of the signature file should be 'name'.  Got \
+               '%{s}'."]);
+      is_good
+    in
+    let check_spans_col ary =
+      let s = get_from_end ary 0 in
+      let is_good = String.(s = "spans") in
+      if not is_good then
+        Logger.error (fun () ->
+            [%string
+              "The last column the signature file should be 'spans'.  Got \
+               '%{s}'."]);
+      is_good
+    in
+    let check_spans_end_col ary =
+      let s = get_from_end ary 1 in
+      let is_good = String.(s = "spans_end") in
+      if not is_good then
+        Logger.error (fun () ->
+            [%string
+              "The second to last column the signature file should be \
+               'spans_end'.  Got '%{s}'."]);
+      is_good
+    in
+    let check_spans_start_col ary =
+      let s = get_from_end ary 2 in
+      let is_good = String.(s = "spans_start") in
+      if not is_good then
+        Logger.error (fun () ->
+            [%string
+              "The third to last column the signature file should be \
+               'spans_start'.  Got '%{s}'."]);
+      is_good
+    in
+    let check_signature_col ary =
+      let s = get_from_end ary 3 in
+      let is_good = String.(s = "signature") in
+      if not is_good then
+        Logger.error (fun () ->
+            [%string
+              "The fourth to last column the signature file should be \
+               'signature'.  Got '%{s}'."]);
+      is_good
+    in
+    let header = String.split line ~on:'\t' |> Array.of_list in
+    let length_good = check_length header in
+    let name_col_good = check_name_col header in
+    let spans_col_good = check_spans_col header in
+    let spans_end_col_good = check_spans_end_col header in
+    let spans_start_col_good = check_spans_start_col header in
+    let signature_col_good = check_signature_col header in
+    let checks =
+      [
+        length_good;
+        name_col_good;
+        spans_col_good;
+        spans_end_col_good;
+        spans_start_col_good;
+        signature_col_good;
+      ]
+    in
+    all_true checks
+
   let run (common_opts : common_opts) (opts : opts) =
-    (* TODO just a placeholder function. *)
     Logger.set_printer prerr_endline;
-    let _x = common_opts.verbosity in
-    let _y = opts.signature_file in
-    Logger.sinfo "done!!!!"
+    Utils.make_outdir_or_exit common_opts.outdir common_opts.force;
+    Utils.assert_looks_like_fasta_file_or_exit opts.query_file;
+    let match_fun =
+      match (opts.fixed_strings, opts.reject) with
+      | true, true -> fun ~test ~actual -> String.(test <> actual)
+      | true, false -> fun ~test ~actual -> String.(test = actual)
+      | false, true ->
+          (* TODO create rather than create_exn; make once rather than everytime
+             this function is called. *)
+          fun ~test ~actual -> not @@ Re2.matches (Re2.create_exn test) actual
+      | false, false ->
+          fun ~test ~actual -> Re2.matches (Re2.create_exn test) actual
+    in
+    let keep_these =
+      (* Get the header and check it. *)
+      let read_and_check_header chan =
+        match In_channel.input_line chan with
+        | None ->
+            Logger.fatal (fun () ->
+                [%string
+                  "Signature file '%{opts.signature_file}' has no lines!"]);
+            exit 1
+        | Some header ->
+            if check_sig_file_header header then
+              Array.of_list @@ String.split header ~on:'\t'
+            else (
+              Logger.fatal (fun () ->
+                  [%string
+                    "Signature file '%{opts.signature_file}' has a bad header!"]);
+              exit 1)
+      in
+      let get_signature ary = get_from_end ary 3 in
+      In_channel.with_file opts.signature_file ~f:(fun chan ->
+          let header = read_and_check_header chan in
+          let expected_num_cols = Array.length header in
+          In_channel.fold_lines chan
+            ~init:(Map.empty (module String))
+            ~f:(fun acc line ->
+              let ary = Array.of_list @@ String.split line ~on:'\t' in
+              let num_cols = Array.length ary in
+              if num_cols <> expected_num_cols then (
+                Logger.fatal (fun () ->
+                    [%string
+                      "Line '%{line}' had %{num_cols#Int} but should have had \
+                       %{expected_num_cols#Int}"]);
+                exit 1);
+              let signature = get_signature ary in
+              let keep =
+                let any_fun = if opts.reject then all_true else any_true in
+                any_fun
+                @@ List.map opts.signature_list ~f:(fun test_sig ->
+                       match_fun ~test:test_sig ~actual:signature)
+              in
+              if keep then (
+                let name = ary.(0) in
+                match Map.add acc ~key:name ~data:signature with
+                | `Ok map -> map
+                | `Duplicate ->
+                    Logger.fatal (fun () ->
+                        [%string
+                          "Name %{name} was duplicated in the signatures file"]);
+                    exit 1)
+              else acc))
+    in
+    if Map.length keep_these < 1 then
+      Logger.warning (fun () ->
+          [%string
+            "There were no IDs to keep!  Outdir '%{common_opts.outdir}' will \
+             be empty.  Check your signatures and make sure they're correct!"]);
+    let make_partition_filename ~outdir ~signature =
+      Filename.concat outdir [%string "signature_%{signature}.fa"]
+    in
+    match
+      Bio_io.Fasta_in_channel.with_file_fold_records opts.query_file
+        ~init:(Map.empty (module String))
+        ~f:(fun outfiles record ->
+          let open Bio_io.Fasta_record in
+          let id = id record in
+          match Map.find keep_these id with
+          | None -> outfiles
+          | Some signature ->
+              (* Make sure the signature has an outfile. *)
+              let outfiles =
+                let name =
+                  make_partition_filename ~outdir:common_opts.outdir ~signature
+                in
+                let out_chan = Out_channel.create name in
+                match Map.add outfiles ~key:signature ~data:out_chan with
+                | `Ok new_ -> new_
+                | `Duplicate -> outfiles
+              in
+              let out_chan =
+                (* _exn okay since we just added it. *)
+                Map.find_exn outfiles signature
+              in
+              Out_channel.output_lines out_chan [ to_string record ];
+              outfiles)
+    with
+    | Ok out_channels ->
+        Map.iteri out_channels ~f:(fun ~key:signature ~data:out_chan ->
+            match Utils.try1 Out_channel.close out_chan with
+            | Ok _ -> ()
+            | Error err ->
+                Logger.warning (fun () ->
+                    let msg = Error.to_string_hum err in
+                    [%string
+                      "Error closing out channel for signature %{signature}.  \
+                       Error: %{msg}."]))
+    | Error err ->
+        Logger.fatal (fun () ->
+            let msg = Error.to_string_hum err in
+            [%string "There was an error parsing query file: %{msg}"])
 end
 
 module Check = struct

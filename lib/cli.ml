@@ -2,8 +2,6 @@ open! Core
 
 open! Cmdliner
 
-(* TODO move the ROI out of the shared opts *)
-
 let version = "2.0.0-alpha"
 
 let aligner_converter =
@@ -406,14 +404,14 @@ module Command = struct
       let doc = "Path to signatures file." in
       Arg.(
         required
-        & pos 0 (some non_dir_file) None
+        & pos 1 (some non_dir_file) None
         & info [] ~docv:"SIGNATURE_FILE" ~doc)
 
     let signature_list_term =
       let doc = "List of signatures to keep (comma separated)" in
       Arg.(
         required
-        & pos 1 (some (list string ~sep:',')) None
+        & pos 2 (some (list string ~sep:',')) None
         & info [] ~docv:"SIGNATURES" ~doc)
 
     let reject_term =
@@ -423,16 +421,23 @@ module Command = struct
       in
       Arg.(value & flag & info [ "r"; "reject" ] ~doc)
 
+    let fixed_strings_term =
+      let doc =
+        "Treat the signatures as literal strings instead of a regular \
+         expressions."
+      in
+      Arg.(value & flag & info [ "F"; "fixed-strings" ] ~doc)
+
     (* This is the module's main term. *)
     let term =
       let select_opts_term =
-        let make_select_opts signature_file signature_list reject :
-            Pasv.Select.opts =
-          { signature_file; signature_list; reject }
+        let make_select_opts query_file signature_file signature_list reject
+            fixed_strings : Pasv.Select.opts =
+          { query_file; signature_file; signature_list; reject; fixed_strings }
         in
         Term.(
-          const make_select_opts $ signature_file_term $ signature_list_term
-          $ reject_term)
+          const make_select_opts $ queries_term $ signature_file_term
+          $ signature_list_term $ reject_term $ fixed_strings_term)
       in
       let combine_terms common_opts select_opts :
           Pasv.common_opts * Pasv.specific_opts =

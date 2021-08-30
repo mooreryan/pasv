@@ -112,3 +112,8 @@ let assert_looks_like_hmm_file_or_exit name =
 
 let default_clustalo_other_aln_params = "--threads=1"
 let default_mafft_other_aln_params = "--thread 1 --auto"
+
+let try1 f a =
+  match f a with
+  | exception exn -> Or_error.error "Caught exception" exn Exn.sexp_of_t
+  | result -> Or_error.return result
