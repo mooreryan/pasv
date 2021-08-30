@@ -28,6 +28,22 @@ let assert_roi_good_or_exit ~(roi_start : ('indexing, 'wrt) Position.t option)
     exit 1)
   else ()
 
+(* The pasv-select program opts and runner. *)
+module Select = struct
+  type opts = {
+    signature_file : string;
+    signature_list : string list;
+    reject : bool;
+  }
+
+  let run (common_opts : common_opts) (opts : opts) =
+    (* TODO just a placeholder function. *)
+    Logger.set_printer prerr_endline;
+    let _x = common_opts.verbosity in
+    let _y = opts.signature_file in
+    Logger.sinfo "done!!!!"
+end
+
 module Check = struct
   type opts = {
     alignment : string;
@@ -386,9 +402,11 @@ type specific_opts =
   | Pasv_check_opts of Check.opts
   | Pasv_hmm_opts of Hmm.opts
   | Pasv_msa_opts of Msa.opts
+  | Pasv_select_opts of Select.opts
 
 let run (common_opts : common_opts) (opts : specific_opts) =
   match opts with
-  | Pasv_check_opts check_opts -> Check.run common_opts check_opts
-  | Pasv_hmm_opts hmm_opts -> Hmm.run common_opts hmm_opts
-  | Pasv_msa_opts msa_opts -> Msa.run_wrapper common_opts msa_opts
+  | Pasv_check_opts opts -> Check.run common_opts opts
+  | Pasv_hmm_opts opts -> Hmm.run common_opts opts
+  | Pasv_msa_opts opts -> Msa.run_wrapper common_opts opts
+  | Pasv_select_opts opts -> Select.run common_opts opts

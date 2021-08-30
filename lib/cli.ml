@@ -2,7 +2,7 @@ open! Core
 
 open! Cmdliner
 
-let x = 1
+(* TODO move the ROI out of the shared opts *)
 
 let version = "2.0.0-alpha"
 
@@ -398,6 +398,65 @@ let pasv_root_info =
   in
   Term.info "pasv" ~version ~doc ~man ~sdocs:Manpage.s_common_options
 
+module Command = struct
+  (* TODO why is there a Pasv.Select.opts and a Pasv.Pasv_select_opts? *)
+  module Select = struct
+    let signature_file_term =
+      let doc = "Path to signatures file." in
+      Arg.(
+        required
+        & pos 0 (some non_dir_file) None
+        & info [] ~docv:"SIGNATURE_FILE" ~doc)
+
+    let signature_list_term =
+      let doc = "List of signatures to keep (comma separated)" in
+      Arg.(
+        required
+        & pos 1 (some (list string ~sep:',')) None
+        & info [] ~docv:"SIGNATURES" ~doc)
+
+    let reject_term =
+      let doc =
+        "Pass this flag if you want to reject the listed signatures rather \
+         than keep them."
+      in
+      Arg.(value & flag & info [ "r"; "reject" ] ~doc)
+
+    (* This is the module's main term. *)
+    let term =
+      let select_opts_term =
+        let make_select_opts signature_file signature_list reject :
+            Pasv.Select.opts =
+          { signature_file; signature_list; reject }
+        in
+        Term.(
+          const make_select_opts $ signature_file_term $ signature_list_term
+          $ reject_term)
+      in
+      let combine_terms common_opts select_opts :
+          Pasv.common_opts * Pasv.specific_opts =
+        (common_opts, Pasv.Pasv_select_opts select_opts)
+      in
+      Term.(const combine_terms $ common_opts_term $ select_opts_term)
+
+    let info =
+      let doc = "select sequences by signature" in
+      let man =
+        [
+          `S Manpage.s_description;
+          `P "TODO.";
+          `Blocks common_man_sections;
+          `S Manpage.s_examples;
+          `P "=== Quick start";
+          `Pre "pasv select TODO";
+        ]
+      in
+      Term.info "select" ~version ~doc ~man ~sdocs:Manpage.s_common_options
+
+    let program = (term, info)
+  end
+end
+
 (* Commands *)
 
 let pasv_check_cmd = (pasv_check_term, pasv_check_info)
@@ -405,4 +464,5 @@ let pasv_hmm_cmd = (pasv_hmm_term, pasv_hmm_info)
 let pasv_msa_cmd = (pasv_msa_term, pasv_msa_info)
 let pasv_root_cmd = (pasv_root_term, pasv_root_info)
 
-let subcommands = [ pasv_check_cmd; pasv_hmm_cmd; pasv_msa_cmd ]
+let subcommands =
+  [ pasv_check_cmd; pasv_hmm_cmd; pasv_msa_cmd; Command.Select.program ]
