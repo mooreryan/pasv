@@ -141,16 +141,14 @@ let roi_start_term =
   Arg.(
     value
     & opt (some counting_number_converter) None
-    & info [ "s"; "roi-start" ] ~docv:"ROI_START" ~doc
-        ~docs:Manpage.s_common_options)
+    & info [ "s"; "roi-start" ] ~docv:"ROI_START" ~doc)
 
 let roi_end_term =
   let doc = "Region of interest end (ROI) (1-indexed)" in
   Arg.(
     value
     & opt (some counting_number_converter) None
-    & info [ "e"; "roi-end" ] ~docv:"ROI_END" ~doc
-        ~docs:Manpage.s_common_options)
+    & info [ "e"; "roi-end" ] ~docv:"ROI_END" ~doc)
 
 (* Key residues for hmm are in a different position. *)
 let key_residues_hmm_term =
@@ -181,31 +179,27 @@ let force_term =
   Arg.(value & flag & info [ "f"; "force" ] ~doc ~docs:Manpage.s_common_options)
 
 let common_opts_term =
-  let make_common_opts outdir roi_start roi_end force verbosity :
-      Pasv.common_opts =
-    {
-      outdir;
-      (* key_residues = Position.List.one_raw_of_list key_residues; *)
-      roi_start = Option.map roi_start ~f:Mod.Position.one_raw_of_int;
-      roi_end = Option.map roi_end ~f:Mod.Position.one_raw_of_int;
-      force;
-      verbosity;
-    }
+  let make_common_opts outdir force verbosity : Pasv.common_opts =
+    { outdir; force; verbosity }
   in
   Term.(
-    const make_common_opts $ outdir_term $ roi_start_term $ roi_end_term
-    $ force_term
+    const make_common_opts $ outdir_term $ force_term
     $ Verbosity.log_level_term ~docs:Manpage.s_common_options ())
 
 let pasv_check_term =
   let check_opts_term =
-    let make_check_opts alignment key_residues : Pasv.Check.opts =
+    let make_check_opts alignment key_residues roi_start roi_end :
+        Pasv.Check.opts =
       {
         alignment;
         key_residues = Mod.Position.List.one_raw_of_list key_residues;
+        roi_start = Option.map roi_start ~f:Mod.Position.one_raw_of_int;
+        roi_end = Option.map roi_end ~f:Mod.Position.one_raw_of_int;
       }
     in
-    Term.(const make_check_opts $ alignment_file_term $ key_residues_check_term)
+    Term.(
+      const make_check_opts $ alignment_file_term $ key_residues_check_term
+      $ roi_start_term $ roi_end_term)
   in
   let combine_terms common_opts check_opts :
       Pasv.common_opts * Pasv.specific_opts =
@@ -216,7 +210,7 @@ let pasv_check_term =
 let pasv_hmm_term =
   let hmm_opts_term =
     let make_hmm_opts queries references key_reference key_residues
-        keep_intermediate_files hmmalign : Pasv.Hmm.opts =
+        keep_intermediate_files hmmalign roi_start roi_end : Pasv.Hmm.opts =
       {
         queries;
         references;
@@ -224,12 +218,15 @@ let pasv_hmm_term =
         key_residues = Mod.Position.List.one_raw_of_list key_residues;
         keep_intermediate_files;
         hmmalign;
+        roi_start = Option.map roi_start ~f:Mod.Position.one_raw_of_int;
+        roi_end = Option.map roi_end ~f:Mod.Position.one_raw_of_int;
       }
     in
     Term.(
       const make_hmm_opts $ queries_term $ references_hmm_term
       $ key_reference_term $ key_residues_hmm_term
-      $ keep_intermediate_files_term $ hmmalign_term)
+      $ keep_intermediate_files_term $ hmmalign_term $ roi_start_term
+      $ roi_end_term)
   in
   let combine_terms common_opts hmm_opts : Pasv.common_opts * Pasv.specific_opts
       =
@@ -240,7 +237,8 @@ let pasv_hmm_term =
 let pasv_msa_term =
   let msa_opts_term =
     let make_msa_opts queries references key_residues keep_intermediate_files
-        aligner other_parameters jobs max_retries : Pasv.Msa.opts =
+        aligner other_parameters jobs max_retries roi_start roi_end :
+        Pasv.Msa.opts =
       {
         queries;
         references;
@@ -250,12 +248,15 @@ let pasv_msa_term =
         other_parameters;
         jobs;
         max_retries;
+        roi_start = Option.map roi_start ~f:Mod.Position.one_raw_of_int;
+        roi_end = Option.map roi_end ~f:Mod.Position.one_raw_of_int;
       }
     in
     Term.(
       const make_msa_opts $ queries_term $ references_fasta_term
       $ key_residues_msa_term $ keep_intermediate_files_term $ aligner_term
-      $ aligner_other_params_term $ jobs_term $ max_retries_term)
+      $ aligner_other_params_term $ jobs_term $ max_retries_term
+      $ roi_start_term $ roi_end_term)
   in
   let combine_terms common_opts hmm_opts : Pasv.common_opts * Pasv.specific_opts
       =

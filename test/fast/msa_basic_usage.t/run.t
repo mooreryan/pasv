@@ -53,6 +53,9 @@ Help screen
              you don't want that, you can specify the this option in the usual
              way.
   
+         -e ROI_END, --roi-end=ROI_END
+             Region of interest end (ROI) (1-indexed)
+  
          -j JOBS, --jobs=JOBS (absent=1)
              Number of jobs to run.
   
@@ -64,11 +67,11 @@ Help screen
              fail, so individual jobs will be retried until they succeed or
              until this number of tries is reached.
   
+         -s ROI_START, --roi-start=ROI_START
+             Region of interest start (ROI) (1-indexed)
+  
   COMMON OPTIONS
          These options are common to all commands.
-  
-         -e ROI_END, --roi-end=ROI_END
-             Region of interest end (ROI) (1-indexed)
   
          -f, --force
              If the outdir already exists, just keep going.
@@ -83,9 +86,6 @@ Help screen
   
          -q, --quiet
              Silence all log messages. Takes over -v and --verbosity.
-  
-         -s ROI_START, --roi-start=ROI_START
-             Region of interest start (ROI) (1-indexed)
   
          -v, --verbose
              Increase verbosity. Repeatable, but more than twice does not bring

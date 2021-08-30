@@ -39,11 +39,15 @@ Help screen
          KEY_RESIDUES (required)
              Key residues (comma separated)
   
-  COMMON OPTIONS
-         These options are common to all commands.
-  
+  OPTIONS
          -e ROI_END, --roi-end=ROI_END
              Region of interest end (ROI) (1-indexed)
+  
+         -s ROI_START, --roi-start=ROI_START
+             Region of interest start (ROI) (1-indexed)
+  
+  COMMON OPTIONS
+         These options are common to all commands.
   
          -f, --force
              If the outdir already exists, just keep going.
@@ -58,9 +62,6 @@ Help screen
   
          -q, --quiet
              Silence all log messages. Takes over -v and --verbosity.
-  
-         -s ROI_START, --roi-start=ROI_START
-             Region of interest start (ROI) (1-indexed)
   
          -v, --verbose
              Increase verbosity. Repeatable, but more than twice does not bring

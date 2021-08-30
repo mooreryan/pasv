@@ -2,13 +2,7 @@ open! Core
 open Little_logger
 open Mod
 
-type common_opts = {
-  outdir : string;
-  roi_start : Position.one_indexed_raw option;
-  roi_end : Position.one_indexed_raw option;
-  force : bool;
-  verbosity : Logger.Level.t;
-}
+type common_opts = { outdir : string; force : bool; verbosity : Logger.Level.t }
 
 exception Exn of string [@@deriving sexp]
 
@@ -48,6 +42,8 @@ module Check = struct
   type opts = {
     alignment : string;
     key_residues : (Position.one_indexed, Position.raw) Position.List.t;
+    roi_start : Position.one_indexed_raw option;
+    roi_end : Position.one_indexed_raw option;
   }
 
   let run (common_opts : common_opts) (opts : opts) =
@@ -59,8 +55,8 @@ module Check = struct
         ~outdir:common_opts.outdir
     in
     let open Check_alignment in
-    let roi_start = Option.map common_opts.roi_start ~f:Position.one_to_zero in
-    let roi_end = Option.map common_opts.roi_end ~f:Position.one_to_zero in
+    let roi_start = Option.map opts.roi_start ~f:Position.one_to_zero in
+    let roi_end = Option.map opts.roi_end ~f:Position.one_to_zero in
     let (_ : unit option) = assert_roi_good_or_exit ~roi_start ~roi_end in
     let sig_file_header = make_signature_file_header opts.key_residues in
     match
@@ -85,6 +81,8 @@ module Hmm = struct
     key_residues : (Position.one_indexed, Position.raw) Position.List.t;
     keep_intermediate_files : bool;
     hmmalign : string;
+    roi_start : Position.one_indexed_raw option;
+    roi_end : Position.one_indexed_raw option;
   }
 
   let handle_hmmalign_error (out : Runners.Hmmalign.out) err =
@@ -170,12 +168,8 @@ module Hmm = struct
       match hmmalign_out.result with
       | Ok () -> (
           let open Check_alignment in
-          let roi_start =
-            Option.map common_opts.roi_start ~f:Position.one_to_zero
-          in
-          let roi_end =
-            Option.map common_opts.roi_end ~f:Position.one_to_zero
-          in
+          let roi_start = Option.map opts.roi_start ~f:Position.one_to_zero in
+          let roi_end = Option.map opts.roi_end ~f:Position.one_to_zero in
           let (_ : unit option) = assert_roi_good_or_exit ~roi_start ~roi_end in
           let sig_file_header = make_signature_file_header opts.key_residues in
           match
@@ -209,16 +203,16 @@ module Msa = struct
     other_parameters : string;
     jobs : int;
     max_retries : int;
+    roi_start : Position.one_indexed_raw option;
+    roi_end : Position.one_indexed_raw option;
   }
 
-  let get_signature msa_out outfile common_opts (opts : opts) =
+  let get_signature msa_out outfile (opts : opts) =
     match msa_out with
     | Ok _stdout -> (
         let open Check_alignment in
-        let roi_start =
-          Option.map common_opts.roi_start ~f:Position.one_to_zero
-        in
-        let roi_end = Option.map common_opts.roi_end ~f:Position.one_to_zero in
+        let roi_start = Option.map opts.roi_start ~f:Position.one_to_zero in
+        let roi_end = Option.map opts.roi_end ~f:Position.one_to_zero in
         let (_ : unit option) = assert_roi_good_or_exit ~roi_start ~roi_end in
         let open Or_error.Let_syntax in
         let%bind signatures =
@@ -274,7 +268,7 @@ module Msa = struct
       Runners.Msa.run msa_opts opts.aligner
     in
 
-    let signature = get_signature msa_out msa_outfile_name common_opts opts in
+    let signature = get_signature msa_out msa_outfile_name opts in
     let () =
       Utils.clean_up opts.keep_intermediate_files
         [ msa_infile_name; msa_outfile_name ]
