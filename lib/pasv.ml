@@ -2,6 +2,8 @@ open! Core
 open Little_logger
 open Mod
 
+module U = Utils
+
 type common_opts = { outdir : string; force : bool; verbosity : Logger.Level.t }
 
 exception Exn of string [@@deriving sexp]
@@ -32,17 +34,6 @@ module Select = struct
     fixed_strings : bool;
   }
 
-  (* Zero-based indexing from the end. *)
-  let get_from_end ary i =
-    let index = Array.length ary - (i + 1) in
-    if index < 0 || index >= Array.length ary then
-      Or_error.errorf "Bad index (%d); ary length is (%d)." index
-        (Array.length ary)
-    else Or_error.return @@ Array.get ary index
-
-  let all_true l = List.fold l ~init:true ~f:( && )
-  let any_true l = List.fold l ~init:false ~f:( || )
-
   (* Checks a bunch of stuff. Logs errors if things fail. Returns true if there
      were no failures, false if there was at least one failure. *)
   let check_sig_file_header line =
@@ -69,85 +60,19 @@ module Select = struct
                '%{s}'."]);
       is_good
     in
-    let check_spans_col ary =
-      match get_from_end ary 0 with
-      | Ok s ->
-          let is_good = String.(s = "spans") in
-          if not is_good then
-            Logger.error (fun () ->
-                [%string
-                  "The last column the signature file should be 'spans'.  Got \
-                   '%{s}'."]);
-          is_good
-      | Error err ->
-          Logger.error (fun () ->
-              let msg = Error.to_string_hum err in
-              [%string
-                "Couldn't get 'spans' column from header.  It's probably too \
-                 short.  %{msg}"]);
-          false
-    in
-    let check_spans_end_col ary =
-      match get_from_end ary 1 with
-      | Ok s ->
-          let is_good = String.(s = "spans_end") in
-          if not is_good then
-            Logger.error (fun () ->
-                [%string
-                  "The second to last column the signature file should be \
-                   'spans_end'.  Got '%{s}'."]);
-          is_good
-      | Error err ->
-          Logger.error (fun () ->
-              let msg = Error.to_string_hum err in
-              [%string
-                "Couldn't get 'spans_end' column from header.  It's probably \
-                 too short.  %{msg}"]);
-          false
-    in
-    let check_spans_start_col ary =
-      match get_from_end ary 2 with
-      | Ok s ->
-          let is_good = String.(s = "spans_start") in
-          if not is_good then
-            Logger.error (fun () ->
-                [%string
-                  "The third to last column the signature file should be \
-                   'spans_start'.  Got '%{s}'."]);
-          is_good
-      | Error err ->
-          Logger.error (fun () ->
-              let msg = Error.to_string_hum err in
-              [%string
-                "Couldn't get 'spans_start' column from header.  It's probably \
-                 too short.  %{msg}"]);
-          false
-    in
-    let check_signature_col ary =
-      match get_from_end ary 3 with
-      | Ok s ->
-          let is_good = String.(s = "signature") in
-          if not is_good then
-            Logger.error (fun () ->
-                [%string
-                  "The fourth to last column the signature file should be \
-                   'signature'.  Got '%{s}'."]);
-          is_good
-      | Error err ->
-          Logger.error (fun () ->
-              let msg = Error.to_string_hum err in
-              [%string
-                "Couldn't get 'signature' column from header.  It's probably \
-                 too short.  %{msg}"]);
-          false
-    in
     let header = String.split line ~on:'\t' |> Array.of_list in
     let length_good = check_length header in
     let name_col_good = check_name_col header in
-    let spans_col_good = check_spans_col header in
-    let spans_end_col_good = check_spans_end_col header in
-    let spans_start_col_good = check_spans_start_col header in
-    let signature_col_good = check_signature_col header in
+    let spans_col_good = Sig_file_column.check header Sig_file_column.Spans in
+    let spans_end_col_good =
+      Sig_file_column.check header Sig_file_column.Spans_end
+    in
+    let spans_start_col_good =
+      Sig_file_column.check header Sig_file_column.Spans_start
+    in
+    let signature_col_good =
+      Sig_file_column.check header Sig_file_column.Signature
+    in
     let checks =
       [
         length_good;
@@ -158,81 +83,92 @@ module Select = struct
         signature_col_good;
       ]
     in
-    all_true checks
+    U.all_true checks
 
-  let run (common_opts : common_opts) (opts : opts) =
-    Logger.set_printer prerr_endline;
-    Utils.make_outdir_or_exit common_opts.outdir common_opts.force;
-    Utils.assert_looks_like_fasta_file_or_exit opts.query_file;
-    let match_fun =
-      match (opts.fixed_strings, opts.reject) with
-      | true, true -> fun ~test ~actual -> String.(test <> actual)
-      | true, false -> fun ~test ~actual -> String.(test = actual)
-      | false, true ->
-          (* TODO create rather than create_exn; make once rather than everytime
-             this function is called. *)
-          fun ~test ~actual -> not @@ Re2.matches (Re2.create_exn test) actual
-      | false, false ->
-          fun ~test ~actual -> Re2.matches (Re2.create_exn test) actual
-    in
-    let keep_these =
-      (* Get the header and check it. *)
-      let read_and_check_header chan =
-        match In_channel.input_line chan with
-        | None ->
-            Logger.fatal (fun () ->
-                [%string
-                  "Signature file '%{opts.signature_file}' has no lines!"]);
-            exit 1
-        | Some header ->
-            if check_sig_file_header header then
-              Array.of_list @@ String.split header ~on:'\t'
-            else (
+  (* There are a couple of ways to match signatures. This makes the general
+     matching function. *)
+  let make_match_fun ~fixed_strings ~reject =
+    match (fixed_strings, reject) with
+    | true, true -> fun ~test ~actual -> String.(test <> actual)
+    | true, false -> fun ~test ~actual -> String.(test = actual)
+    | false, true ->
+        (* TODO create rather than create_exn; make once rather than everytime
+           this function is called. *)
+        fun ~test ~actual -> not @@ Re2.matches (Re2.create_exn test) actual
+    | false, false ->
+        fun ~test ~actual -> Re2.matches (Re2.create_exn test) actual
+
+  let make_bool_fold_fun reject = if reject then U.all_true else U.any_true
+
+  let keep_signature actual_signature test_signatures ~fixed_strings ~reject =
+    let match_fun = make_match_fun ~fixed_strings ~reject in
+    let fold_fun = make_bool_fold_fun reject in
+    fold_fun
+    @@ List.map test_signatures ~f:(fun test_sig ->
+           match_fun ~test:test_sig ~actual:actual_signature)
+
+  let add_or_exit map ~key ~data =
+    match Map.add map ~key ~data with
+    | `Ok map -> map
+    | `Duplicate ->
+        Logger.fatal (fun () ->
+            [%string
+              "Name %{key} was duplicated in the signatures file.  pasv does \
+               not duplicate sequences in the signatures file.  Did you edit \
+               the file by hand?  If not, please submit a bug report."]);
+        (* Technically we could check to see if the signature is the same even
+           if the name is duplicated. *)
+        exit 1
+
+  (* Get the header and check it. *)
+  let read_and_check_header chan signature_file_name =
+    match In_channel.input_line chan with
+    | None ->
+        Logger.fatal (fun () ->
+            [%string "Signature file '%{signature_file_name}' has no lines!"]);
+        exit 1
+    | Some header ->
+        if check_sig_file_header header then
+          Array.of_list @@ String.split header ~on:'\t'
+        else (
+          Logger.fatal (fun () ->
+              [%string
+                "Signature file '%{signature_file_name}' has a bad header!"]);
+          exit 1)
+
+  let get_queries_to_keep opts =
+    In_channel.with_file opts.signature_file ~f:(fun chan ->
+        let header = read_and_check_header chan opts.signature_file in
+        let expected_num_cols = Array.length header in
+        In_channel.fold_lines chan
+          ~init:(Map.empty (module String))
+          ~f:(fun name_to_sig line ->
+            let header = Array.of_list @@ String.split line ~on:'\t' in
+            let num_cols = Array.length header in
+            if num_cols <> expected_num_cols then (
               Logger.fatal (fun () ->
                   [%string
-                    "Signature file '%{opts.signature_file}' has a bad header!"]);
-              exit 1)
-      in
-      let get_signature ary = get_from_end ary 3 in
-      In_channel.with_file opts.signature_file ~f:(fun chan ->
-          let header = read_and_check_header chan in
-          let expected_num_cols = Array.length header in
-          In_channel.fold_lines chan
-            ~init:(Map.empty (module String))
-            ~f:(fun acc line ->
-              let ary = Array.of_list @@ String.split line ~on:'\t' in
-              let num_cols = Array.length ary in
-              if num_cols <> expected_num_cols then (
-                Logger.fatal (fun () ->
-                    [%string
-                      "Line '%{line}' had %{num_cols#Int} column(s) but should \
-                       have had %{expected_num_cols#Int} columns."]);
-                exit 1);
-              (* ok_exn okay here since we know the row has the correct number
-                 of columns. *)
-              let signature = get_signature ary |> Or_error.ok_exn in
-              let keep =
-                let any_fun = if opts.reject then all_true else any_true in
-                any_fun
-                @@ List.map opts.signature_list ~f:(fun test_sig ->
-                       match_fun ~test:test_sig ~actual:signature)
-              in
-              if keep then (
-                let name = ary.(0) in
-                match Map.add acc ~key:name ~data:signature with
-                | `Ok map -> map
-                | `Duplicate ->
-                    Logger.fatal (fun () ->
-                        [%string
-                          "Name %{name} was duplicated in the signatures \
-                           file.  pasv does not duplicate sequences in the \
-                           signatures file.  Did you edit the file by hand?  \
-                           If not, please submit a bug report."]);
-                    (* Technically we could check to see if the *)
-                    exit 1)
-              else acc))
-    in
-    if Map.length keep_these < 1 then (
+                    "Line '%{line}' had %{num_cols#Int} column(s) but should \
+                     have had %{expected_num_cols#Int} columns."]);
+              exit 1);
+            (* ok_exn okay here since we know the row has the correct number of
+               columns. *)
+            let signature =
+              Or_error.ok_exn
+              @@ Sig_file_column.get_from_header header
+                   Sig_file_column.Signature
+            in
+            let keep =
+              keep_signature signature opts.signature_list
+                ~fixed_strings:opts.fixed_strings ~reject:opts.reject
+            in
+            if keep then
+              let name = header.(0) in
+              add_or_exit name_to_sig ~key:name ~data:signature
+            else name_to_sig))
+
+  let check_queries_to_keep common_opts opts keep_these_queries =
+    if Map.length keep_these_queries < 1 then (
       Logger.warning (fun () ->
           (* Keep the spaces for the format string below. *)
           let reject_msg =
@@ -248,55 +184,71 @@ module Select = struct
             "There were no sequence IDs to keep!  Outdir \
              '%{common_opts.outdir}' will be empty.  Check your signatures and \
              make sure they're correct!%{reject_msg}%{fixed_strings_msg}"]);
-      exit 1);
-    let make_partition_filename ~outdir ~signature =
-      Filename.concat outdir [%string "signature_%{signature}.fa"]
-    in
-    match
-      Bio_io.Fasta_in_channel.with_file_fold_records opts.query_file
-        ~init:(0, Map.empty (module String))
-        ~f:(fun (num_printed, outfiles) record ->
-          let open Bio_io.Fasta_record in
-          let id = id record in
-          match Map.find keep_these id with
-          | None -> (num_printed, outfiles)
-          | Some signature ->
-              (* Make sure the signature has an outfile. *)
-              let outfiles =
-                let name =
-                  make_partition_filename ~outdir:common_opts.outdir ~signature
-                in
-                let out_chan = Out_channel.create name in
-                match Map.add outfiles ~key:signature ~data:out_chan with
-                | `Ok new_ -> new_
-                | `Duplicate -> outfiles
+      exit 1)
+
+  let make_partition_filename ~outdir ~signature =
+    Filename.concat outdir [%string "signature_%{signature}.fa"]
+
+  let write_good_queries common_opts opts keep_these_queries =
+    Bio_io.Fasta_in_channel.with_file_fold_records opts.query_file
+      ~init:(0, Map.empty (module String))
+      ~f:(fun (num_printed, outfiles) record ->
+        let open Bio_io.Fasta_record in
+        let id = id record in
+        match Map.find keep_these_queries id with
+        | None -> (num_printed, outfiles)
+        | Some signature ->
+            (* Make sure the signature has an outfile. *)
+            let outfiles =
+              let name =
+                make_partition_filename ~outdir:common_opts.outdir ~signature
               in
-              let out_chan =
-                (* _exn okay since we just added it. *)
-                Map.find_exn outfiles signature
-              in
-              Out_channel.output_lines out_chan [ to_string record ];
-              (num_printed + 1, outfiles))
-    with
+              let out_chan = Out_channel.create name in
+              match Map.add outfiles ~key:signature ~data:out_chan with
+              | `Ok new_ -> new_
+              | `Duplicate -> outfiles
+            in
+            let out_chan =
+              (* _exn okay since we just added it. *)
+              Map.find_exn outfiles signature
+            in
+            Out_channel.output_lines out_chan [ to_string record ];
+            (num_printed + 1, outfiles))
+
+  let close_out_channels out_channels =
+    Map.iteri out_channels ~f:(fun ~key:signature ~data:out_chan ->
+        match U.try1 Out_channel.close out_chan with
+        | Ok _ -> ()
+        | Error err ->
+            Logger.warning (fun () ->
+                let msg = Error.to_string_hum err in
+                [%string
+                  "Error closing out channel for signature %{signature}.  \
+                   Error: %{msg}."]))
+
+  let check_num_printed num_printed =
+    if num_printed = 0 then
+      Logger.swarning
+        "No query sequences were printed.  Do your query file and signatures \
+         file match?"
+
+  let handle_write_queries_error err =
+    Logger.fatal (fun () ->
+        let msg = Error.to_string_hum err in
+        [%string "There was an error processing query file: %{msg}"]);
+    exit 1
+
+  let run (common_opts : common_opts) (opts : opts) =
+    Logger.set_printer prerr_endline;
+    U.make_outdir_or_exit common_opts.outdir common_opts.force;
+    U.assert_looks_like_fasta_file_or_exit opts.query_file;
+    let keep_these_queries = get_queries_to_keep opts in
+    check_queries_to_keep common_opts opts keep_these_queries;
+    match write_good_queries common_opts opts keep_these_queries with
     | Ok (num_printed, out_channels) ->
-        if num_printed = 0 then
-          Logger.swarning
-            "No query sequences were printed.  Do your query file and \
-             signatures file match?";
-        Map.iteri out_channels ~f:(fun ~key:signature ~data:out_chan ->
-            match Utils.try1 Out_channel.close out_chan with
-            | Ok _ -> ()
-            | Error err ->
-                Logger.warning (fun () ->
-                    let msg = Error.to_string_hum err in
-                    [%string
-                      "Error closing out channel for signature %{signature}.  \
-                       Error: %{msg}."]))
-    | Error err ->
-        Logger.fatal (fun () ->
-            let msg = Error.to_string_hum err in
-            [%string "There was an error processing query file: %{msg}"]);
-        exit 1
+        check_num_printed num_printed;
+        close_out_channels out_channels
+    | Error err -> handle_write_queries_error err
 end
 
 module Check = struct
@@ -309,10 +261,10 @@ module Check = struct
 
   let run (common_opts : common_opts) (opts : opts) =
     Logger.set_printer prerr_endline;
-    Utils.assert_looks_like_fasta_file_or_exit opts.alignment;
-    Utils.make_outdir_or_exit common_opts.outdir common_opts.force;
+    U.assert_looks_like_fasta_file_or_exit opts.alignment;
+    U.make_outdir_or_exit common_opts.outdir common_opts.force;
     let signatures_filename =
-      Utils.make_signatures_filename ~infile:opts.alignment
+      U.make_signatures_filename ~infile:opts.alignment
         ~outdir:common_opts.outdir
     in
     let open Check_alignment in
@@ -371,7 +323,7 @@ module Hmm = struct
     let open Bio_io.Fasta_record in
     with_file_exn filename ~f:(fun chan ->
         match input_record_exn chan with
-        | Some record -> with_desc None record |> with_id Utils.key_reference_id
+        | Some record -> with_desc None record |> with_id U.key_reference_id
         | None -> raise (Exn "No fasta records in key_reference file"))
 
   let output_record chan record =
@@ -404,16 +356,15 @@ module Hmm = struct
 
   let run (common_opts : common_opts) (opts : opts) =
     Logger.set_printer prerr_endline;
-    Utils.make_outdir_or_exit common_opts.outdir common_opts.force;
-    Utils.assert_looks_like_hmm_file_or_exit opts.references;
-    Utils.assert_looks_like_fasta_file_or_exit opts.queries;
-    Utils.assert_looks_like_fasta_file_or_exit opts.key_reference;
+    U.make_outdir_or_exit common_opts.outdir common_opts.force;
+    U.assert_looks_like_hmm_file_or_exit opts.references;
+    U.assert_looks_like_fasta_file_or_exit opts.queries;
+    U.assert_looks_like_fasta_file_or_exit opts.key_reference;
     let hmmalign_filename =
       make_aln_filename ~infile:opts.queries ~outdir:common_opts.outdir
     in
     let signatures_filename =
-      Utils.make_signatures_filename ~infile:opts.queries
-        ~outdir:common_opts.outdir
+      U.make_signatures_filename ~infile:opts.queries ~outdir:common_opts.outdir
     in
     let queries_filename = make_queries_file_exn common_opts opts in
     let hmmalign_out =
@@ -450,7 +401,7 @@ module Hmm = struct
           handle_hmmalign_error hmmalign_out err;
           exit 1
     in
-    Utils.clean_up opts.keep_intermediate_files
+    U.clean_up opts.keep_intermediate_files
       [ hmmalign_filename; queries_filename ]
 end
 
@@ -491,8 +442,7 @@ module Msa = struct
       List.mapi references ~f:(fun i reference ->
           let open Bio_io.Fasta_record in
           let id =
-            if Int.(i = 0) then Utils.key_reference_id
-            else Utils.make_reference_id i
+            if Int.(i = 0) then U.key_reference_id else U.make_reference_id i
           in
           reference |> with_desc None |> with_id id |> to_string)
     in
@@ -531,7 +481,7 @@ module Msa = struct
 
     let signature = get_signature msa_out msa_outfile_name opts in
     let () =
-      Utils.clean_up opts.keep_intermediate_files
+      U.clean_up opts.keep_intermediate_files
         [ msa_infile_name; msa_outfile_name ]
     in
     Async.Deferred.return signature
@@ -568,17 +518,12 @@ module Msa = struct
     match opts.aligner with
     | Clustalo _path -> Or_error.return opts
     | Mafft _path ->
-        if
-          String.(
-            opts.other_parameters = Utils.default_clustalo_other_aln_params)
+        if String.(opts.other_parameters = U.default_clustalo_other_aln_params)
         then
           (* The user kept the default clustal options even though we're using
              mafft. Fix the option to work with mafft default. *)
           Or_error.return
-            {
-              opts with
-              other_parameters = Utils.default_mafft_other_aln_params;
-            }
+            { opts with other_parameters = U.default_mafft_other_aln_params }
         else if String.is_substring opts.other_parameters ~substring:"--threads"
         then
           (* The args contain --threads but that only works with clustalo. So
@@ -593,8 +538,8 @@ module Msa = struct
 
   let run common_opts opts : unit Async.Deferred.Or_error.t =
     Logger.set_printer prerr_endline;
-    Utils.assert_looks_like_fasta_file_or_exit opts.references;
-    Utils.assert_looks_like_fasta_file_or_exit opts.queries;
+    U.assert_looks_like_fasta_file_or_exit opts.references;
+    U.assert_looks_like_fasta_file_or_exit opts.queries;
     let opts =
       match fix_aln_params opts with
       | Ok opts -> opts
@@ -603,9 +548,9 @@ module Msa = struct
           exit 1
     in
     let f () =
-      Utils.make_outdir_or_exit common_opts.outdir common_opts.force;
+      U.make_outdir_or_exit common_opts.outdir common_opts.force;
       let signatures_filename =
-        Utils.make_signatures_filename ~infile:opts.queries
+        U.make_signatures_filename ~infile:opts.queries
           ~outdir:common_opts.outdir
       in
       let references =

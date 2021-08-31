@@ -117,3 +117,14 @@ let try1 f a =
   match f a with
   | exception exn -> Or_error.error "Caught exception" exn Exn.sexp_of_t
   | result -> Or_error.return result
+
+(* Zero-based indexing from the end. *)
+let get_from_end ary i =
+  let index = Array.length ary - (i + 1) in
+  if index < 0 || index >= Array.length ary then
+    Or_error.errorf "Bad index (%d); ary length is (%d)." index
+      (Array.length ary)
+  else Or_error.return @@ Array.get ary index
+
+let all_true l = List.fold l ~init:true ~f:( && )
+let any_true l = List.fold l ~init:false ~f:( || )
