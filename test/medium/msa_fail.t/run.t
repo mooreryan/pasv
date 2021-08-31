@@ -912,3 +912,37 @@ Setting alignment parameters in weird ways raises errors.
   pasv: unknown option `--auto', did you mean `-a' ?
   Usage: pasv msa [OPTION]... QUERIES REFERENCES KEY_RESIDUES
   Try `pasv msa --help' or `pasv --help' for more information.
+
+Bogus aligner.
+
+  $ rm -r "${OUTDIR}" pasv.tmp.* "${ACTUAL_SIGNATURES}" 2> /dev/null
+  [1]
+  $ pasv msa -vv --aligner=apple_pie --outdir="${OUTDIR}" "${QUERIES}" "${REFS}" "${RESIDUES}" 2> err
+  [1]
+  $ "${SANITIZE_LOGS}" err
+  pasv: option `--aligner': invalid value 'apple_pie', expected clustalo,
+        mafft, or a direct path to either program
+  Usage: pasv msa [OPTION]... QUERIES REFERENCES KEY_RESIDUES
+  Try `pasv msa --help' or `pasv --help' for more information.
+
+Negative retries value.
+
+  $ rm -r "${OUTDIR}" pasv.tmp.* "${ACTUAL_SIGNATURES}" 2> /dev/null
+  [1]
+  $ pasv msa -vv --max-retries=-1 --outdir="${OUTDIR}" "${QUERIES}" "${REFS}" "${RESIDUES}" 2> err
+  [1]
+  $ "${SANITIZE_LOGS}" err
+  pasv: option `--max-retries': invalid value '-1', expected a number >= 0
+  Usage: pasv msa [OPTION]... QUERIES REFERENCES KEY_RESIDUES
+  Try `pasv msa --help' or `pasv --help' for more information.
+
+String retries value.
+
+  $ rm -r "${OUTDIR}" pasv.tmp.* "${ACTUAL_SIGNATURES}" 2> /dev/null
+  [1]
+  $ pasv msa -vv --max-retries=apple --outdir="${OUTDIR}" "${QUERIES}" "${REFS}" "${RESIDUES}" 2> err
+  [1]
+  $ "${SANITIZE_LOGS}" err
+  pasv: option `--max-retries': invalid value 'apple', expected a number >= 0
+  Usage: pasv msa [OPTION]... QUERIES REFERENCES KEY_RESIDUES
+  Try `pasv msa --help' or `pasv --help' for more information.
