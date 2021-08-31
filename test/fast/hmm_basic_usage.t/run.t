@@ -46,8 +46,9 @@ Help screen
              Region of interest end (ROI) (1-indexed)
   
          -h HMMALIGN, --hmmalign=HMMALIGN (absent=hmmalign)
-             hmmalign spec. Default looks in PATH environment variable. Provide
-             a path to a binary to use that instead.
+             Name of hmmer hmmalign executable. If it is a name, then it is
+             searched on the PATH, if it is a path, it is treated as a path to
+             the executable.
   
          -k, --keep
              Keep intermediate files

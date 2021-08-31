@@ -5,7 +5,7 @@ open Little_logger
 open Pasv_lib
 
 let parse_cli () =
-  match Term.eval_choice Cli.pasv_root_cmd Cli.subcommands with
+  match Term.eval_choice Cli.Command.Root.program Cli.subcommands with
   | `Ok opts -> Either.first opts
   | `Help | `Version -> Either.second 0
   | `Error _ -> Either.second 1
