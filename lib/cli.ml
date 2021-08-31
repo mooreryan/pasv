@@ -144,7 +144,7 @@ module Command = struct
         & info [] ~docv:"KEY_RESIDUES" ~doc)
 
     let term =
-      let check_opts_term =
+      let opts_term =
         let make_check_opts alignment key_residues roi_start roi_end :
             Pasv.Check.opts =
           {
@@ -158,11 +158,11 @@ module Command = struct
           const make_check_opts $ alignment_file_term $ key_residues_term
           $ roi_start_term $ roi_end_term)
       in
-      let combine_terms common_opts check_opts :
-          Pasv.common_opts * Pasv.specific_opts =
-        (common_opts, Pasv.Pasv_check_opts check_opts)
+      let combine_terms common_opts opts : Pasv.common_opts * Pasv.specific_opts
+          =
+        (common_opts, Pasv.Check_opts opts)
       in
-      Term.(const combine_terms $ common_opts_term $ check_opts_term)
+      Term.(const combine_terms $ common_opts_term $ opts_term)
 
     let info =
       let doc = "use precomputed alignments" in
@@ -178,14 +178,14 @@ module Command = struct
           `Blocks common_man_sections;
           `S Manpage.s_examples;
           `P "=== Quick start";
-          `Pre "pasv check aln.faa 500,502,504";
+          `Pre "  \\$ pasv check aln.faa 500,502,504";
           `P "=== Specifying an output directory, ROI start, and ROI end";
           `Pre
-            "pasv check --outdir=pasv_output \\\\ \n\
-            \           --roi-start=200 \\\\ \n\
-            \           --roi-end=800 \\\\ \n\
-            \           aln.faa \\\\ \n\
-            \           500,502,504";
+            "  \\$ pasv check --outdir=pasv_output \\\\ \n\
+            \               --roi-start=200 \\\\ \n\
+            \               --roi-end=800 \\\\ \n\
+            \               aln.faa \\\\ \n\
+            \               500,502,504";
         ]
       in
       Term.info "check" ~version ~doc ~man ~sdocs:Manpage.s_common_options
@@ -226,7 +226,7 @@ module Command = struct
         & info [] ~docv:"KEY_RESIDUES" ~doc)
 
     let term =
-      let hmm_opts_term =
+      let opts_term =
         let make_hmm_opts queries references key_reference key_residues
             keep_intermediate_files hmmalign roi_start roi_end : Pasv.Hmm.opts =
           {
@@ -246,11 +246,11 @@ module Command = struct
           $ keep_intermediate_files_term $ hmmalign_term $ roi_start_term
           $ roi_end_term)
       in
-      let combine_terms common_opts hmm_opts :
-          Pasv.common_opts * Pasv.specific_opts =
-        (common_opts, Pasv.Pasv_hmm_opts hmm_opts)
+      let combine_terms common_opts opts : Pasv.common_opts * Pasv.specific_opts
+          =
+        (common_opts, Pasv.Hmm_opts opts)
       in
-      Term.(const combine_terms $ common_opts_term $ hmm_opts_term)
+      Term.(const combine_terms $ common_opts_term $ opts_term)
 
     let info =
       let doc = "use hmm alignments" in
@@ -265,16 +265,16 @@ module Command = struct
           `S Manpage.s_examples;
           (* standard 'EXAMPLES' section *)
           `P "=== Quick start";
-          `Pre "pasv hmm queries.faa refs.hmm main_ref.faa 500,502,504";
+          `Pre "  \\$ pasv hmm queries.faa refs.hmm main_ref.faa 500,502,504";
           `P "=== Specifying an output directory, ROI start, and ROI end";
           `Pre
-            "pasv hmm --outdir=pasv_output \\\\ \n\
-            \         --roi-start=200 \\\\ \n\
-            \         --roi-end=800 \\\\ \n\
-            \         queries.faa \\\\ \n\
-            \         refs.hmm \\\\ \n\
-            \         main_ref.faa \\\\ \n\
-            \         500,502,504";
+            "  \\$ pasv hmm --outdir=pasv_output \\\\ \n\
+            \             --roi-start=200 \\\\ \n\
+            \             --roi-end=800 \\\\ \n\
+            \             queries.faa \\\\ \n\
+            \             refs.hmm \\\\ \n\
+            \             main_ref.faa \\\\ \n\
+            \             500,502,504";
         ]
       in
       Term.info "hmm" ~version ~doc ~man ~sdocs:Manpage.s_common_options
@@ -345,7 +345,7 @@ module Command = struct
         & info [] ~docv:"KEY_RESIDUES" ~doc)
 
     let term =
-      let msa_opts_term =
+      let opts_term =
         let make_msa_opts queries references key_residues
             keep_intermediate_files aligner other_parameters jobs max_retries
             roi_start roi_end : Pasv.Msa.opts =
@@ -368,11 +368,11 @@ module Command = struct
           $ aligner_other_params_term $ jobs_term $ max_retries_term
           $ roi_start_term $ roi_end_term)
       in
-      let combine_terms common_opts hmm_opts :
-          Pasv.common_opts * Pasv.specific_opts =
-        (common_opts, Pasv.Pasv_msa_opts hmm_opts)
+      let combine_terms common_opts opts : Pasv.common_opts * Pasv.specific_opts
+          =
+        (common_opts, Pasv.Msa_opts opts)
       in
-      Term.(const combine_terms $ common_opts_term $ msa_opts_term)
+      Term.(const combine_terms $ common_opts_term $ opts_term)
 
     let info =
       let doc = "use multiple sequence alignments" in
@@ -384,18 +384,18 @@ module Command = struct
           `Blocks common_man_sections;
           `S Manpage.s_examples;
           `P "=== Quick start";
-          `Pre "pasv msa queries.faa refs.faa 500,502,504";
+          `Pre "  \\$ pasv msa queries.faa refs.faa 500,502,504";
           `P
             "=== Specifying an output directory, ROI start, ROI end, and num. \
              jobs";
           `Pre
-            "pasv msa --outdir=pasv_output \\\\ \n\
-            \         --roi-start=200 \\\\ \n\
-            \         --roi-end=800 \\\\ \n\
-            \         --jobs=4 \\\\ \n\
-            \         queries.faa \\\\ \n\
-            \         refs.faa \\\\ \n\
-            \         500,502,504";
+            "  \\$ pasv msa --outdir=pasv_output \\\\ \n\
+            \             --roi-start=200 \\\\ \n\
+            \             --roi-end=800 \\\\ \n\
+            \             --jobs=4 \\\\ \n\
+            \             queries.faa \\\\ \n\
+            \             refs.faa \\\\ \n\
+            \             500,502,504";
         ]
       in
       Term.info "msa" ~version ~doc ~man ~sdocs:Manpage.s_common_options
@@ -422,7 +422,6 @@ module Command = struct
     let program = (term, info)
   end
 
-  (* TODO why is there a Pasv.Select.opts and a Pasv.Pasv_select_opts? *)
   module Select : Pasv_command = struct
     let signature_file_term =
       let doc = "Path to signatures file." in
@@ -454,7 +453,7 @@ module Command = struct
 
     (* This is the module's main term. *)
     let term =
-      let select_opts_term =
+      let opts_term =
         let make_select_opts query_file signature_file signature_list reject
             fixed_strings : Pasv.Select.opts =
           { query_file; signature_file; signature_list; reject; fixed_strings }
@@ -463,22 +462,30 @@ module Command = struct
           const make_select_opts $ queries_term $ signature_file_term
           $ signature_list_term $ reject_term $ fixed_strings_term)
       in
-      let combine_terms common_opts select_opts :
-          Pasv.common_opts * Pasv.specific_opts =
-        (common_opts, Pasv.Pasv_select_opts select_opts)
+      let combine_terms common_opts opts : Pasv.common_opts * Pasv.specific_opts
+          =
+        (common_opts, Pasv.Select_opts opts)
       in
-      Term.(const combine_terms $ common_opts_term $ select_opts_term)
+      Term.(const combine_terms $ common_opts_term $ opts_term)
 
     let info =
       let doc = "select sequences by signature" in
       let man =
         [
           `S Manpage.s_description;
-          `P "TODO.";
+          `P "Select query sequences based on their key residue signatures.";
           `Blocks common_man_sections;
           `S Manpage.s_examples;
           `P "=== Quick start";
-          `Pre "pasv select TODO";
+          `Pre
+            "  \\$ pasv select --outdir=iqk_queries queries.fa signatures.tsv \
+             IQK";
+          `P "=== Using regular expressions";
+          `P "This would match any signature starting with AB or AC.";
+          `Pre "  \\$ pasv select queries.fa signatures.tsv '^A[BC]'";
+          `P "=== Invert matching";
+          `P "Print queries that do not have the given signature(s).";
+          `Pre "  \\$ pasv select -rF queries.fa signatures.tsv AAA,AAB";
         ]
       in
       Term.info "select" ~version ~doc ~man ~sdocs:Manpage.s_common_options

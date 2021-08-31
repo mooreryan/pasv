@@ -90,15 +90,15 @@ Help screen
   EXAMPLES
          === Quick start
   
-         pasv check aln.faa 500,502,504
+           $ pasv check aln.faa 500,502,504
   
          === Specifying an output directory, ROI start, and ROI end
   
-         pasv check --outdir=pasv_output \ 
-                    --roi-start=200 \ 
-                    --roi-end=800 \ 
-                    aln.faa \ 
-                    500,502,504
+           $ pasv check --outdir=pasv_output \ 
+                        --roi-start=200 \ 
+                        --roi-end=800 \ 
+                        aln.faa \ 
+                        500,502,504
   
 
 ####################################################################

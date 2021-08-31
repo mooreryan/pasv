@@ -100,17 +100,17 @@ Help screen
   EXAMPLES
          === Quick start
   
-         pasv hmm queries.faa refs.hmm main_ref.faa 500,502,504
+           $ pasv hmm queries.faa refs.hmm main_ref.faa 500,502,504
   
          === Specifying an output directory, ROI start, and ROI end
   
-         pasv hmm --outdir=pasv_output \ 
-                  --roi-start=200 \ 
-                  --roi-end=800 \ 
-                  queries.faa \ 
-                  refs.hmm \ 
-                  main_ref.faa \ 
-                  500,502,504
+           $ pasv hmm --outdir=pasv_output \ 
+                      --roi-start=200 \ 
+                      --roi-end=800 \ 
+                      queries.faa \ 
+                      refs.hmm \ 
+                      main_ref.faa \ 
+                      500,502,504
   
 Non empty (default) outdir without --force gives error.
 

@@ -599,14 +599,14 @@ end
 
 (* Some options are specific to the subcommand. *)
 type specific_opts =
-  | Pasv_check_opts of Check.opts
-  | Pasv_hmm_opts of Hmm.opts
-  | Pasv_msa_opts of Msa.opts
-  | Pasv_select_opts of Select.opts
+  | Check_opts of Check.opts
+  | Hmm_opts of Hmm.opts
+  | Msa_opts of Msa.opts
+  | Select_opts of Select.opts
 
 let run (common_opts : common_opts) (opts : specific_opts) =
   match opts with
-  | Pasv_check_opts opts -> Check.run common_opts opts
-  | Pasv_hmm_opts opts -> Hmm.run common_opts opts
-  | Pasv_msa_opts opts -> Msa.run_wrapper common_opts opts
-  | Pasv_select_opts opts -> Select.run common_opts opts
+  | Check_opts opts -> Check.run common_opts opts
+  | Hmm_opts opts -> Hmm.run common_opts opts
+  | Msa_opts opts -> Msa.run_wrapper common_opts opts
+  | Select_opts opts -> Select.run common_opts opts

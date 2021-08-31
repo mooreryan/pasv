@@ -114,17 +114,17 @@ Help screen
   EXAMPLES
          === Quick start
   
-         pasv msa queries.faa refs.faa 500,502,504
+           $ pasv msa queries.faa refs.faa 500,502,504
   
          === Specifying an output directory, ROI start, ROI end, and num. jobs
   
-         pasv msa --outdir=pasv_output \ 
-                  --roi-start=200 \ 
-                  --roi-end=800 \ 
-                  --jobs=4 \ 
-                  queries.faa \ 
-                  refs.faa \ 
-                  500,502,504
+           $ pasv msa --outdir=pasv_output \ 
+                      --roi-start=200 \ 
+                      --roi-end=800 \ 
+                      --jobs=4 \ 
+                      queries.faa \ 
+                      refs.faa \ 
+                      500,502,504
   
 Non empty (default) outdir without --force gives error.
 
