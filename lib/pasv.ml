@@ -33,7 +33,12 @@ module Select = struct
   }
 
   (* Zero-based indexing from the end. *)
-  let get_from_end ary i = Array.get ary (Array.length ary - (i + 1))
+  let get_from_end ary i =
+    let index = Array.length ary - (i + 1) in
+    if index < 0 || index >= Array.length ary then
+      Or_error.errorf "Bad index (%d); ary length is (%d)." index
+        (Array.length ary)
+    else Or_error.return @@ Array.get ary index
 
   let all_true l = List.fold l ~init:true ~f:( && )
   let any_true l = List.fold l ~init:false ~f:( || )
@@ -43,6 +48,8 @@ module Select = struct
   let check_sig_file_header line =
     (* This is kind of weird code, but I want to warn the user about every error
        that we can see rather than the first failing error. *)
+    (* If the headers are really bad these will raise unless you take the
+       or_error to get the ends. *)
     let check_length ary =
       let len = Array.length ary in
       let is_good = len > 5 in
@@ -63,44 +70,76 @@ module Select = struct
       is_good
     in
     let check_spans_col ary =
-      let s = get_from_end ary 0 in
-      let is_good = String.(s = "spans") in
-      if not is_good then
-        Logger.error (fun () ->
-            [%string
-              "The last column the signature file should be 'spans'.  Got \
-               '%{s}'."]);
-      is_good
+      match get_from_end ary 0 with
+      | Ok s ->
+          let is_good = String.(s = "spans") in
+          if not is_good then
+            Logger.error (fun () ->
+                [%string
+                  "The last column the signature file should be 'spans'.  Got \
+                   '%{s}'."]);
+          is_good
+      | Error err ->
+          Logger.error (fun () ->
+              let msg = Error.to_string_hum err in
+              [%string
+                "Couldn't get 'spans' column from header.  It's probably too \
+                 short.  %{msg}"]);
+          false
     in
     let check_spans_end_col ary =
-      let s = get_from_end ary 1 in
-      let is_good = String.(s = "spans_end") in
-      if not is_good then
-        Logger.error (fun () ->
-            [%string
-              "The second to last column the signature file should be \
-               'spans_end'.  Got '%{s}'."]);
-      is_good
+      match get_from_end ary 1 with
+      | Ok s ->
+          let is_good = String.(s = "spans_end") in
+          if not is_good then
+            Logger.error (fun () ->
+                [%string
+                  "The second to last column the signature file should be \
+                   'spans_end'.  Got '%{s}'."]);
+          is_good
+      | Error err ->
+          Logger.error (fun () ->
+              let msg = Error.to_string_hum err in
+              [%string
+                "Couldn't get 'spans_end' column from header.  It's probably \
+                 too short.  %{msg}"]);
+          false
     in
     let check_spans_start_col ary =
-      let s = get_from_end ary 2 in
-      let is_good = String.(s = "spans_start") in
-      if not is_good then
-        Logger.error (fun () ->
-            [%string
-              "The third to last column the signature file should be \
-               'spans_start'.  Got '%{s}'."]);
-      is_good
+      match get_from_end ary 2 with
+      | Ok s ->
+          let is_good = String.(s = "spans_start") in
+          if not is_good then
+            Logger.error (fun () ->
+                [%string
+                  "The third to last column the signature file should be \
+                   'spans_start'.  Got '%{s}'."]);
+          is_good
+      | Error err ->
+          Logger.error (fun () ->
+              let msg = Error.to_string_hum err in
+              [%string
+                "Couldn't get 'spans_start' column from header.  It's probably \
+                 too short.  %{msg}"]);
+          false
     in
     let check_signature_col ary =
-      let s = get_from_end ary 3 in
-      let is_good = String.(s = "signature") in
-      if not is_good then
-        Logger.error (fun () ->
-            [%string
-              "The fourth to last column the signature file should be \
-               'signature'.  Got '%{s}'."]);
-      is_good
+      match get_from_end ary 3 with
+      | Ok s ->
+          let is_good = String.(s = "signature") in
+          if not is_good then
+            Logger.error (fun () ->
+                [%string
+                  "The fourth to last column the signature file should be \
+                   'signature'.  Got '%{s}'."]);
+          is_good
+      | Error err ->
+          Logger.error (fun () ->
+              let msg = Error.to_string_hum err in
+              [%string
+                "Couldn't get 'signature' column from header.  It's probably \
+                 too short.  %{msg}"]);
+          false
     in
     let header = String.split line ~on:'\t' |> Array.of_list in
     let length_good = check_length header in
@@ -166,10 +205,12 @@ module Select = struct
               if num_cols <> expected_num_cols then (
                 Logger.fatal (fun () ->
                     [%string
-                      "Line '%{line}' had %{num_cols#Int} but should have had \
-                       %{expected_num_cols#Int}"]);
+                      "Line '%{line}' had %{num_cols#Int} column(s) but should \
+                       have had %{expected_num_cols#Int} columns."]);
                 exit 1);
-              let signature = get_signature ary in
+              (* ok_exn okay here since we know the row has the correct number
+                 of columns. *)
+              let signature = get_signature ary |> Or_error.ok_exn in
               let keep =
                 let any_fun = if opts.reject then all_true else any_true in
                 any_fun
@@ -183,26 +224,42 @@ module Select = struct
                 | `Duplicate ->
                     Logger.fatal (fun () ->
                         [%string
-                          "Name %{name} was duplicated in the signatures file"]);
+                          "Name %{name} was duplicated in the signatures \
+                           file.  pasv does not duplicate sequences in the \
+                           signatures file.  Did you edit the file by hand?  \
+                           If not, please submit a bug report."]);
+                    (* Technically we could check to see if the *)
                     exit 1)
               else acc))
     in
-    if Map.length keep_these < 1 then
+    if Map.length keep_these < 1 then (
       Logger.warning (fun () ->
+          (* Keep the spaces for the format string below. *)
+          let reject_msg =
+            if opts.reject then "  You passed --reject...did you mean to?  "
+            else "  You did not pass --reject...did you mean to?  "
+          in
+          let fixed_strings_msg =
+            if opts.fixed_strings then
+              "  You passed --fixed-strings...did you mean to?"
+            else "  You did not pass --fixed-strings...did you mean to?"
+          in
           [%string
-            "There were no IDs to keep!  Outdir '%{common_opts.outdir}' will \
-             be empty.  Check your signatures and make sure they're correct!"]);
+            "There were no sequence IDs to keep!  Outdir \
+             '%{common_opts.outdir}' will be empty.  Check your signatures and \
+             make sure they're correct!%{reject_msg}%{fixed_strings_msg}"]);
+      exit 1);
     let make_partition_filename ~outdir ~signature =
       Filename.concat outdir [%string "signature_%{signature}.fa"]
     in
     match
       Bio_io.Fasta_in_channel.with_file_fold_records opts.query_file
-        ~init:(Map.empty (module String))
-        ~f:(fun outfiles record ->
+        ~init:(0, Map.empty (module String))
+        ~f:(fun (num_printed, outfiles) record ->
           let open Bio_io.Fasta_record in
           let id = id record in
           match Map.find keep_these id with
-          | None -> outfiles
+          | None -> (num_printed, outfiles)
           | Some signature ->
               (* Make sure the signature has an outfile. *)
               let outfiles =
@@ -219,9 +276,13 @@ module Select = struct
                 Map.find_exn outfiles signature
               in
               Out_channel.output_lines out_chan [ to_string record ];
-              outfiles)
+              (num_printed + 1, outfiles))
     with
-    | Ok out_channels ->
+    | Ok (num_printed, out_channels) ->
+        if num_printed = 0 then
+          Logger.swarning
+            "No query sequences were printed.  Do your query file and \
+             signatures file match?";
         Map.iteri out_channels ~f:(fun ~key:signature ~data:out_chan ->
             match Utils.try1 Out_channel.close out_chan with
             | Ok _ -> ()
@@ -234,7 +295,8 @@ module Select = struct
     | Error err ->
         Logger.fatal (fun () ->
             let msg = Error.to_string_hum err in
-            [%string "There was an error parsing query file: %{msg}"])
+            [%string "There was an error processing query file: %{msg}"]);
+        exit 1
 end
 
 module Check = struct
