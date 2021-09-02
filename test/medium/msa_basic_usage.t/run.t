@@ -215,8 +215,6 @@ With ROI.
   $ pasv msa --outdir="${OUTDIR}" --roi-start="${ROI_START}" --roi-end="${ROI_END}" "${QUERIES}" "${REFS}" "${RESIDUES}"
   $ diff "${EXPECTED_SIGNATURES_WITH_ROI}" "${OUTDIR}/${ACTUAL_SIGNATURES}"
 
-TODO test the other aligners not on the path.
-
 Using mafft with no alignment params uses default mafft params.
 
   $ rm -r "${OUTDIR}" pasv.tmp.* "${ACTUAL_SIGNATURES}" 2> /dev/null
