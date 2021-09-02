@@ -136,6 +136,7 @@ module Select = struct
                 "Signature file '%{signature_file_name}' has a bad header!"]);
           exit 1)
 
+  (* Returns a map of sequence ID -> signature. *)
   let get_queries_to_keep opts =
     In_channel.with_file opts.signature_file ~f:(fun chan ->
         let header = read_and_check_header chan opts.signature_file in
@@ -189,34 +190,47 @@ module Select = struct
   let make_partition_filename ~outdir ~signature =
     Filename.concat outdir [%string "signature_%{signature}.fa"]
 
-  let write_good_queries common_opts opts keep_these_queries =
-    Bio_io.Fasta_in_channel.with_file_fold_records opts.query_file
-      ~init:(0, Map.empty (module String))
-      ~f:(fun (num_printed, outfiles) record ->
-        let open Bio_io.Fasta_record in
-        let id = id record in
-        match Map.find keep_these_queries id with
-        | None -> (num_printed, outfiles)
-        | Some signature ->
-            (* Make sure the signature has an outfile. *)
-            let outfiles =
-              let name =
-                make_partition_filename ~outdir:common_opts.outdir ~signature
+  let handle_write_queries_error err =
+    Logger.fatal (fun () ->
+        let msg = Error.to_string_hum err in
+        [%string "There was an error processing query file: %{msg}"]);
+    exit 1
+
+  let write_good_queries_or_exit common_opts opts keep_these_queries =
+    (* A map from signature to out_channel. *)
+    (* Note: Keeping an out_channel open for each signature could end up
+       creating a lot of out_channels. In typical usage, user won't have TOO
+       many signatures they're interested in, but if it becomes a problem, we
+       may want to switch to opening a channel for appending each time we write
+       a sequence. *)
+    let out_channels = Hashtbl.create (module String) in
+    match
+      Bio_io.Fasta_in_channel.with_file_fold_records opts.query_file ~init:0
+        ~f:(fun num_printed record ->
+          let open Bio_io.Fasta_record in
+          let id = id record in
+          match Map.find keep_these_queries id with
+          | None -> num_printed
+          | Some signature ->
+              (* Make sure the signature has an outfile. *)
+              let out_chan =
+                Hashtbl.find_or_add out_channels signature ~default:(fun () ->
+                    let filename =
+                      make_partition_filename ~outdir:common_opts.outdir
+                        ~signature
+                    in
+                    Logger.debug (fun () ->
+                        [%string "outfile file: %{filename}"]);
+                    Out_channel.create filename ~perm:0o644)
               in
-              let out_chan = Out_channel.create name in
-              match Map.add outfiles ~key:signature ~data:out_chan with
-              | `Ok new_ -> new_
-              | `Duplicate -> outfiles
-            in
-            let out_chan =
-              (* _exn okay since we just added it. *)
-              Map.find_exn outfiles signature
-            in
-            Out_channel.output_lines out_chan [ to_string record ];
-            (num_printed + 1, outfiles))
+              Out_channel.output_lines out_chan [ to_string record ];
+              num_printed + 1)
+    with
+    | Ok num_printed -> (num_printed, out_channels)
+    | Error err -> handle_write_queries_error err
 
   let close_out_channels out_channels =
-    Map.iteri out_channels ~f:(fun ~key:signature ~data:out_chan ->
+    Hashtbl.iteri out_channels ~f:(fun ~key:signature ~data:out_chan ->
         match U.try1 Out_channel.close out_chan with
         | Ok _ -> ()
         | Error err ->
@@ -232,23 +246,17 @@ module Select = struct
         "No query sequences were printed.  Do your query file and signatures \
          file match?"
 
-  let handle_write_queries_error err =
-    Logger.fatal (fun () ->
-        let msg = Error.to_string_hum err in
-        [%string "There was an error processing query file: %{msg}"]);
-    exit 1
-
   let run (common_opts : common_opts) (opts : opts) =
     Logger.set_printer prerr_endline;
     U.make_outdir_or_exit common_opts.outdir common_opts.force;
     U.assert_looks_like_fasta_file_or_exit opts.query_file;
     let keep_these_queries = get_queries_to_keep opts in
     check_queries_to_keep common_opts opts keep_these_queries;
-    match write_good_queries common_opts opts keep_these_queries with
-    | Ok (num_printed, out_channels) ->
-        check_num_printed num_printed;
-        close_out_channels out_channels
-    | Error err -> handle_write_queries_error err
+    let num_printed, out_channels =
+      write_good_queries_or_exit common_opts opts keep_these_queries
+    in
+    check_num_printed num_printed;
+    close_out_channels out_channels
 end
 
 module Check = struct
