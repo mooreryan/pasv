@@ -1,0 +1,21 @@
+# Getting started
+
+Learning how to use a new command line program can be a real challenge!!  I wrote this roadmap to try and give you a little guidance on how to get started using PASV.  There are a lot of pages in the wiki, but if you follow along in this order, I think you will be able to get a good feel for the program!
+
+## Installation
+
+The easiest way to start using PASV is probably by using one of the [Docker images](./todo.md).  It comes with everything you need to run PASV, including all external dependencies.  If you are a Windows user, this is currently your only way to use PASV.
+
+Installing PASV is also easy if you use one of the [precompiled binaries](./installing-precompiled-binaries.md).  This is actually the easier option if you already have one of [Clustal Omega](http://www.clustal.org/omega/), [MAAFT](https://mafft.cbrc.jp/alignment/software/), or [HMMER](http://hmmer.org/) installed.
+
+Alternatively, if you are an OCaml programmer or want to run the test suite locally, you can [install PASV from source](./installing-from-source.md).
+
+## PASV CLI
+
+An [overview of the PASV CLI](./cli.md) is available as well as [examples](./Examples) for using PASV.  Start with the [simple example](./A-Simple-Example) before moving on to a walkthrough of the [AOX/PTOX example](./AOX-PTOX-Example) from the manuscript.
+
+## PASV Details
+
+Once you've gone through the above introductory material, you will probably want to check out a few more pages.  Check out the following pages to learn about [picking good reference sequences](./Picking-Good-Reference-Sequences) and [picking good key residues](./Picking-Good-Key-Residues).  We spent a lot of time working out best practices for these things in the manuscript, so I encourage you to check it out!  After that, you may be interested in [using MSA software other than Clustal or MAFFT](./Using-Other-MSA-Software) with PASV, and how to [pass arguments to the MSA software](./Passing-Arguments-to-the-MSA-Software) so that you can have more fine grained control on PASV's inner workings.
+
+Finally, if you're stuck and need help, [open an issue](https://github.com/mooreryan/pasv/issues) and I will try and clear up any difficulties you're having!

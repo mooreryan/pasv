@@ -1,0 +1,46 @@
+site_name: PASV -- Protein Active Site Validation
+site_url: https://mooreryan.github.io/pasv/
+repo_url: https://github.com/mooreryan/pasv
+edit_uri: edit/master/docs_src/src
+site_description: Documentation for installing and using PASV, a program for post-homology search validation and partitioning of sequences by specific residues (active sites, conserved residues, etc).
+site_author: Ryan Moore
+nav:
+  - PASV: index.md
+  - Overview:
+    - Getting Started: getting-started.md
+    - Why use PASV: why-use-pasv.md
+    - Definitions & Jargon: jargon.md
+    - Bibliography: bibliography.md
+  - Installation:
+    - Installing External Software Dependencies: installing-external-dependencies.md
+    - Installing Precompiled Binaries: installing-precompiled-binaries.md
+    - Installing With Docker: installing-with-docker.md
+    - Installing From Source: installing-from-source.md
+  - Usage:
+    - Command Line Interface: cli.md
+    - Picking References and Residues: picking-refs-and-residues.md
+  - Examples:
+    - Tons of Examples: tons-of-examples.md
+    - Using pasv-check: examples/pasv-check.md
+    - Using pasv-hmm: examples/pasv-hmm.md
+    - Using pasv-msa: examples/pasv-msa.md
+    - Using pasv-select: examples/pasv-select.md
+
+  # - Getting Started:
+  #   - Installation: installation.md
+  #   - Usage: usage.md
+  #   - Just Enough Git: git.md
+  # - Examples & Tutorials:
+  #   - Overview: tutorials/overview.md
+  #   - Basic usage: tutorials/basic_usage.md
+  #   - Correcting failed actions: tutorials/correcting_failed_actions.md
+  #   - Ignoring actions: tutorials/ignoring_actions.md
+theme:
+  name: readthedocs
+  custom_dir: custom_theme
+markdown_extensions:
+  - meta
+  - toc:
+      separator: "-"
+docs_dir: src
+site_dir: ../docs
