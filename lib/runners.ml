@@ -165,7 +165,8 @@ module Hmmalign = struct
          %{opts.queries}"]
     in
     Logger.debug (fun () -> [%string "Running command: %{cmd}"]);
-    let chan = Unix.open_process_full cmd ~env:[||] in
+    (* Pass in the env explicitly to work with Alpine linux. *)
+    let chan = Unix.open_process_full cmd ~env:(Unix.environment ()) in
     let stdout = In_channel.input_all chan.stdout in
     let stderr = In_channel.input_all chan.stderr in
     match Unix.close_process_full chan |> Unix.Exit_or_signal.or_error with
