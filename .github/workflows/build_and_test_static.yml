@@ -1,4 +1,4 @@
-name: Build static
+name: Build and test static static
 
 on:
   push:
@@ -12,7 +12,7 @@ on:
       - '*'
 
 jobs:
-  build_static:
+  build_and_test_static:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/mooreryan/pasv_build_and_test_alpine:553acf9
