@@ -3,6 +3,7 @@ Set up env variables.
   $ export QUERY_FILE=queries.fa
   $ export SIGNATURE_FILE=signatures.tsv
   $ export OUTDIR=apple
+  $ export SANITIZE_LOGS=$PWD/../../helpers/sanitize_logs
 
 ####
 #### Single, fixed string.
@@ -16,13 +17,23 @@ Keep, fixed string.
   $ for f in $(ls "${OUTDIR}"/*); do echo "=== $f ==="; cat $f; done
   === apple/signature_AAA.fa ===
   >Seq_01__AAA__Yes__Yes__Both
-  01
+  AAA
   >Seq_05__AAA__Yes__No__Start
-  05
+  AAA
   >Seq_09__AAA__No__Yes__End
-  09
+  AAA
   >Seq_13__AAA__No__No__Neither
-  13
+  AAA
+
+Keep, fixed string.  Pattern isn't present.
+
+  $ rm -r "${OUTDIR}" "${ACTUAL_SIGNATURES}" 2> /dev/null
+  [1]
+  $ pasv select -F --outdir="${OUTDIR}" "${QUERY_FILE}" "${SIGNATURE_FILE}" XXX 2> log
+  [1]
+  $ "${SANITIZE_LOGS}" log
+  W, [DATE TIME PID] WARN -- There were no sequence IDs to keep!  Outdir 'apple' will be empty.  Check your signatures and make sure they're correct!  You did not pass --reject...did you mean to?    You passed --fixed-strings...did you mean to?
+  $ ls "${OUTDIR}"
 
 Reject, fixed string.
 
@@ -32,31 +43,75 @@ Reject, fixed string.
   $ for f in $(ls "${OUTDIR}"/*); do echo "=== $f ==="; cat $f; done
   === apple/signature_ABA.fa ===
   >Seq_02__ABA__Yes__Yes__Both
-  02
+  ABA
   >Seq_06__ABA__Yes__No__Start
-  06
+  ABA
   >Seq_10__ABA__No__Yes__End
-  10
+  ABA
   >Seq_14__ABA__No__No__Neither
-  14
+  ABA
   === apple/signature_ACB.fa ===
   >Seq_03__ACB__Yes__Yes__Both
-  03
+  ACB
   >Seq_07__ACB__Yes__No__Start
-  07
+  ACB
   >Seq_11__ACB__No__Yes__End
-  11
+  ACB
   >Seq_15__ACB__No__No__Neither
-  15
+  ACB
   === apple/signature_ADB.fa ===
   >Seq_04__ADB__Yes__Yes__Both
-  04
+  ADB
   >Seq_08__ADB__Yes__No__Start
-  08
+  ADB
   >Seq_12__ADB__No__Yes__End
-  12
+  ADB
   >Seq_16__ADB__No__No__Neither
-  16
+  ADB
+
+Rejecting a signature that isn't actually present will print all the
+sequences.
+
+  $ rm -r "${OUTDIR}" "${ACTUAL_SIGNATURES}" 2> /dev/null
+  [1]
+  $ pasv select --reject -F --outdir="${OUTDIR}" "${QUERY_FILE}" "${SIGNATURE_FILE}" XXX
+  $ for f in $(ls "${OUTDIR}"/*); do echo "=== $f ==="; cat $f; done
+  === apple/signature_AAA.fa ===
+  >Seq_01__AAA__Yes__Yes__Both
+  AAA
+  >Seq_05__AAA__Yes__No__Start
+  AAA
+  >Seq_09__AAA__No__Yes__End
+  AAA
+  >Seq_13__AAA__No__No__Neither
+  AAA
+  === apple/signature_ABA.fa ===
+  >Seq_02__ABA__Yes__Yes__Both
+  ABA
+  >Seq_06__ABA__Yes__No__Start
+  ABA
+  >Seq_10__ABA__No__Yes__End
+  ABA
+  >Seq_14__ABA__No__No__Neither
+  ABA
+  === apple/signature_ACB.fa ===
+  >Seq_03__ACB__Yes__Yes__Both
+  ACB
+  >Seq_07__ACB__Yes__No__Start
+  ACB
+  >Seq_11__ACB__No__Yes__End
+  ACB
+  >Seq_15__ACB__No__No__Neither
+  ACB
+  === apple/signature_ADB.fa ===
+  >Seq_04__ADB__Yes__Yes__Both
+  ADB
+  >Seq_08__ADB__Yes__No__Start
+  ADB
+  >Seq_12__ADB__No__Yes__End
+  ADB
+  >Seq_16__ADB__No__No__Neither
+  ADB
 
 Fixed string, reject.  Short options can be combined.
 
@@ -66,31 +121,31 @@ Fixed string, reject.  Short options can be combined.
   $ for f in $(ls "${OUTDIR}"/*); do echo "=== $f ==="; cat $f; done
   === apple/signature_ABA.fa ===
   >Seq_02__ABA__Yes__Yes__Both
-  02
+  ABA
   >Seq_06__ABA__Yes__No__Start
-  06
+  ABA
   >Seq_10__ABA__No__Yes__End
-  10
+  ABA
   >Seq_14__ABA__No__No__Neither
-  14
+  ABA
   === apple/signature_ACB.fa ===
   >Seq_03__ACB__Yes__Yes__Both
-  03
+  ACB
   >Seq_07__ACB__Yes__No__Start
-  07
+  ACB
   >Seq_11__ACB__No__Yes__End
-  11
+  ACB
   >Seq_15__ACB__No__No__Neither
-  15
+  ACB
   === apple/signature_ADB.fa ===
   >Seq_04__ADB__Yes__Yes__Both
-  04
+  ADB
   >Seq_08__ADB__Yes__No__Start
-  08
+  ADB
   >Seq_12__ADB__No__Yes__End
-  12
+  ADB
   >Seq_16__ADB__No__No__Neither
-  16
+  ADB
 
 
 ####
@@ -105,13 +160,13 @@ Keep
   $ for f in $(ls "${OUTDIR}"/*); do echo "=== $f ==="; cat $f; done
   === apple/signature_AAA.fa ===
   >Seq_01__AAA__Yes__Yes__Both
-  01
+  AAA
   >Seq_05__AAA__Yes__No__Start
-  05
+  AAA
   >Seq_09__AAA__No__Yes__End
-  09
+  AAA
   >Seq_13__AAA__No__No__Neither
-  13
+  AAA
 
 Reject
 
@@ -121,31 +176,31 @@ Reject
   $ for f in $(ls "${OUTDIR}"/*); do echo "=== $f ==="; cat $f; done
   === apple/signature_ABA.fa ===
   >Seq_02__ABA__Yes__Yes__Both
-  02
+  ABA
   >Seq_06__ABA__Yes__No__Start
-  06
+  ABA
   >Seq_10__ABA__No__Yes__End
-  10
+  ABA
   >Seq_14__ABA__No__No__Neither
-  14
+  ABA
   === apple/signature_ACB.fa ===
   >Seq_03__ACB__Yes__Yes__Both
-  03
+  ACB
   >Seq_07__ACB__Yes__No__Start
-  07
+  ACB
   >Seq_11__ACB__No__Yes__End
-  11
+  ACB
   >Seq_15__ACB__No__No__Neither
-  15
+  ACB
   === apple/signature_ADB.fa ===
   >Seq_04__ADB__Yes__Yes__Both
-  04
+  ADB
   >Seq_08__ADB__Yes__No__Start
-  08
+  ADB
   >Seq_12__ADB__No__Yes__End
-  12
+  ADB
   >Seq_16__ADB__No__No__Neither
-  16
+  ADB
 
 ####
 #### Single, regex fancy.
@@ -159,22 +214,22 @@ Keep
   $ for f in $(ls "${OUTDIR}"/*); do echo "=== $f ==="; cat $f; done
   === apple/signature_AAA.fa ===
   >Seq_01__AAA__Yes__Yes__Both
-  01
+  AAA
   >Seq_05__AAA__Yes__No__Start
-  05
+  AAA
   >Seq_09__AAA__No__Yes__End
-  09
+  AAA
   >Seq_13__AAA__No__No__Neither
-  13
+  AAA
   === apple/signature_ACB.fa ===
   >Seq_03__ACB__Yes__Yes__Both
-  03
+  ACB
   >Seq_07__ACB__Yes__No__Start
-  07
+  ACB
   >Seq_11__ACB__No__Yes__End
-  11
+  ACB
   >Seq_15__ACB__No__No__Neither
-  15
+  ACB
 
 Reject 
 
@@ -184,22 +239,22 @@ Reject
   $ for f in $(ls "${OUTDIR}"/*); do echo "=== $f ==="; cat $f; done
   === apple/signature_ABA.fa ===
   >Seq_02__ABA__Yes__Yes__Both
-  02
+  ABA
   >Seq_06__ABA__Yes__No__Start
-  06
+  ABA
   >Seq_10__ABA__No__Yes__End
-  10
+  ABA
   >Seq_14__ABA__No__No__Neither
-  14
+  ABA
   === apple/signature_ADB.fa ===
   >Seq_04__ADB__Yes__Yes__Both
-  04
+  ADB
   >Seq_08__ADB__Yes__No__Start
-  08
+  ADB
   >Seq_12__ADB__No__Yes__End
-  12
+  ADB
   >Seq_16__ADB__No__No__Neither
-  16
+  ADB
 
 ####
 #### Regex with 'not' sets.
@@ -213,13 +268,13 @@ Keep
   $ for f in $(ls "${OUTDIR}"/*); do echo "=== $f ==="; cat $f; done
   === apple/signature_AAA.fa ===
   >Seq_01__AAA__Yes__Yes__Both
-  01
+  AAA
   >Seq_05__AAA__Yes__No__Start
-  05
+  AAA
   >Seq_09__AAA__No__Yes__End
-  09
+  AAA
   >Seq_13__AAA__No__No__Neither
-  13
+  AAA
 
 Reject.  This one is a little confusing :)
 
@@ -229,31 +284,31 @@ Reject.  This one is a little confusing :)
   $ for f in $(ls "${OUTDIR}"/*); do echo "=== $f ==="; cat $f; done
   === apple/signature_ABA.fa ===
   >Seq_02__ABA__Yes__Yes__Both
-  02
+  ABA
   >Seq_06__ABA__Yes__No__Start
-  06
+  ABA
   >Seq_10__ABA__No__Yes__End
-  10
+  ABA
   >Seq_14__ABA__No__No__Neither
-  14
+  ABA
   === apple/signature_ACB.fa ===
   >Seq_03__ACB__Yes__Yes__Both
-  03
+  ACB
   >Seq_07__ACB__Yes__No__Start
-  07
+  ACB
   >Seq_11__ACB__No__Yes__End
-  11
+  ACB
   >Seq_15__ACB__No__No__Neither
-  15
+  ACB
   === apple/signature_ADB.fa ===
   >Seq_04__ADB__Yes__Yes__Both
-  04
+  ADB
   >Seq_08__ADB__Yes__No__Start
-  08
+  ADB
   >Seq_12__ADB__No__Yes__End
-  12
+  ADB
   >Seq_16__ADB__No__No__Neither
-  16
+  ADB
 
 ####################################################################
 #### Multiple patterns #############################################
@@ -271,22 +326,22 @@ Keep
   $ for f in $(ls "${OUTDIR}"/*); do echo "=== $f ==="; cat $f; done
   === apple/signature_AAA.fa ===
   >Seq_01__AAA__Yes__Yes__Both
-  01
+  AAA
   >Seq_05__AAA__Yes__No__Start
-  05
+  AAA
   >Seq_09__AAA__No__Yes__End
-  09
+  AAA
   >Seq_13__AAA__No__No__Neither
-  13
+  AAA
   === apple/signature_ABA.fa ===
   >Seq_02__ABA__Yes__Yes__Both
-  02
+  ABA
   >Seq_06__ABA__Yes__No__Start
-  06
+  ABA
   >Seq_10__ABA__No__Yes__End
-  10
+  ABA
   >Seq_14__ABA__No__No__Neither
-  14
+  ABA
 
 Reject
 
@@ -296,22 +351,47 @@ Reject
   $ for f in $(ls "${OUTDIR}"/*); do echo "=== $f ==="; cat $f; done
   === apple/signature_ACB.fa ===
   >Seq_03__ACB__Yes__Yes__Both
-  03
+  ACB
   >Seq_07__ACB__Yes__No__Start
-  07
+  ACB
   >Seq_11__ACB__No__Yes__End
-  11
+  ACB
   >Seq_15__ACB__No__No__Neither
-  15
+  ACB
   === apple/signature_ADB.fa ===
   >Seq_04__ADB__Yes__Yes__Both
-  04
+  ADB
   >Seq_08__ADB__Yes__No__Start
-  08
+  ADB
   >Seq_12__ADB__No__Yes__End
-  12
+  ADB
   >Seq_16__ADB__No__No__Neither
-  16
+  ADB
+
+Reject, but include a signature that isn't present.
+
+  $ rm -r "${OUTDIR}" "${ACTUAL_SIGNATURES}" 2> /dev/null
+  [1]
+  $ pasv select --reject -F --outdir="${OUTDIR}" "${QUERY_FILE}" "${SIGNATURE_FILE}" AAA,ABA,XXX
+  $ for f in $(ls "${OUTDIR}"/*); do echo "=== $f ==="; cat $f; done
+  === apple/signature_ACB.fa ===
+  >Seq_03__ACB__Yes__Yes__Both
+  ACB
+  >Seq_07__ACB__Yes__No__Start
+  ACB
+  >Seq_11__ACB__No__Yes__End
+  ACB
+  >Seq_15__ACB__No__No__Neither
+  ACB
+  === apple/signature_ADB.fa ===
+  >Seq_04__ADB__Yes__Yes__Both
+  ADB
+  >Seq_08__ADB__Yes__No__Start
+  ADB
+  >Seq_12__ADB__No__Yes__End
+  ADB
+  >Seq_16__ADB__No__No__Neither
+  ADB
 
 ####  
 #### Regex (simple)
@@ -325,22 +405,22 @@ Keep
   $ for f in $(ls "${OUTDIR}"/*); do echo "=== $f ==="; cat $f; done
   === apple/signature_AAA.fa ===
   >Seq_01__AAA__Yes__Yes__Both
-  01
+  AAA
   >Seq_05__AAA__Yes__No__Start
-  05
+  AAA
   >Seq_09__AAA__No__Yes__End
-  09
+  AAA
   >Seq_13__AAA__No__No__Neither
-  13
+  AAA
   === apple/signature_ABA.fa ===
   >Seq_02__ABA__Yes__Yes__Both
-  02
+  ABA
   >Seq_06__ABA__Yes__No__Start
-  06
+  ABA
   >Seq_10__ABA__No__Yes__End
-  10
+  ABA
   >Seq_14__ABA__No__No__Neither
-  14
+  ABA
 
 Reject
 
@@ -350,19 +430,19 @@ Reject
   $ for f in $(ls "${OUTDIR}"/*); do echo "=== $f ==="; cat $f; done
   === apple/signature_ACB.fa ===
   >Seq_03__ACB__Yes__Yes__Both
-  03
+  ACB
   >Seq_07__ACB__Yes__No__Start
-  07
+  ACB
   >Seq_11__ACB__No__Yes__End
-  11
+  ACB
   >Seq_15__ACB__No__No__Neither
-  15
+  ACB
   === apple/signature_ADB.fa ===
   >Seq_04__ADB__Yes__Yes__Both
-  04
+  ADB
   >Seq_08__ADB__Yes__No__Start
-  08
+  ADB
   >Seq_12__ADB__No__Yes__End
-  12
+  ADB
   >Seq_16__ADB__No__No__Neither
-  16
+  ADB
