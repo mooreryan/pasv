@@ -1,3 +1,0 @@
-#!/bin/bash
-
-docker build -t pasv_alpine_static -f Dockerfile.build_static . ; alert
