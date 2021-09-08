@@ -1,30 +1,26 @@
-# Examples: pasv-hmm
+# Examples: pasv-check
 
-`pasv-hmm` is one of three `pasv` commands used to check residues in query sequences with respect to a [reference set](../jargon#references-reference-sequences) and a [key reference sequence](../jargon#key-reference-sequences-positions-residues).
+Of the three commands for checking residues, `pasv-check` is the simplest.
+
+It takes two input files: a multiple sequence alignment file in fasta format, and a comma separated list of [key residue positions](./jargon.md#key-reference-sequences-positions-residues) to check.
 
 *Note: for a lot more examples of using this and other `pasv` commands, see [here](./tons-of-examples.md).*
 
-## Required arguments
+## Input files
 
-`pasv hmm` has four required arguments:
+### aln.fa
 
-* [queries](jargon.md#queries-query-sequences): the query sequences
-* [references](jargon.md#references-reference-sequences): the reference HMM.  This should be the output of HMMER's `hmmbuild` program
-* [key reference sequence](jargon.md#key-reference-sequences-positions-residues): a fasta file with the key reference sequence
-* [key residues positions](jargon.md#key-reference-sequences-positions-residues): a comma-separated list of key positions to check
+A multiple sequence alignment in fasta format.
 
-For full CLI usage info, run `pasv hmm --help`.
+The first sequence in the alignment file is treated as the [key reference sequence](./jargon.md#key-reference-sequences-positions-residues).
 
 ## Set up environment variables
 
-These are some environment variables that we will use in the example scripts.  I am assuming you are running this from the following directory with respect to the `pasv` source directory: `./_examples/pasv_hmm`.
+These are some environment variables that we will use in the example scripts.  I am assuming you are running this from the following directory with respect to the `pasv` source directory: `./_examples/pasv_check`.
 
 ```
-$ export QUERIES=amk_queries.fa
-$ export REFS=P00582.refs.aln.hmm
-$ export MAIN_REF=amk_main_ref.fa
+$ export ALN=aln.fa
 $ export OUTDIR=apple
-$ export RESIDUES=50,52,54
 ```
 
 ## Basic usage
@@ -33,11 +29,11 @@ $ export RESIDUES=50,52,54
 # Clean up outdir if it exists.
 $ [ -d "${OUTDIR}" ] && rm -r "${OUTDIR}"
 
-# Run pasv-hmm.
-$ pasv hmm --outdir="${OUTDIR}" "${QUERIES}" "${REFS}" "${MAIN_REF}" "${RESIDUES}"
+# Run pasv-check.
+$ pasv check --outdir="${OUTDIR}" "${ALN}" 50,52,54
 ```
 
-The output file will be `apple/amk_queries.pasv_signatures.tsv`.  Here are the contents.
+The output file will be here: `"${OUTDIR}/aln.pasv_signatures.tsv"`.  Here are the contents:
 
 | name                           | pos_50 | pos_52 | pos_54 | signature | spans_start | spans_end | spans |
 |--------------------------------|--------|--------|--------|-----------|-------------|-----------|-------|
@@ -66,33 +62,28 @@ The output file will be `apple/amk_queries.pasv_signatures.tsv`.  Here are the c
 | AMK99662_real_seq_ABC          | A      | B      | C      | ABC       | NA          | NA        | NA    |
 | AMK99662_full_length_extra_ABC | A      | B      | C      | ABC       | NA          | NA        | NA    |
 
-<br>
-
-For a detailed explanation of this file's format, see [here](../pasv-output.md).
+For a detailed explanation of this file's format, see [here](./pasv-output.md).
 
 One thing to note is that there are a lot of `NA` values present in the output.  This is because we didn't provide a region of interest.  Let's see how to do that.
 
 ## With region of interest
 
-You can also use `pasv` to check if query sequences span a [region of interest](../jargon#region-of-interest.md) with respect to the key reference sequence.
+You can also use `pasv` to check if query sequences span a [region of interest](./jargon.md#region-of-interest) with respect to the key reference sequence.
 
 ```
 # Clean up outdir if it exists.
 $ [ -d "${OUTDIR}" ] && rm -r "${OUTDIR}"
 
-# Run pasv-hmm.
-$ pasv hmm \
+# Run pasv-check.
+$ pasv check \
     --roi-start=20 \
     --roi-end=80 \
     --outdir="${OUTDIR}" \
-    "${QUERIES}" \
-    "${REFS}" \
-    "${MAIN_REF}" \
-    "${RESIDUES}"
+    "${ALN}" \
+    50,52,54
 ```
 
 The output file will be here: `"${OUTDIR}/aln.pasv_signatures.tsv"`.  Here are the contents:
-
 
 | name                           | pos_50 | pos_52 | pos_54 | signature | spans_start | spans_end | spans   |
 |--------------------------------|--------|--------|--------|-----------|-------------|-----------|---------|

@@ -22,7 +22,7 @@ Use `pasv check` when you already have an alignment file in which you want to ch
 * A multiple sequence alignment in fasta format.
     * The first sequence will be treated as the [key reference sequence](./jargon.md#key-reference-sequences-positions-residues).
 	* All positions will be with respect to this sequence.
-* [key residues positions](jargon.md#key-reference-sequences-positions-residues): a comma-separated list of key positions to check
+* [key residues positions](./jargon.md#key-reference-sequences-positions-residues): a comma-separated list of key positions to check
 
 For full CLI usage info, run `pasv check --help`.
 
@@ -36,10 +36,10 @@ The key reference sequence and all queries are aligned together against the refe
 
 `pasv hmm` has four required arguments:
 
-* [queries](jargon.md#queries-query-sequences): the query sequences
-* [references](jargon.md#references-reference-sequences): the reference HMM.  This should be the output of HMMER's `hmmbuild` program
-* [key reference sequence](jargon.md#key-reference-sequences-positions-residues): a fasta file with the key reference sequence
-* [key residues positions](jargon.md#key-reference-sequences-positions-residues): a comma-separated list of key positions to check
+* [queries](./jargon.md#queries-query-sequences): the query sequences
+* [references](./jargon.md#references-reference-sequences): the reference HMM.  This should be the output of HMMER's `hmmbuild` program
+* [key reference sequence](./jargon.md#key-reference-sequences-positions-residues): a fasta file with the key reference sequence
+* [key residues positions](./jargon.md#key-reference-sequences-positions-residues): a comma-separated list of key positions to check
 
 For full CLI usage info, run `pasv hmm --help`.
 
@@ -63,11 +63,11 @@ Use `pasv msa` when you want to align each query sequence individually with a se
 
 `pasv msa` has three required arguments:
 
-* [queries](jargon.md#queries-query-sequences): the query sequences
-* [references](jargon.md#references-reference-sequences)
+* [queries](./jargon.md#queries-query-sequences): the query sequences
+* [references](./jargon.md#references-reference-sequences)
     * The reference sequences to align with each query
-	* The first sequence in the fasta file should be the [key reference sequence](jargon.md#key-reference-sequences-positions-residues).
-* [key residues positions](jargon.md#key-reference-sequences-positions-residues): a comma-separated list of key positions to check
+	* The first sequence in the fasta file should be the [key reference sequence](./jargon.md#key-reference-sequences-positions-residues).
+* [key residues positions](./jargon.md#key-reference-sequences-positions-residues): a comma-separated list of key positions to check
 
 For full CLI usage info, run `pasv msa --help`.
 
@@ -83,9 +83,9 @@ This is provided for parsing convenience.  You can always parse the signatures f
 
 `pasv select` has three required arguments:
 
-* [queries](jargon.md#queries-query-sequences): the query sequences
-* [signature file](jargon.md#signatures-signature-files)
-* [signatures](jargon.md#signatures-signature-files): a comma-separated list of key positions to check
+* [queries](./jargon.md#queries-query-sequences): the query sequences
+* [signature file](./jargon.md#signatures-signature-files)
+* [signatures](./jargon.md#signatures-signature-files): a comma-separated list of key positions to check
 
 The signatures can be provided as fixed strings or regular expressions.
 

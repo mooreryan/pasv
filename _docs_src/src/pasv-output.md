@@ -1,6 +1,6 @@
 # PASV Output
 
-`pasv` programs output a tab-separated text file (TSV) that lists [key residues](jargon.md#key-reference-sequences-positions-residues), [signatures](jargon.md#signatures-signature-files), and [region of interest](jargon#region-of-interest.md) spanning info for each query sequence.
+`pasv` programs output a tab-separated text file (TSV) that lists [key residues](./jargon.md#key-reference-sequences-positions-residues), [signatures](./jargon.md#signatures-signature-files), and [region of interest](./jargon.md#region-of-interest) spanning info for each query sequence.
 
 Here is how that file might look.
 
@@ -38,7 +38,7 @@ Here is how that file might look.
     * The ID of the sequence.
 	* I.e., the part of the fasta header up until the first space.
 * `pos_50`
-    * This is the first [key residue position](jargon.md#key-reference-sequences-positions-residues).
+    * This is the first [key residue position](./jargon.md#key-reference-sequences-positions-residues).
 	* It is the residue in the query that aligns with the residue in position 50 of the reference sequence.
 * `pos_52`
     * The 2nd key residue position
@@ -47,7 +47,7 @@ Here is how that file might look.
 * `signature`
     * A concatenation of the residues at each of the key residue positions for each query sequence
 * `spans_start`
-    * Does the query sequence span the start of a specified [region of interest](jargon#region-of-interest.md) with numbering according to the key reference sequence?
+    * Does the query sequence span the start of a specified [region of interest](./jargon.md#region-of-interest) with numbering according to the key reference sequence?
 	* `Yes` or `No`
 * `spans_end`
     * Does the query sequence span then end of a specified region of interest?
