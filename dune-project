@@ -21,6 +21,7 @@
   (bisect_ppx :dev)
    core
    cmdliner
+   little_logger
    ocaml
    ppx_deriving
    ppx_jane

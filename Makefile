@@ -20,6 +20,10 @@ build_release:
 build_release_mac:
 	dune build -j 1 --profile=release
 
+.PHONY: clean
+clean:
+	dune clean
+
 .PHONY: install
 install: build_release
 	dune install --profile=release
