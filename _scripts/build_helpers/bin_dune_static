@@ -1,7 +1,7 @@
 (executable
  (public_name pasv)
  (name pasv)
- (libraries bio_io core cmdliner re2 pasv_lib)
+ (libraries bio_io core cmdliner little_logger re2 pasv_lib)
  (flags (-ccopt -static))
  (instrumentation
   (backend bisect_ppx))
