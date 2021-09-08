@@ -74,11 +74,29 @@ jobs:
 
       - run: opam install . --deps-only --with-doc --with-test
 
-      - run: opam exec -- make build
+      - name: Build (Ubuntu)
+        run: opam exec -- make build
+        if: matrix.os == 'ubuntu-latest'
 
-      - run: opam exec -- make install
+      - name: Build (MacOS)
+        run: opam exec -- make build_mac
+        if: matrix.os == 'macos-latest'
 
-      - run: opam exec -- make test
+      - name: Install (Ubuntu)
+        run: opam exec -- make install
+        if: matrix.os == 'ubuntu-latest'
+
+      - name: Install (MacOS)
+        run: opam exec -- make install_mac
+        if: matrix.os == 'macos-latest'
+
+      - name: Test (Ubuntu)
+        run: opam exec -- make test
+        if: matrix.os == 'ubuntu-latest'
+
+      - name: Test (MacOS)
+        run: opam exec -- make test_mac
+        if: matrix.os == 'macos-latest'
 
       - run: opam exec -- make send_coverage
         if: matrix.ocaml-compiler == '4.12.0'
