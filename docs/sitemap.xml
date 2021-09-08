@@ -16,6 +16,31 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://mooreryan.github.io/pasv/examples-aox-ptox/</loc>
+         <lastmod>2021-09-08</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://mooreryan.github.io/pasv/examples-pasv-check/</loc>
+         <lastmod>2021-09-08</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://mooreryan.github.io/pasv/examples-pasv-hmm/</loc>
+         <lastmod>2021-09-08</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://mooreryan.github.io/pasv/examples-pasv-msa/</loc>
+         <lastmod>2021-09-08</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://mooreryan.github.io/pasv/examples-pasv-select/</loc>
+         <lastmod>2021-09-08</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://mooreryan.github.io/pasv/getting-started/</loc>
          <lastmod>2021-09-08</lastmod>
          <changefreq>daily</changefreq>
@@ -67,31 +92,6 @@
     </url>
     <url>
          <loc>https://mooreryan.github.io/pasv/tons-of-examples/</loc>
-         <lastmod>2021-09-08</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://mooreryan.github.io/pasv/examples/aox_ptox/</loc>
-         <lastmod>2021-09-08</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://mooreryan.github.io/pasv/examples/pasv-check/</loc>
-         <lastmod>2021-09-08</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://mooreryan.github.io/pasv/examples/pasv-hmm/</loc>
-         <lastmod>2021-09-08</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://mooreryan.github.io/pasv/examples/pasv-msa/</loc>
-         <lastmod>2021-09-08</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://mooreryan.github.io/pasv/examples/pasv-select/</loc>
          <lastmod>2021-09-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
