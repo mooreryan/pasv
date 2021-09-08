@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <meta name="author" content="Ryan Moore">
+  <link rel="canonical" href="https://mooreryan.github.io/pasv/examples/pasv-select/">
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  <title>pasv-select - PASV -- Protein Active Site Validation</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700" />
+
+  <link rel="stylesheet" href="../../css/theme.css" />
+  <link rel="stylesheet" href="../../css/theme_extra.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" />
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "pasv-select";
+    var mkdocs_page_input_path = "examples/pasv-select.md";
+    var mkdocs_page_url = "/pasv/examples/pasv-select/";
+  </script>
+  
+  <script src="../../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  
+
+  
+    
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+<meta property="og:site_name" content="pasv-select - PASV -- Protein Active Site Validation" />
+
+<meta property="og:type" content="website">
+
+<meta property="og:title" content="pasv-select - PASV -- Protein Active Site Validation">
+
+<meta property="description" content="Documentation for installing and using PASV, a program for post-homology search validation and partitioning of sequences by specific residues (active sites, conserved residues, etc).">
+<meta property="og:description" content="Documentation for installing and using PASV, a program for post-homology search validation and partitioning of sequences by specific residues (active sites, conserved residues, etc).">
+<meta name="twitter:description" content="Documentation for installing and using PASV, a program for post-homology search validation and partitioning of sequences by specific residues (active sites, conserved residues, etc).">
+
+<meta property="og:url" content="https://mooreryan.github.io/pasv/examples/pasv-select/">
+
+<meta property="og:locale" content="en_US">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="pasv-select - PASV -- Protein Active Site Validation">
+
+  
+
+  
+
+
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+        <a href="../.." class="icon icon-home"> PASV -- Protein Active Site Validation</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../..">PASV</a>
+                    </li>
+                </ul>
+                <p class="caption"><span class="caption-text">Overview</span></p>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../../getting-started/">Getting Started</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../../pasv-use-cases/">PASV Use Cases</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../../jargon/">Definitions & Jargon</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../../bibliography/">Bibliography</a>
+                    </li>
+                </ul>
+                <p class="caption"><span class="caption-text">Installation</span></p>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../../installing-external-dependencies/">Installing External Software Dependencies</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../../installing-precompiled-binaries/">Installing Precompiled Binaries</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../../installing-with-docker/">Installing With Docker</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../../installing-from-source/">Installing From Source</a>
+                    </li>
+                </ul>
+                <p class="caption"><span class="caption-text">Usage</span></p>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../../cli/">Command Line Interface</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../../pasv-output/">PASV Output</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../../picking-refs-and-residues/">Picking References and Residues</a>
+                    </li>
+                </ul>
+                <p class="caption"><span class="caption-text">Examples</span></p>
+                <ul class="current">
+                    <li class="toctree-l1"><a class="reference internal" href="../../tons-of-examples/">Tons of Examples</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../pasv-check/">pasv-check</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../pasv-hmm/">pasv-hmm</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../pasv-msa/">pasv-msa</a>
+                    </li>
+                    <li class="toctree-l1 current"><a class="reference internal current" href="./">pasv-select</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#input-files">Input files</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#queriesfa">queries.fa</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#signaturestsv">signatures.tsv</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#set-up-environment-variables">Set up environment variables</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#selecting-with-fixed-strings">Selecting with fixed strings</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#selecting">Selecting</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#rejecting">Rejecting</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#multiple-patterns">Multiple patterns</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#selecting_1">Selecting</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#rejecting_1">Rejecting</a>
+    </li>
+        </ul>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#selecting-with-regular-expressions">Selecting with regular expressions</a>
+    </li>
+    </ul>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../aox_ptox/">AOX/PTOX Example</a>
+                    </li>
+                </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../..">PASV -- Protein Active Site Validation</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../..">Docs</a> &raquo;</li>
+    
+      
+        
+          <li>Examples &raquo;</li>
+        
+      
+    
+    <li>pasv-select</li>
+    <li class="wy-breadcrumbs-aside">
+      
+        <a href="https://github.com/mooreryan/pasv/edit/master/docs_src/src/examples/pasv-select.md"
+          class="icon icon-github"> Edit on GitHub</a>
+      
+    </li>
+  </ul>
+  
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="examples-pasv-select">Examples: pasv-select</h1>
+<p>You can select sequences by signature using either fixed strings or regular expressions.  I will show you examples using both methods.</p>
+<p><em>Note: for a lot more examples of using this and other <code>pasv</code> commands, see <a href="./tons-of-examples.md">here</a>.</em></p>
+<h2 id="input-files">Input files</h2>
+<h3 id="queriesfa">queries.fa</h3>
+<p>There are 16 queries in the fasta file.  Here are the first few sequences.</p>
+<pre><code>&gt;Seq_01__AAA__Yes__Yes__Both
+AAA
+&gt;Seq_02__ABA__Yes__Yes__Both
+ABA
+&gt;Seq_03__ACB__Yes__Yes__Both
+ACB
+&gt;Seq_04__ADB__Yes__Yes__Both
+ADB
+&gt;Seq_05__AAA__Yes__No__Start
+AAA
+</code></pre>
+<p>As you can see, it is just some fake data to illustrate the <code>pasv-select</code> program.</p>
+<h3 id="signaturestsv">signatures.tsv</h3>
+<p>The signatures file is a tab-separated (TSV) file that looks like this:</p>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>pos_50</th>
+<th>pos_52</th>
+<th>pos_54</th>
+<th>signature</th>
+<th>spans_start</th>
+<th>spans_end</th>
+<th>spans</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Seq_01__AAA__Yes__Yes__Both</td>
+<td>A</td>
+<td>A</td>
+<td>A</td>
+<td>AAA</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Both</td>
+</tr>
+<tr>
+<td>Seq_02__ABA__Yes__Yes__Both</td>
+<td>A</td>
+<td>B</td>
+<td>A</td>
+<td>ABA</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Both</td>
+</tr>
+<tr>
+<td>Seq_03__ACB__Yes__Yes__Both</td>
+<td>A</td>
+<td>C</td>
+<td>B</td>
+<td>ACB</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Both</td>
+</tr>
+<tr>
+<td>Seq_04__ADB__Yes__Yes__Both</td>
+<td>A</td>
+<td>D</td>
+<td>B</td>
+<td>ADB</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Both</td>
+</tr>
+<tr>
+<td>Seq_05__AAA__Yes__No__Start</td>
+<td>A</td>
+<td>A</td>
+<td>A</td>
+<td>AAA</td>
+<td>Yes</td>
+<td>No</td>
+<td>Start</td>
+</tr>
+<tr>
+<td>Seq_06__ABA__Yes__No__Start</td>
+<td>A</td>
+<td>B</td>
+<td>A</td>
+<td>ABA</td>
+<td>Yes</td>
+<td>No</td>
+<td>Start</td>
+</tr>
+<tr>
+<td>Seq_07__ACB__Yes__No__Start</td>
+<td>A</td>
+<td>C</td>
+<td>B</td>
+<td>ACB</td>
+<td>Yes</td>
+<td>No</td>
+<td>Start</td>
+</tr>
+<tr>
+<td>Seq_08__ADB__Yes__No__Start</td>
+<td>A</td>
+<td>D</td>
+<td>B</td>
+<td>ADB</td>
+<td>Yes</td>
+<td>No</td>
+<td>Start</td>
+</tr>
+<tr>
+<td>Seq_09__AAA__No__Yes__End</td>
+<td>A</td>
+<td>A</td>
+<td>A</td>
+<td>AAA</td>
+<td>No</td>
+<td>Yes</td>
+<td>End</td>
+</tr>
+<tr>
+<td>Seq_10__ABA__No__Yes__End</td>
+<td>A</td>
+<td>B</td>
+<td>A</td>
+<td>ABA</td>
+<td>No</td>
+<td>Yes</td>
+<td>End</td>
+</tr>
+<tr>
+<td>Seq_11__ACB__No__Yes__End</td>
+<td>A</td>
+<td>C</td>
+<td>B</td>
+<td>ACB</td>
+<td>No</td>
+<td>Yes</td>
+<td>End</td>
+</tr>
+<tr>
+<td>Seq_12__ADB__No__Yes__End</td>
+<td>A</td>
+<td>D</td>
+<td>B</td>
+<td>ADB</td>
+<td>No</td>
+<td>Yes</td>
+<td>End</td>
+</tr>
+<tr>
+<td>Seq_13__AAA__No__No__Neither</td>
+<td>A</td>
+<td>A</td>
+<td>A</td>
+<td>AAA</td>
+<td>No</td>
+<td>No</td>
+<td>Neither</td>
+</tr>
+<tr>
+<td>Seq_14__ABA__No__No__Neither</td>
+<td>A</td>
+<td>B</td>
+<td>A</td>
+<td>ABA</td>
+<td>No</td>
+<td>No</td>
+<td>Neither</td>
+</tr>
+<tr>
+<td>Seq_15__ACB__No__No__Neither</td>
+<td>A</td>
+<td>C</td>
+<td>B</td>
+<td>ACB</td>
+<td>No</td>
+<td>No</td>
+<td>Neither</td>
+</tr>
+<tr>
+<td>Seq_16__ADB__No__No__Neither</td>
+<td>A</td>
+<td>D</td>
+<td>B</td>
+<td>ADB</td>
+<td>No</td>
+<td>No</td>
+<td>Neither</td>
+</tr>
+</tbody>
+</table>
+<h2 id="set-up-environment-variables">Set up environment variables</h2>
+<p>These are some environment variables that we will use in the example scripts.  I am assuming you are running this from the following directory with respect to the <code>pasv</code> source directory: <code>./_examples/pasv_select</code>.</p>
+<pre><code>export QUERY_FILE=queries.fa
+export SIGNATURE_FILE=signatures.tsv
+export OUTDIR=apple
+</code></pre>
+<p>Note that these are just some silly test files...that's why the fasta "sequences" just look like numbers :)</p>
+<h2 id="selecting-with-fixed-strings">Selecting with fixed strings</h2>
+<h3 id="selecting">Selecting</h3>
+<p>Select queries with the signature <code>AAA</code>.</p>
+<pre><code># Clean up outdir if it exists.
+$ [ -d &quot;${OUTDIR}&quot; ] &amp;&amp; rm -r &quot;${OUTDIR}&quot;
+
+# Run pasv-select.
+$ pasv select \
+    --fixed-strings \
+    --outdir=&quot;${OUTDIR}&quot; \
+    &quot;${QUERY_FILE}&quot; \
+    &quot;${SIGNATURE_FILE}&quot; \
+    AAA
+
+# Print out the resulting fasta files.
+$ for f in $(ls &quot;${OUTDIR}&quot;/*); do echo &quot;=== $f ===&quot;; cat $f; done
+=== apple/signature_AAA.fa ===
+&gt;Seq_01__AAA__Yes__Yes__Both
+AAA
+&gt;Seq_05__AAA__Yes__No__Start
+AAA
+&gt;Seq_09__AAA__No__Yes__End
+AAA
+&gt;Seq_13__AAA__No__No__Neither
+AAA
+</code></pre>
+<h3 id="rejecting">Rejecting</h3>
+<p>You can also reject queries with certain signatures by using the <code>--reject</code> flag.</p>
+<p>Here is an example of rejecting queries with the signature <code>AAA</code>.</p>
+<pre><code># Clean up outdir if it exists.
+$ [ -d &quot;${OUTDIR}&quot; ] &amp;&amp; rm -r &quot;${OUTDIR}&quot;
+
+# Run pasv-select.
+$ pasv select \
+    --reject \
+    --fixed-strings \
+    --outdir=&quot;${OUTDIR}&quot; \
+    &quot;${QUERY_FILE}&quot; \
+    &quot;${SIGNATURE_FILE}&quot; \
+    AAA
+
+# Print out the resulting fasta files.
+$ for f in $(ls &quot;${OUTDIR}&quot;/*); do echo &quot;=== $f ===&quot;; cat $f; done
+=== apple/signature_ABA.fa ===
+&gt;Seq_02__ABA__Yes__Yes__Both
+ABA
+&gt;Seq_06__ABA__Yes__No__Start
+ABA
+&gt;Seq_10__ABA__No__Yes__End
+ABA
+&gt;Seq_14__ABA__No__No__Neither
+ABA
+=== apple/signature_ACB.fa ===
+&gt;Seq_03__ACB__Yes__Yes__Both
+ACB
+&gt;Seq_07__ACB__Yes__No__Start
+ACB
+&gt;Seq_11__ACB__No__Yes__End
+ACB
+&gt;Seq_15__ACB__No__No__Neither
+ACB
+=== apple/signature_ADB.fa ===
+&gt;Seq_04__ADB__Yes__Yes__Both
+ADB
+&gt;Seq_08__ADB__Yes__No__Start
+ADB
+&gt;Seq_12__ADB__No__Yes__End
+ADB
+&gt;Seq_16__ADB__No__No__Neither
+ADB
+</code></pre>
+<p>As you see, there are only sequences that have a different signature than <code>AAA</code>.</p>
+<h3 id="multiple-patterns">Multiple patterns</h3>
+<p>You pass multiple patterns at the same time.  If a query has any of the listed signatures it will be printed (or rejected if you pass <code>--reject</code>).</p>
+<p>To use multiple signatures, just separate them with commas.</p>
+<h4 id="selecting_1">Selecting</h4>
+<pre><code># Clean up outdir if it exists.
+$ [ -d &quot;${OUTDIR}&quot; ] &amp;&amp; rm -r &quot;${OUTDIR}&quot;
+
+# Run pasv-select.
+$ pasv select \
+    --fixed-strings \
+    --outdir=&quot;${OUTDIR}&quot; \
+    &quot;${QUERY_FILE}&quot; \
+    &quot;${SIGNATURE_FILE}&quot; \
+    AAA,ABA
+
+# Print out the resulting fasta files.
+$ for f in $(ls &quot;${OUTDIR}&quot;/*); do echo &quot;=== $f ===&quot;; cat $f; done
+=== apple/signature_AAA.fa ===
+&gt;Seq_01__AAA__Yes__Yes__Both
+AAA
+&gt;Seq_05__AAA__Yes__No__Start
+AAA
+&gt;Seq_09__AAA__No__Yes__End
+AAA
+&gt;Seq_13__AAA__No__No__Neither
+AAA
+=== apple/signature_ABA.fa ===
+&gt;Seq_02__ABA__Yes__Yes__Both
+ABA
+&gt;Seq_06__ABA__Yes__No__Start
+ABA
+&gt;Seq_10__ABA__No__Yes__End
+ABA
+&gt;Seq_14__ABA__No__No__Neither
+ABA
+</code></pre>
+<h4 id="rejecting_1">Rejecting</h4>
+<p>Rejecting with multiple patterns can be confusing.  This example will print sequences that <strong>do not</strong> have signature <code>AAA</code> or <code>ABA</code> (e.g., <code>ACA</code>, <code>TLA</code>, whatever).</p>
+<pre><code># Clean up outdir if it exists.
+$ [ -d &quot;${OUTDIR}&quot; ] &amp;&amp; rm -r &quot;${OUTDIR}&quot;n
+
+# Run pasv-select.
+$ pasv select \
+    --reject \
+    --fixed-strings \
+    --outdir=&quot;${OUTDIR}&quot; \
+    &quot;${QUERY_FILE}&quot; \
+    &quot;${SIGNATURE_FILE}&quot; \
+    AAA,ABA
+
+# Print out the resulting fasta files.
+$ for f in $(ls &quot;${OUTDIR}&quot;/*); do echo &quot;=== $f ===&quot;; cat $f; done
+=== apple/signature_ACB.fa ===
+&gt;Seq_03__ACB__Yes__Yes__Both
+ACB
+&gt;Seq_07__ACB__Yes__No__Start
+ACB
+&gt;Seq_11__ACB__No__Yes__End
+ACB
+&gt;Seq_15__ACB__No__No__Neither
+ACB
+=== apple/signature_ADB.fa ===
+&gt;Seq_04__ADB__Yes__Yes__Both
+ADB
+&gt;Seq_08__ADB__Yes__No__Start
+ADB
+&gt;Seq_12__ADB__No__Yes__End
+ADB
+&gt;Seq_16__ADB__No__No__Neither
+ADB
+</code></pre>
+<h2 id="selecting-with-regular-expressions">Selecting with regular expressions</h2>
+<p>You can also use regular expressions to select signatures.</p>
+<p>In this file, the sequences only have the following signatures:  <code>AAA</code>, <code>ABA</code>, <code>ACB</code>, <code>ADB</code>.</p>
+<p>So with this regular expression, <code>[AC].$</code>, I can select any signature with <code>A</code> or <code>C</code> in the 2nd position from the end.</p>
+<p>One thing to note, you generally should put the regular expression inside single quotes.</p>
+<pre><code># Clean up outdir if it exists.
+$ [ -d &quot;${OUTDIR}&quot; ] &amp;&amp; rm -r &quot;${OUTDIR}&quot;
+
+# Run pasv-select.
+$ pasv select \
+    --outdir=&quot;${OUTDIR}&quot; \
+    &quot;${QUERY_FILE}&quot; \
+    &quot;${SIGNATURE_FILE}&quot; \
+    '[AC].$'
+
+# Print out the resulting fasta files.
+$ for f in $(ls &quot;${OUTDIR}&quot;/*); do echo &quot;=== $f ===&quot;; cat $f; done
+=== apple/signature_AAA.fa ===
+&gt;Seq_01__AAA__Yes__Yes__Both
+AAA
+&gt;Seq_05__AAA__Yes__No__Start
+AAA
+&gt;Seq_09__AAA__No__Yes__End
+AAA
+&gt;Seq_13__AAA__No__No__Neither
+AAA
+=== apple/signature_ACB.fa ===
+&gt;Seq_03__ACB__Yes__Yes__Both
+ACB
+&gt;Seq_07__ACB__Yes__No__Start
+ACB
+&gt;Seq_11__ACB__No__Yes__End
+ACB
+&gt;Seq_15__ACB__No__No__Neither
+ACB
+</code></pre>
+<p>Note that you can use the <code>--reject</code> flag and with regular expressions, as well as passing in a comma separated list of regular expressions.  Just watch out though, it can get a little wonky if you go crazy with the regular expression matching and then try and reject it.</p>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../aox_ptox/" class="btn btn-neutral float-right" title="AOX/PTOX Example">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../pasv-msa/" class="btn btn-neutral" title="pasv-msa"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+          <a href="https://github.com/mooreryan/pasv/" class="fa fa-github" style="float: left; color: #fcfcfc"> GitHub</a>
+      
+      
+        <span><a href="../pasv-msa/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../aox_ptox/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme.js" defer></script>
+      <script src="../../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

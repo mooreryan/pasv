@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <meta name="author" content="Ryan Moore">
+  <link rel="canonical" href="https://mooreryan.github.io/pasv/jargon/">
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>Definitions & Jargon - PASV -- Protein Active Site Validation</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700" />
+
+  <link rel="stylesheet" href="../css/theme.css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" />
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Definitions & Jargon";
+    var mkdocs_page_input_path = "jargon.md";
+    var mkdocs_page_url = "/pasv/jargon/";
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  
+
+  
+    
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+<meta property="og:site_name" content="Definitions & Jargon - PASV -- Protein Active Site Validation" />
+
+<meta property="og:type" content="website">
+
+<meta property="og:title" content="Definitions & Jargon - PASV -- Protein Active Site Validation">
+
+<meta property="description" content="Documentation for installing and using PASV, a program for post-homology search validation and partitioning of sequences by specific residues (active sites, conserved residues, etc).">
+<meta property="og:description" content="Documentation for installing and using PASV, a program for post-homology search validation and partitioning of sequences by specific residues (active sites, conserved residues, etc).">
+<meta name="twitter:description" content="Documentation for installing and using PASV, a program for post-homology search validation and partitioning of sequences by specific residues (active sites, conserved residues, etc).">
+
+<meta property="og:url" content="https://mooreryan.github.io/pasv/jargon/">
+
+<meta property="og:locale" content="en_US">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Definitions & Jargon - PASV -- Protein Active Site Validation">
+
+  
+
+  
+
+
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+        <a href=".." class="icon icon-home"> PASV -- Protein Active Site Validation</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="..">PASV</a>
+                    </li>
+                </ul>
+                <p class="caption"><span class="caption-text">Overview</span></p>
+                <ul class="current">
+                    <li class="toctree-l1"><a class="reference internal" href="../getting-started/">Getting Started</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../pasv-use-cases/">PASV Use Cases</a>
+                    </li>
+                    <li class="toctree-l1 current"><a class="reference internal current" href="./">Definitions & Jargon</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#msa-multiple-sequence-alignment">MSA: multiple sequence alignment</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#hmm-hiddon-markov-model">HMM: hiddon markov model</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pasv-vs-pasv">PASV vs pasv</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#queries-query-sequences">Queries &amp; query sequences</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#references-reference-sequences">References &amp; reference sequences</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#key-reference-sequences-positions-residues">Key reference sequences, positions &amp; residues</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#signatures-signature-files">Signatures &amp; signature files</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#region-of-interest">Region of interest</a>
+    </li>
+    </ul>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../bibliography/">Bibliography</a>
+                    </li>
+                </ul>
+                <p class="caption"><span class="caption-text">Installation</span></p>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../installing-external-dependencies/">Installing External Software Dependencies</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../installing-precompiled-binaries/">Installing Precompiled Binaries</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../installing-with-docker/">Installing With Docker</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../installing-from-source/">Installing From Source</a>
+                    </li>
+                </ul>
+                <p class="caption"><span class="caption-text">Usage</span></p>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../cli/">Command Line Interface</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../pasv-output/">PASV Output</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../picking-refs-and-residues/">Picking References and Residues</a>
+                    </li>
+                </ul>
+                <p class="caption"><span class="caption-text">Examples</span></p>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../tons-of-examples/">Tons of Examples</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../examples/pasv-check/">pasv-check</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../examples/pasv-hmm/">pasv-hmm</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../examples/pasv-msa/">pasv-msa</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../examples/pasv-select/">pasv-select</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../examples/aox_ptox/">AOX/PTOX Example</a>
+                    </li>
+                </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="..">PASV -- Protein Active Site Validation</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="..">Docs</a> &raquo;</li>
+    
+      
+        
+          <li>Overview &raquo;</li>
+        
+      
+    
+    <li>Definitions & Jargon</li>
+    <li class="wy-breadcrumbs-aside">
+      
+        <a href="https://github.com/mooreryan/pasv/edit/master/docs_src/src/jargon.md"
+          class="icon icon-github"> Edit on GitHub</a>
+      
+    </li>
+  </ul>
+  
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="jargon">Jargon</h1>
+<p>Let's talk about some of the "jargon" we use when talking about PASV.</p>
+<h2 id="msa-multiple-sequence-alignment">MSA: multiple sequence alignment</h2>
+<p>I will use this when talking about alignment as done by Clustal Omega and MAFFT.</p>
+<p>This is in contrast to using HMMs to align sequences.</p>
+<h2 id="hmm-hiddon-markov-model">HMM: hiddon markov model</h2>
+<p><code>pasv</code> can also use HMMs to align query sequences</p>
+<h2 id="pasv-vs-pasv">PASV vs <code>pasv</code></h2>
+<p>When you see <code>pasv</code> written in that font, I am talking about the PASV command line application.</p>
+<p>PASV in all caps is the acronym for protein active site validation.  It's both talking about the whole <code>pasv</code> program pipeline as well as the general idea of validating aspects of your query sequences.</p>
+<h2 id="queries-query-sequences">Queries &amp; query sequences</h2>
+<p>These are the sequences you are interested in.  Often these will be metagenomic sequences, or sequences output from homology search.</p>
+<p><code>pasv</code> will assign a signature to each query sequence based on the <a href="#key-reference-sequences-positions-residues">residues</a> it has at the specified <a href="#key-reference-sequences-positions-residues">key positions</a>.</p>
+<h2 id="references-reference-sequences">References &amp; reference sequences</h2>
+<p>These are the sequences you are using as "references".</p>
+<p>Depending on the command you're running, they could be sequences to align with queries in a multiple sequence alignment, or a profile HMM used to align queries against.</p>
+<h2 id="key-reference-sequences-positions-residues">Key reference sequences, positions &amp; residues</h2>
+<p>The <code>pasv</code> program will check residues in a particular column of an alignment.</p>
+<p>To tell <code>pasv</code> which alignment columns to check, you specify "key" residues with respect to a reference sequence.  I call this reference, the "key reference sequence".  It doesn't have to be anything special...it is simply the sequence with which the number will be with respect to.</p>
+<p>The key positions are the positions you care about.  They are numbered with respect to the key reference sequence.</p>
+<p>For example, if you care about an active site at residue 200 in a protein from <em>E. coli</em>, then you would make that <em>E. coli</em> peptide your key reference sequence, and residue 200 would be your key position.  Then, <code>pasv</code> will check the residues of the query sequences that align with residue 200 with respect to the key reference sequence.</p>
+<p>Each <code>pasv</code> command deals with key references and positions a bit differently.  For specific info, see the command documentation.</p>
+<h2 id="signatures-signature-files">Signatures &amp; signature files</h2>
+<p>Each query sequence is assigned a "signature" based on the residues that query has at the given key residue positions.</p>
+<p>A signature file lists these signatures and, optionally, whether a sequence spans a given region of interest (ROI).</p>
+<p>The signature file is a TSV.  Here is an example.</p>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>pos_50</th>
+<th>pos_52</th>
+<th>pos_54</th>
+<th>signature</th>
+<th>spans_start</th>
+<th>spans_end</th>
+<th>spans</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AMK99662_spans_start_20_60_IQK</td>
+<td>I</td>
+<td>Q</td>
+<td>K</td>
+<td>IQK</td>
+<td>Yes</td>
+<td>No</td>
+<td>Start</td>
+</tr>
+<tr>
+<td>AMK99662_spans_start_19_60_IQK</td>
+<td>I</td>
+<td>Q</td>
+<td>K</td>
+<td>IQK</td>
+<td>Yes</td>
+<td>No</td>
+<td>Start</td>
+</tr>
+<tr>
+<td>AMK99662_21_60_IQK</td>
+<td>I</td>
+<td>Q</td>
+<td>K</td>
+<td>IQK</td>
+<td>No</td>
+<td>No</td>
+<td>Neither</td>
+</tr>
+<tr>
+<td>AMK99662_spans_end_40_80_IQK</td>
+<td>I</td>
+<td>Q</td>
+<td>K</td>
+<td>IQK</td>
+<td>No</td>
+<td>Yes</td>
+<td>End</td>
+</tr>
+<tr>
+<td>AMK99662_spans_end_40_81_IQK</td>
+<td>I</td>
+<td>Q</td>
+<td>K</td>
+<td>IQK</td>
+<td>No</td>
+<td>Yes</td>
+<td>End</td>
+</tr>
+<tr>
+<td>AMK99662_40_79_IQK</td>
+<td>I</td>
+<td>Q</td>
+<td>K</td>
+<td>IQK</td>
+<td>No</td>
+<td>No</td>
+<td>Neither</td>
+</tr>
+<tr>
+<td>AMK99662_spans_both_20_80_IQK</td>
+<td>I</td>
+<td>Q</td>
+<td>K</td>
+<td>IQK</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Both</td>
+</tr>
+<tr>
+<td>AMK99662_spans_both_19_81_IQK</td>
+<td>I</td>
+<td>Q</td>
+<td>K</td>
+<td>IQK</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Both</td>
+</tr>
+<tr>
+<td>AMK99662_21_79_IQK</td>
+<td>I</td>
+<td>Q</td>
+<td>K</td>
+<td>IQK</td>
+<td>No</td>
+<td>No</td>
+<td>Neither</td>
+</tr>
+<tr>
+<td>AMK99662_full_length_IQK</td>
+<td>I</td>
+<td>Q</td>
+<td>K</td>
+<td>IQK</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Both</td>
+</tr>
+<tr>
+<td>AMK99662_real_seq_IQK</td>
+<td>I</td>
+<td>Q</td>
+<td>K</td>
+<td>IQK</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Both</td>
+</tr>
+<tr>
+<td>AMK99662_full_length_extra_IQK</td>
+<td>I</td>
+<td>Q</td>
+<td>K</td>
+<td>IQK</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Both</td>
+</tr>
+<tr>
+<td>AMK99662_spans_start_20_60_ABC</td>
+<td>A</td>
+<td>B</td>
+<td>C</td>
+<td>ABC</td>
+<td>Yes</td>
+<td>No</td>
+<td>Start</td>
+</tr>
+<tr>
+<td>AMK99662_spans_start_19_60_ABC</td>
+<td>A</td>
+<td>B</td>
+<td>C</td>
+<td>ABC</td>
+<td>Yes</td>
+<td>No</td>
+<td>Start</td>
+</tr>
+<tr>
+<td>AMK99662_21_60_ABC</td>
+<td>A</td>
+<td>B</td>
+<td>C</td>
+<td>ABC</td>
+<td>No</td>
+<td>No</td>
+<td>Neither</td>
+</tr>
+<tr>
+<td>AMK99662_spans_end_40_80_ABC</td>
+<td>A</td>
+<td>B</td>
+<td>C</td>
+<td>ABC</td>
+<td>No</td>
+<td>Yes</td>
+<td>End</td>
+</tr>
+<tr>
+<td>AMK99662_spans_end_40_81_ABC</td>
+<td>A</td>
+<td>B</td>
+<td>C</td>
+<td>ABC</td>
+<td>No</td>
+<td>Yes</td>
+<td>End</td>
+</tr>
+<tr>
+<td>AMK99662_40_79_ABC</td>
+<td>A</td>
+<td>B</td>
+<td>C</td>
+<td>ABC</td>
+<td>No</td>
+<td>No</td>
+<td>Neither</td>
+</tr>
+<tr>
+<td>AMK99662_spans_both_20_80_ABC</td>
+<td>A</td>
+<td>B</td>
+<td>C</td>
+<td>ABC</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Both</td>
+</tr>
+<tr>
+<td>AMK99662_spans_both_19_81_ABC</td>
+<td>A</td>
+<td>B</td>
+<td>C</td>
+<td>ABC</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Both</td>
+</tr>
+<tr>
+<td>AMK99662_21_79_ABC</td>
+<td>A</td>
+<td>B</td>
+<td>C</td>
+<td>ABC</td>
+<td>No</td>
+<td>No</td>
+<td>Neither</td>
+</tr>
+<tr>
+<td>AMK99662_full_length_ABC</td>
+<td>A</td>
+<td>B</td>
+<td>C</td>
+<td>ABC</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Both</td>
+</tr>
+<tr>
+<td>AMK99662_real_seq_ABC</td>
+<td>A</td>
+<td>B</td>
+<td>C</td>
+<td>ABC</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Both</td>
+</tr>
+<tr>
+<td>AMK99662_full_length_extra_ABC</td>
+<td>A</td>
+<td>B</td>
+<td>C</td>
+<td>ABC</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Both</td>
+</tr>
+</tbody>
+</table>
+<p><br></p>
+<ul>
+<li>This run checked for a region of interest as well as the key positions 50, 52, and 54.</li>
+<li><code>spans_start</code>: can be one of <code>Yes</code>, <code>No</code>, or <code>NA</code>.</li>
+<li><code>spans_end</code>: can be one of <code>Yes</code>, <code>No</code>, or <code>NA</code>.</li>
+<li><code>spans</code>: will be one of <code>Neither</code>, <code>Start</code>, <code>End</code>, or <code>Both</code> based on the values in <code>spans_start</code> and <code>spans_end</code></li>
+</ul>
+<h2 id="region-of-interest">Region of interest</h2>
+<p>The <code>pasv</code> program can optionally check that query sequences span a given region of interest.</p>
+<p>You provide the start and end positions with respect to the key reference, and the program will check whether each query spans the start, spans the end, or spans both start and end.</p>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../bibliography/" class="btn btn-neutral float-right" title="Bibliography">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../pasv-use-cases/" class="btn btn-neutral" title="PASV Use Cases"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+          <a href="https://github.com/mooreryan/pasv/" class="fa fa-github" style="float: left; color: #fcfcfc"> GitHub</a>
+      
+      
+        <span><a href="../pasv-use-cases/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../bibliography/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme.js" defer></script>
+      <script src="../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>
