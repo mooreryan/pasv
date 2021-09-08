@@ -7,3 +7,6 @@ _*
 !_docs
 !_docs_src
 !_scripts
+
+# Outdir for a bunch of examples.
+_examples/*/apple
