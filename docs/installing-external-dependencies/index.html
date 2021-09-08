@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <meta name="author" content="Ryan Moore">
+  <link rel="canonical" href="https://mooreryan.github.io/pasv/installing-external-dependencies/">
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>Installing External Software Dependencies - PASV -- Protein Active Site Validation</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700" />
+
+  <link rel="stylesheet" href="../css/theme.css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Installing External Software Dependencies";
+    var mkdocs_page_input_path = "installing-external-dependencies.md";
+    var mkdocs_page_url = "/pasv/installing-external-dependencies/";
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  
+
+  
+    
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+<meta property="og:site_name" content="Installing External Software Dependencies - PASV -- Protein Active Site Validation" />
+
+<meta property="og:type" content="website">
+
+<meta property="og:title" content="Installing External Software Dependencies - PASV -- Protein Active Site Validation">
+
+<meta property="description" content="Documentation for installing and using PASV, a program for post-homology search validation and partitioning of sequences by specific residues (active sites, conserved residues, etc).">
+<meta property="og:description" content="Documentation for installing and using PASV, a program for post-homology search validation and partitioning of sequences by specific residues (active sites, conserved residues, etc).">
+<meta name="twitter:description" content="Documentation for installing and using PASV, a program for post-homology search validation and partitioning of sequences by specific residues (active sites, conserved residues, etc).">
+
+<meta property="og:url" content="https://mooreryan.github.io/pasv/installing-external-dependencies/">
+
+<meta property="og:locale" content="en_US">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Installing External Software Dependencies - PASV -- Protein Active Site Validation">
+
+  
+
+  
+
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+        <a href=".." class="icon icon-home"> PASV -- Protein Active Site Validation</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="..">PASV</a>
+                    </li>
+                </ul>
+                <p class="caption"><span class="caption-text">Overview</span></p>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../getting-started/">Getting Started</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../pasv-use-cases/">PASV Use Cases</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../jargon/">Definitions & Jargon</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../bibliography/">Bibliography</a>
+                    </li>
+                </ul>
+                <p class="caption"><span class="caption-text">Installation</span></p>
+                <ul class="current">
+                    <li class="toctree-l1 current"><a class="reference internal current" href="./">Installing External Software Dependencies</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#example-installation-instructions">Example installation instructions</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#clustal-omega-linux">Clustal Omega (Linux)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#clustal-omega-mac">Clustal Omega (Mac)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#mafft">MAFFT</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#hmmer">HMMER</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../installing-precompiled-binaries/">Installing Precompiled Binaries</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../installing-with-docker/">Installing With Docker</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../installing-from-source/">Installing From Source</a>
+                    </li>
+                </ul>
+                <p class="caption"><span class="caption-text">Usage</span></p>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../cli/">Command Line Interface</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../pasv-output/">PASV Output</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../picking-refs-and-residues/">Picking References and Residues</a>
+                    </li>
+                </ul>
+                <p class="caption"><span class="caption-text">Examples</span></p>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../tons-of-examples/">Tons of Examples</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../examples/pasv-check/">pasv-check</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../examples/pasv-hmm/">pasv-hmm</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../examples/pasv-msa/">pasv-msa</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../examples/pasv-select/">pasv-select</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../examples/aox_ptox/">AOX/PTOX Example</a>
+                    </li>
+                </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="..">PASV -- Protein Active Site Validation</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="..">Docs</a> &raquo;</li>
+    
+      
+        
+          <li>Installation &raquo;</li>
+        
+      
+    
+    <li>Installing External Software Dependencies</li>
+    <li class="wy-breadcrumbs-aside">
+      
+        <a href="https://github.com/mooreryan/pasv/edit/master/docs_src/src/installing-external-dependencies.md"
+          class="icon icon-github"> Edit on GitHub</a>
+      
+    </li>
+  </ul>
+  
+  <hr/>
+</div>
+
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="installing-external-dependencies">Installing External Dependencies</h1>
+<p>PASV relies on a few other software packages to align sequences.</p>
+<p>Currently, PASV supports  <a href="http://www.clustal.org/omega/">Clustal Omega</a>, <a href="https://mafft.cbrc.jp/alignment/software/">MAAFT</a>, or <a href="http://hmmer.org/">HMMER</a>.</p>
+<p>For detailed instructions on installing these packages, please consult their respective installation pages.</p>
+<h2 id="example-installation-instructions">Example installation instructions</h2>
+<p>Here are some basic instructions for installing the required software on the latest versions of MacOS and Ubuntu Linux.</p>
+<p><em>Note: These instructions are taken from on of the <a href="../todo/">GitHub actions that builds and tests PASV</a>, so if it is <a href="../todo/">passing</a> then these instructions should still work if you have a similar OS.</em></p>
+<h3 id="clustal-omega-linux">Clustal Omega (Linux)</h3>
+<pre><code>mkdir -p $HOME/.local/bin
+CLUSTALO_EXE=$HOME/.local/bin/clustalo
+\curl -L http://www.clustal.org/omega/clustalo-1.2.4-Ubuntu-x86_64 &gt; &quot;$CLUSTALO_EXE&quot;
+chmod 755 &quot;$CLUSTALO_EXE&quot;
+</code></pre>
+<h3 id="clustal-omega-mac">Clustal Omega (Mac)</h3>
+<p>Note that Clustal Omega 1.2.4 is not available on MacOS.</p>
+<pre><code>mkdir -p $HOME/.local/bin
+CLUSTALO_EXE=$HOME/.local/bin/clustalo
+\curl -L http://www.clustal.org/omega/clustal-omega-1.2.3-macosx &gt; &quot;$CLUSTALO_EXE&quot;
+chmod 755 &quot;$CLUSTALO_EXE&quot;
+</code></pre>
+<h3 id="mafft">MAFFT</h3>
+<pre><code>\curl -L https://mafft.cbrc.jp/alignment/software/mafft-7.481-without-extensions-src.tgz \
+  | tar xz
+cd mafft-*/core/ &amp;&amp; make clean &amp;&amp; make &amp;&amp; sudo make install
+</code></pre>
+<h3 id="hmmer">HMMER</h3>
+<pre><code>\curl -L http://eddylab.org/software/hmmer/hmmer-3.3.2.tar.gz | tar xz
+cd hmmer-3.3.2 &amp;&amp; ./configure &amp;&amp; make &amp;&amp; sudo make install
+</code></pre>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../installing-precompiled-binaries/" class="btn btn-neutral float-right" title="Installing Precompiled Binaries">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../bibliography/" class="btn btn-neutral" title="Bibliography"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/mooreryan/pasv/" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../bibliography/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../installing-precompiled-binaries/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme_extra.js" defer></script>
+    <script src="../js/theme.js" defer></script>
+      <script src="../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <meta name="author" content="Ryan Moore">
+  <link rel="canonical" href="https://mooreryan.github.io/pasv/picking-refs-and-residues/">
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>Picking References and Residues - PASV -- Protein Active Site Validation</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700" />
+
+  <link rel="stylesheet" href="../css/theme.css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Picking References and Residues";
+    var mkdocs_page_input_path = "picking-refs-and-residues.md";
+    var mkdocs_page_url = "/pasv/picking-refs-and-residues/";
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  
+
+  
+    
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+<meta property="og:site_name" content="Picking References and Residues - PASV -- Protein Active Site Validation" />
+
+<meta property="og:type" content="website">
+
+<meta property="og:title" content="Picking References and Residues - PASV -- Protein Active Site Validation">
+
+<meta property="description" content="Documentation for installing and using PASV, a program for post-homology search validation and partitioning of sequences by specific residues (active sites, conserved residues, etc).">
+<meta property="og:description" content="Documentation for installing and using PASV, a program for post-homology search validation and partitioning of sequences by specific residues (active sites, conserved residues, etc).">
+<meta name="twitter:description" content="Documentation for installing and using PASV, a program for post-homology search validation and partitioning of sequences by specific residues (active sites, conserved residues, etc).">
+
+<meta property="og:url" content="https://mooreryan.github.io/pasv/picking-refs-and-residues/">
+
+<meta property="og:locale" content="en_US">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Picking References and Residues - PASV -- Protein Active Site Validation">
+
+  
+
+  
+
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+        <a href=".." class="icon icon-home"> PASV -- Protein Active Site Validation</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="..">PASV</a>
+                    </li>
+                </ul>
+                <p class="caption"><span class="caption-text">Overview</span></p>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../getting-started/">Getting Started</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../pasv-use-cases/">PASV Use Cases</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../jargon/">Definitions & Jargon</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../bibliography/">Bibliography</a>
+                    </li>
+                </ul>
+                <p class="caption"><span class="caption-text">Installation</span></p>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../installing-external-dependencies/">Installing External Software Dependencies</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../installing-precompiled-binaries/">Installing Precompiled Binaries</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../installing-with-docker/">Installing With Docker</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../installing-from-source/">Installing From Source</a>
+                    </li>
+                </ul>
+                <p class="caption"><span class="caption-text">Usage</span></p>
+                <ul class="current">
+                    <li class="toctree-l1"><a class="reference internal" href="../cli/">Command Line Interface</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../pasv-output/">PASV Output</a>
+                    </li>
+                    <li class="toctree-l1 current"><a class="reference internal current" href="./">Picking References and Residues</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#references">References</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#for-msa-mode">For MSA mode</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#for-hmm-mode">For HMM mode</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#residuespositions">Residues/Positions</a>
+    </li>
+    </ul>
+                    </li>
+                </ul>
+                <p class="caption"><span class="caption-text">Examples</span></p>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../tons-of-examples/">Tons of Examples</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../examples/pasv-check/">pasv-check</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../examples/pasv-hmm/">pasv-hmm</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../examples/pasv-msa/">pasv-msa</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../examples/pasv-select/">pasv-select</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../examples/aox_ptox/">AOX/PTOX Example</a>
+                    </li>
+                </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="..">PASV -- Protein Active Site Validation</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="..">Docs</a> &raquo;</li>
+    
+      
+        
+          <li>Usage &raquo;</li>
+        
+      
+    
+    <li>Picking References and Residues</li>
+    <li class="wy-breadcrumbs-aside">
+      
+        <a href="https://github.com/mooreryan/pasv/edit/master/docs_src/src/picking-refs-and-residues.md"
+          class="icon icon-github"> Edit on GitHub</a>
+      
+    </li>
+  </ul>
+  
+  <hr/>
+</div>
+
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="picking-key-references-and-residue-positions">Picking Key References and Residue Positions</h1>
+<h2 id="references">References</h2>
+<h3 id="for-msa-mode">For MSA mode</h3>
+<p>The PASV manuscript goes in to a <em>lot</em> of detail about best practices for picking reference sequences for your gene of interest.  If you want the details check out the paper :)</p>
+<p>For example, for ribonucleotide reductase (RNR) sequences, I got a bunch of annotated sequences from the RNRdb, hand validated them, and then tested a BUNCH of ways of picking references sequences from among them.  For Clustal Omega, most randomly chosen reference sets worked pretty well, but there were a couple of points to keep in mind when making a reference set for your protein of interest.</p>
+<p>Mainly it boils down to just a couple of important points:</p>
+<ul>
+<li>Select between 10 and 20 sequences if possible.</li>
+<li>Select sequences that align well with each other.</li>
+<li>Select full length protein sequences (as opposed to partial sequences).</li>
+</ul>
+<h3 id="for-hmm-mode">For HMM mode</h3>
+<p>This part of the documentation isn't finished yet :)</p>
+<h2 id="residuespositions">Residues/Positions</h2>
+<p>The manuscript goes into a lot of detail about this as well, so I encourage you check it out :)</p>
+<p>Here's the TL;DR:</p>
+<ul>
+<li>Pick residues that are important to protein function.</li>
+<li>Pick residues that have been biochemically characterized.</li>
+<li>Pick residues that are invariant (or at least highly conserved).</li>
+</ul>
+<p>If your lucky, you will find a small set of residues that will satisfy all these conditions!</p>
+<p>For example, in RNR, there are certain residues key to proper protein function.  So if there are point mutations in the key residues, then we have some pretty good evidence that the sequence represents a non-functional RNR (or some other protein entirely).  Again, see the manuscript for more info about this.</p>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../tons-of-examples/" class="btn btn-neutral float-right" title="Tons of Examples">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../pasv-output/" class="btn btn-neutral" title="PASV Output"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/mooreryan/pasv/" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../pasv-output/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../tons-of-examples/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme_extra.js" defer></script>
+    <script src="../js/theme.js" defer></script>
+      <script src="../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>
