@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# All paths references from the root of the project.
+
+[ -f /tmp/PASV_PATCH ] && rm /tmp/PASV_PATCH
+
+./_scripts/build_helpers/make_patch \
+    ./bin/dune \
+    ./_scripts/build_helpers/bin_dune_static \
+    > /tmp/PASV_PATCH
+
+# Applies the patch for static linking.
+patch -p1 < /tmp/PASV_PATCH
+
+make install
+
+# Reverts back to how it was.
+patch -p1 -R < /tmp/PASV_PATCH
+
+[ -f /tmp/PASV_PATCH ] && rm /tmp/PASV_PATCH
