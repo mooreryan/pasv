@@ -1,4 +1,4 @@
-name: Build and Test Ttatic
+name: Build and Test Static
 
 on:
   push:
