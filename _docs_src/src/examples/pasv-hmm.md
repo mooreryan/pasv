@@ -1,6 +1,6 @@
 # Examples: pasv-hmm
 
-`pasv-hmm` is one of three `pasv` commands used to check residues in query sequences with respect to a [reference set](./todo.md) and a [key reference sequence](./todo.md).
+`pasv-hmm` is one of three `pasv` commands used to check residues in query sequences with respect to a [reference set](../jargon#references-reference-sequences) and a [key reference sequence](../jargon#key-reference-sequences-positions-residues).
 
 *Note: for a lot more examples of using this and other `pasv` commands, see [here](./tons-of-examples.md).*
 
@@ -68,13 +68,13 @@ The output file will be `apple/amk_queries.pasv_signatures.tsv`.  Here are the c
 
 <br>
 
-For a detailed explanation of this file's format, see [here](./todo.md).
+For a detailed explanation of this file's format, see [here](../pasv-output.md).
 
 One thing to note is that there are a lot of `NA` values present in the output.  This is because we didn't provide a region of interest.  Let's see how to do that.
 
 ## With region of interest
 
-You can also use `pasv` to check if query sequences span a [region of interest](./todo.md) with respect to the key reference sequence.
+You can also use `pasv` to check if query sequences span a [region of interest](../jargon#region-of-interest.md) with respect to the key reference sequence.
 
 ```
 # Clean up outdir if it exists.

@@ -28,11 +28,9 @@ For full CLI usage info, run `pasv check --help`.
 
 ## hmm
 
-Use `pasv hmm` when you want to use HMM alignments.  In this mode, PASV uses the `hmmalign` program of [HMMER](./todo.md) to compute sequence alignments.
+Use `pasv hmm` when you want to use HMM alignments.  In this mode, PASV uses the `hmmalign` program of [HMMER](http://hmmer.org/) to compute sequence alignments.
 
 The key reference sequence and all queries are aligned together against the reference HMM.
-
-TODO show how to generate the HMM
 
 ### Required arguments
 
@@ -44,6 +42,18 @@ TODO show how to generate the HMM
 * [key residues positions](jargon.md#key-reference-sequences-positions-residues): a comma-separated list of key positions to check
 
 For full CLI usage info, run `pasv hmm --help`.
+
+### Reference HMM
+
+The references should be an HMM as output by `hmmbuild` (or at least a program that generates compatible HMMs that can be used with HMMER and `hmmalign`).
+
+The [HMMER user guide](http://eddylab.org/software/hmmer/Userguide.pdf) has detailed instructions on building HMMs, but the basic incantation for doing it is something like this:
+
+```
+$ hmmbuild [-options] <hmmfile_out> <msafile>
+```
+
+The HMM file output by this command is used as input to `pasv-hmm`.
 
 ## msa
 
@@ -78,7 +88,5 @@ This is provided for parsing convenience.  You can always parse the signatures f
 * [signatures](jargon.md#signatures-signature-files): a comma-separated list of key positions to check
 
 The signatures can be provided as fixed strings or regular expressions.
-
-TODO examples
 
 For full CLI usage info, run `pasv select --help`.

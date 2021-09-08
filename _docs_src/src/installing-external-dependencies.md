@@ -10,7 +10,7 @@ For detailed instructions on installing these packages, please consult their res
 
 Here are some basic instructions for installing the required software on the latest versions of MacOS and Ubuntu Linux.
 
-*Note: These instructions are taken from on of the [GitHub actions that builds and tests PASV](TODO), so if it is [passing](TODO) then these instructions should still work if you have a similar OS.*
+*Note: These instructions are taken from on of the [GitHub actions that builds and tests PASV](./todo.md), so if it is [passing](./todo.md) then these instructions should still work if you have a similar OS.*
 
 ### Clustal Omega (Linux)
 

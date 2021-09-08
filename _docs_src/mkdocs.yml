@@ -18,6 +18,7 @@ nav:
     - Installing From Source: installing-from-source.md
   - Usage:
     - Command Line Interface: cli.md
+    - PASV Output: pasv-output.md
     - Picking References and Residues: picking-refs-and-residues.md
   - Examples:
     - Tons of Examples: tons-of-examples.md

@@ -2,7 +2,7 @@
 
 Of the three commands for checking residues, `pasv-check` is the simplest.
 
-It takes two input files: a multiple sequence alignment file in fasta format, and a comma separated list of [key residue positions](./todo.md) to check.
+It takes two input files: a multiple sequence alignment file in fasta format, and a comma separated list of [key residue positions](../jargon#key-reference-sequences-positions-residues) to check.
 
 *Note: for a lot more examples of using this and other `pasv` commands, see [here](./tons-of-examples.md).*
 
@@ -12,7 +12,7 @@ It takes two input files: a multiple sequence alignment file in fasta format, an
 
 A multiple sequence alignment in fasta format.
 
-The first sequence in the alignment file is treated as the [key reference sequence](./todo.md).
+The first sequence in the alignment file is treated as the [key reference sequence](../jargon#key-reference-sequences-positions-residues).
 
 ## Set up environment variables
 
@@ -62,13 +62,13 @@ The output file will be here: `"${OUTDIR}/aln.pasv_signatures.tsv"`.  Here are t
 | AMK99662_real_seq_ABC          | A      | B      | C      | ABC       | NA          | NA        | NA    |
 | AMK99662_full_length_extra_ABC | A      | B      | C      | ABC       | NA          | NA        | NA    |
 
-For a detailed explanation of this file's format, see [here](./todo.md).
+For a detailed explanation of this file's format, see [here](../pasv-output.md).
 
 One thing to note is that there are a lot of `NA` values present in the output.  This is because we didn't provide a region of interest.  Let's see how to do that.
 
 ## With region of interest
 
-You can also use `pasv` to check if query sequences span a [region of interest](./todo.md) with respect to the key reference sequence.
+You can also use `pasv` to check if query sequences span a [region of interest](../jargon#region-of-interest.md) with respect to the key reference sequence.
 
 ```
 # Clean up outdir if it exists.

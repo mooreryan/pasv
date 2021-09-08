@@ -22,7 +22,7 @@ PASV in all caps is the acronym for protein active site validation.  It's both t
 
 These are the sequences you are interested in.  Often these will be metagenomic sequences, or sequences output from homology search.
 
-`pasv` will assign a signature to each query sequence based on the [residues](todo) it has at the specified [key positions](todo).
+`pasv` will assign a signature to each query sequence based on the [residues](#key-reference-sequences-positions-residues) it has at the specified [key positions](#key-reference-sequences-positions-residues).
 
 ## References & reference sequences
 
