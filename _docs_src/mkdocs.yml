@@ -8,7 +8,7 @@ nav:
   - PASV: index.md
   - Overview:
     - Getting Started: getting-started.md
-    - Why use PASV: why-use-pasv.md
+    - PASV Use Cases: pasv-use-cases.md
     - Definitions & Jargon: jargon.md
     - Bibliography: bibliography.md
   - Installation:
@@ -21,20 +21,11 @@ nav:
     - Picking References and Residues: picking-refs-and-residues.md
   - Examples:
     - Tons of Examples: tons-of-examples.md
-    - Using pasv-check: examples/pasv-check.md
-    - Using pasv-hmm: examples/pasv-hmm.md
-    - Using pasv-msa: examples/pasv-msa.md
-    - Using pasv-select: examples/pasv-select.md
-
-  # - Getting Started:
-  #   - Installation: installation.md
-  #   - Usage: usage.md
-  #   - Just Enough Git: git.md
-  # - Examples & Tutorials:
-  #   - Overview: tutorials/overview.md
-  #   - Basic usage: tutorials/basic_usage.md
-  #   - Correcting failed actions: tutorials/correcting_failed_actions.md
-  #   - Ignoring actions: tutorials/ignoring_actions.md
+    - pasv-check: examples/pasv-check.md
+    - pasv-hmm: examples/pasv-hmm.md
+    - pasv-msa: examples/pasv-msa.md
+    - pasv-select: examples/pasv-select.md
+    - AOX/PTOX Example: examples/aox_ptox.md
 theme:
   name: readthedocs
   custom_dir: custom_theme
