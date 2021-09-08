@@ -35,4 +35,4 @@ markdown_extensions:
   - toc:
       separator: "-"
 docs_dir: src
-site_dir: ../docs
+site_dir: ../_docs

@@ -4,7 +4,6 @@ _*
 # Un-ignore a couple of them
 !_assets
 !_examples
-!_docs
 !_docs_src
 !_scripts
 
