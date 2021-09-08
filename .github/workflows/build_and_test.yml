@@ -72,7 +72,13 @@ jobs:
           dune-cache: true
           cache-prefix: v1-${{ matrix.os }}
 
-      - run: opam install . --deps-only --with-doc --with-test
+      - name: Install OCaml deps (Ubuntu)
+        run: opam install . --deps-only --with-doc --with-test
+        if: matrix.os == 'ubuntu-latest'
+
+      - name: Install OCaml deps (MacOS)
+        run: opam install . --jobs 1 --deps-only --with-doc --with-test
+        if: matrix.os == 'macos-latest'
 
       - name: Build (Ubuntu)
         run: opam exec -- make build
