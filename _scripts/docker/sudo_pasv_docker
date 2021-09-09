@@ -1,9 +1,0 @@
-#!/bin/bash
-
-sudo docker run \
-  --rm \
-  -v $(pwd):$(pwd) \
-  -w $(pwd) \
-  --user $(id -u):$(id -g) \
-  ghcr.io/mooreryan/pasv:2.0.0-alpha.4-07691fd \
-  "$@"
