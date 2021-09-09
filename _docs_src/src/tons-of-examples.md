@@ -6,6 +6,6 @@ With in the test directory, there are three directories, `slow`, `medium`, and `
 
 Each `run.t` file exercises a specific aspect of using the `pasv` command line app.  The nice part about `run.t` files is that they are written as sort of "pseudo" bash scripts.  Any thing starting with a `$` is run in a sandboxed environment.  Everything else are comments describing what is going on.
 
-The other cool thing is that each of these examples is tested under [continuous integration](./todo.md).  This means that any example that works will work with the latest version of `pasv` and any example that should fail will *not* work with the latest version of `pasv`.
+The other cool thing is that each of these examples is tested under [continuous integration](https://github.com/mooreryan/pasv/actions).  This means that any example that works will work with the latest version of `pasv` and any example that should fail will *not* work with the latest version of `pasv`.
 
 Because of these two aspects, you can consider the `run.t` examples a kind of spec on `pasv` CLI usage.
