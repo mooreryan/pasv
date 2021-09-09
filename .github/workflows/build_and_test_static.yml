@@ -23,7 +23,8 @@ jobs:
         with:
           submodules: recursive
 
-      - run: opam exec -- ./_scripts/build_helpers/build_and_test_static
+      - run: OCAMLPARAM=_,ccopt=-static opam exec -- make test
+      - run: OCAMLPARAM=_,ccopt=-static opam exec -- make install
 
       - name: Upload the build artifact
         uses: actions/upload-artifact@v2
