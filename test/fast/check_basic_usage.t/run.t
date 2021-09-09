@@ -210,4 +210,4 @@ ROI end isn't a string
 Check version.
 
   $ pasv check --version
-  2.0.0-alpha
+  2.0.0
