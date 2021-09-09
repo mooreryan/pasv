@@ -10,7 +10,7 @@ Version 2 is easier to install and lets you use different methods for checking r
 
 ## Installation
 
-The easiest way to start using PASV is probably by using one of the [Docker images](./todo.md).  It comes with everything you need to run PASV, including all external dependencies.  If you are a Windows user, this is currently your only way to use PASV.
+The easiest way to start using PASV is probably by using one of the [Docker images](./installing-with-docker.md).  It comes with everything you need to run PASV, including all external dependencies.  If you are a Windows user, this is currently your only way to use PASV.
 
 Installing PASV is also easy if you use one of the [precompiled binaries](./installing-precompiled-binaries.md).  This is actually the easier option if you already have one of [Clustal Omega](http://www.clustal.org/omega/), [MAAFT](https://mafft.cbrc.jp/alignment/software/), or [HMMER](http://hmmer.org/) installed.
 
