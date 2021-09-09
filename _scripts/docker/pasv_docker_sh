@@ -6,5 +6,5 @@ docker run \
   -w $(pwd) \
   --user $(id -u):$(id -g) \
   --entrypoint /bin/sh \
-  ghcr.io/mooreryan/pasv:2.0.0-alpha.4-98a7d21 \
+  ghcr.io/mooreryan/pasv:2.0.0-alpha.4-07691fd \
   "$@"
