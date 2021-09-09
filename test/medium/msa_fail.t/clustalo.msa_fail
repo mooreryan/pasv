@@ -1,4 +1,8 @@
 #!/bin/bash
 
-printf "a bad thing happened...\n" 1>&2
-exit 47
+if [ "${1}" = "--version" ]; then
+    exit 0
+else
+    printf "a bad thing happened...\n" 1>&2
+    exit 47
+fi

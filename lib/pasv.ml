@@ -364,10 +364,11 @@ module Hmm = struct
 
   let run (common_opts : common_opts) (opts : opts) =
     Logger.set_printer prerr_endline;
-    U.make_outdir_or_exit common_opts.outdir common_opts.force;
     U.assert_looks_like_hmm_file_or_exit opts.references;
     U.assert_looks_like_fasta_file_or_exit opts.queries;
     U.assert_looks_like_fasta_file_or_exit opts.key_reference;
+    Runners.Hmmalign.assert_program_good_or_exit opts.hmmalign;
+    U.make_outdir_or_exit common_opts.outdir common_opts.force;
     let hmmalign_filename =
       make_aln_filename ~infile:opts.queries ~outdir:common_opts.outdir
     in
@@ -548,6 +549,7 @@ module Msa = struct
     Logger.set_printer prerr_endline;
     U.assert_looks_like_fasta_file_or_exit opts.references;
     U.assert_looks_like_fasta_file_or_exit opts.queries;
+    Runners.Msa.assert_program_good_or_exit opts.aligner;
     let opts =
       match fix_aln_params opts with
       | Ok opts -> opts

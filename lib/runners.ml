@@ -4,10 +4,29 @@ open Little_logger
 (* Note: some of these have type annotations to help Merlin out with making the
    inferred types look nicer. *)
 
+let assert_program_good_or_exit name_or_path cmd =
+  (* TODO it would be nice to give the user a more specific reason for the
+     program failing. *)
+  match Unix.Exit_or_signal.or_error @@ Unix.system cmd with
+  | Ok () -> ()
+  | Error err ->
+      Logger.fatal (fun () ->
+          let err_msg = Error.to_string_hum err in
+          [%string
+            "'%{name_or_path}' doesn't look like an executable file.  Is it a \
+             path to an executable file?  If not, is it a command on your \
+             PATH?  Error: %{err_msg}"]);
+      exit 1
+
 module Msa = struct
   open Async
 
   type aligner = Clustalo of string | Mafft of string
+
+  let assert_program_good_or_exit = function
+    | Clustalo name_or_path | Mafft name_or_path ->
+        let cmd = [%string "%{name_or_path} --version >/dev/null 2>&1"] in
+        assert_program_good_or_exit name_or_path cmd
 
   let pp_aligner ppf = function
     | Clustalo path -> Format.fprintf ppf "%s" path
@@ -156,6 +175,10 @@ module Hmmalign = struct
     stderr : string;
     opts : opts;
   }
+
+  let assert_program_good_or_exit name_or_path =
+    let cmd = [%string "%{name_or_path} -h >/dev/null 2>&1"] in
+    assert_program_good_or_exit name_or_path cmd
 
   (* Runs the hmmalign, waits, closes the channels, and returns stuff. *)
   let run opts =

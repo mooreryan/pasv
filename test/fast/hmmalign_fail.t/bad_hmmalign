@@ -1,7 +1,11 @@
 #!/bin/bash
 
-# Make the "expected" outfile
-printf "some stuff\n" > apple/amk_queries.aln.fa
+if [ "${1}" = "-h" ]; then
+    exit 0
+else
+    # Make the "expected" outfile
+    printf "some stuff\n" > apple/amk_queries.aln.fa
 
-printf "a bad thing happened...\n" 1>&2
-exit 47
+    printf "a bad thing happened...\n" 1>&2
+    exit 47
+fi
