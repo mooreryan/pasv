@@ -4,7 +4,7 @@
 
 *Note: If you use Docker, you won't have to install the [external dependencies](./installing-external-dependencies.md) that PASV relies on.  (Other than Docker of course!)*
 
-An easy way to get started with PASV is by using the [Docker image](https://ghcr.io/mooreryan/pasv:2.0.0-alpha.4-98a7d21) we have created.
+An easy way to get started with PASV is by using the [Docker image](ghcr.io/mooreryan/pasv:2.0.0-92a08a1) we have created.
 
 ## Install Docker
 
@@ -12,7 +12,7 @@ First, you will need to [install Docker](https://docs.docker.com/get-docker/) on
 
 ## Run pasv in Docker
 
-Now you can run `pasv` inside of the Docker container.  You can run Docker directly, or use one of the [helper scripts](https://github.com/mooreryan/pasv/tree/master/scripts/docker) that I made.
+Now you can run `pasv` inside of the Docker container.  You can run Docker directly, or use one of the [helper scripts](https://github.com/mooreryan/ocaml_docker_images/tree/main/pasv/pasv/scripts) that I made.
 
 ### Using Docker directly
 
@@ -30,7 +30,7 @@ $ docker run \
 
 ### Using helper scripts
 
-That's a lot to remember to type, so I recommend using one of the [helper scripts](https://github.com/mooreryan/pasv/tree/master/scripts/docker).
+That's a lot to remember to type, so I recommend using one of the [helper scripts](https://github.com/mooreryan/ocaml_docker_images/tree/main/pasv/pasv/scripts).
 
 To "install" the scripts, just download them and put them somewhere on your `PATH`.
 
@@ -44,7 +44,7 @@ When you use the script, you can just replace `pasv` with `pasv_docker` and you 
 
 ### Docker gotchas
 
-There are some things to watch out for with Docker.  Note that if you use the [helper scripts](https://github.com/mooreryan/pasv/tree/master/scripts/docker) rather than running the Docker CLI manually, these will be taken care of for you.
+There are some things to watch out for with Docker.  Note that if you use the [helper scripts](https://github.com/mooreryan/ocaml_docker_images/tree/main/pasv/pasv/scripts) rather than running the Docker CLI manually, these will be taken care of for you.
 
 * Sometimes you need to provide the full path to a file.
 * You need to make sure to mount a volume so the Docker container can read and write files on your hard disk.
