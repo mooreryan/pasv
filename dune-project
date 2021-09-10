@@ -20,9 +20,11 @@
    bio_io
   (bisect_ppx :dev)
    core
+  (core_kernel (= "v0.14.1"))
    cmdliner
    little_logger
    ocaml
    ppx_deriving
    ppx_jane
+  (ppx_optcomp (= "v0.14.2"))
    re2))
