@@ -194,11 +194,11 @@
                 <h1 id="installing-using-pasv-with-docker">Installing &amp; Using PASV with Docker</h1>
 <p><em>Note: If you're using Windows, I think this is your only option.  WSL may work, but I don't have a way to support it right now.</em></p>
 <p><em>Note: If you use Docker, you won't have to install the <a href="../installing-external-dependencies/">external dependencies</a> that PASV relies on.  (Other than Docker of course!)</em></p>
-<p>An easy way to get started with PASV is by using the <a href="https://ghcr.io/mooreryan/pasv:2.0.0-alpha.4-98a7d21">Docker image</a> we have created.</p>
+<p>An easy way to get started with PASV is by using the <a href="ghcr.io/mooreryan/pasv:2.0.0-92a08a1">Docker image</a> we have created.</p>
 <h2 id="install-docker">Install Docker</h2>
 <p>First, you will need to <a href="https://docs.docker.com/get-docker/">install Docker</a> on your computer.</p>
 <h2 id="run-pasv-in-docker">Run pasv in Docker</h2>
-<p>Now you can run <code>pasv</code> inside of the Docker container.  You can run Docker directly, or use one of the <a href="https://github.com/mooreryan/pasv/tree/master/scripts/docker">helper scripts</a> that I made.</p>
+<p>Now you can run <code>pasv</code> inside of the Docker container.  You can run Docker directly, or use one of the <a href="https://github.com/mooreryan/ocaml_docker_images/tree/main/pasv/pasv/scripts">helper scripts</a> that I made.</p>
 <h3 id="using-docker-directly">Using Docker directly</h3>
 <p>You can get the main help screen like this.</p>
 <pre><code>$ docker run \
@@ -210,14 +210,14 @@
     --help
 </code></pre>
 <h3 id="using-helper-scripts">Using helper scripts</h3>
-<p>That's a lot to remember to type, so I recommend using one of the <a href="https://github.com/mooreryan/pasv/tree/master/scripts/docker">helper scripts</a>.</p>
+<p>That's a lot to remember to type, so I recommend using one of the <a href="https://github.com/mooreryan/ocaml_docker_images/tree/main/pasv/pasv/scripts">helper scripts</a>.</p>
 <p>To "install" the scripts, just download them and put them somewhere on your <code>PATH</code>.</p>
 <p>Here's how you get the main help screen.  It does the same thing as above.</p>
 <pre><code>$ pasv_docker --help
 </code></pre>
 <p>When you use the script, you can just replace <code>pasv</code> with <code>pasv_docker</code> and you should be good.</p>
 <h3 id="docker-gotchas">Docker gotchas</h3>
-<p>There are some things to watch out for with Docker.  Note that if you use the <a href="https://github.com/mooreryan/pasv/tree/master/scripts/docker">helper scripts</a> rather than running the Docker CLI manually, these will be taken care of for you.</p>
+<p>There are some things to watch out for with Docker.  Note that if you use the <a href="https://github.com/mooreryan/ocaml_docker_images/tree/main/pasv/pasv/scripts">helper scripts</a> rather than running the Docker CLI manually, these will be taken care of for you.</p>
 <ul>
 <li>Sometimes you need to provide the full path to a file.</li>
 <li>You need to make sure to mount a volume so the Docker container can read and write files on your hard disk.</li>
