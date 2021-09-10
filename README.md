@@ -1,6 +1,6 @@
 # PASV
 
-[![Build and test](https://github.com/mooreryan/pasv/actions/workflows/build_and_test.yml/badge.svg)](https://github.com/mooreryan/pasv/actions/workflows/build_and_test.yml) [![Build and Test Static](https://github.com/mooreryan/pasv/actions/workflows/build_and_test_static.yml/badge.svg)](https://github.com/mooreryan/pasv/actions/workflows/build_and_test_static.yml) [![Generate Docs](https://github.com/mooreryan/pasv/actions/workflows/generate_docs.yml/badge.svg)](https://github.com/mooreryan/pasv/actions/workflows/generate_docs.yml)
+[![Build and Test](https://github.com/mooreryan/pasv/actions/workflows/build_and_test.yml/badge.svg?branch=master)](https://github.com/mooreryan/pasv/actions/workflows/build_and_test.yml) [![Build and Test Static](https://github.com/mooreryan/pasv/actions/workflows/build_and_test_static.yml/badge.svg?branch=master)](https://github.com/mooreryan/pasv/actions/workflows/build_and_test_static.yml) [![Generate Docs](https://github.com/mooreryan/pasv/actions/workflows/generate_docs.yml/badge.svg?branch=master)](https://github.com/mooreryan/pasv/actions/workflows/generate_docs.yml)
 
 [![code on GitHub](https://img.shields.io/badge/code-GitHub-blue)](https://github.com/mooreryan/pasv) [![GitHub issues](https://img.shields.io/github/issues/mooreryan/pasv)](https://github.com/mooreryan/pasv/issues) [![Coverage Status](https://coveralls.io/repos/github/mooreryan/pasv/badge.svg?branch=master)](https://coveralls.io/github/mooreryan/pasv?branch=master)
 
