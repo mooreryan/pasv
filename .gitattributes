@@ -1,5 +1,4 @@
 _assets -linguist-detectable
 _examples -linguist-detectable
-docs -linguist-detectable
-docs_src -linguist-detectable
-tests/*/*/run.t -linguist-detectable
+_docs_src -linguist-detectable
+test/*/*/run.t -linguist-detectable
