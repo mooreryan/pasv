@@ -7,9 +7,6 @@ on:
   pull_request:
     branches:
       - '*'
-  release:
-    types:
-      - '*'
 
 jobs:
   build_and_test_static:
