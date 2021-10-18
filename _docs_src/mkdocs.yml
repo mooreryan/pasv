@@ -1,7 +1,7 @@
 site_name: PASV -- Protein Active Site Validation
 site_url: https://mooreryan.github.io/pasv/
 repo_url: https://github.com/mooreryan/pasv
-edit_uri: edit/master/docs_src/src
+edit_uri: edit/master/_docs_src/src
 site_description: Documentation for installing and using PASV, a program for post-homology search validation and partitioning of sequences by specific residues (active sites, conserved residues, etc).
 site_author: Ryan Moore
 nav:

@@ -5,9 +5,9 @@ synopsis: "pasv -- protein active site validation"
 maintainer: ["Ryan Moore"]
 authors: ["Ryan Moore"]
 license: "MIT"
-homepage: "https://github.com/mooreryan/little_logger"
-doc: "https://github.com/mooreryan/little_logger/wiki"
-bug-reports: "https://github.com/mooreryan/little_logger/issues"
+homepage: "https://github.com/mooreryan/pasv"
+doc: "https://mooreryan.github.io/pasv/"
+bug-reports: "https://github.com/mooreryan/pasv/issues"
 depends: [
   "dune" {>= "2.8"}
   "async"
@@ -38,4 +38,4 @@ build: [
     "@doc" {with-doc}
   ]
 ]
-dev-repo: "git+https://github.com/mooreryan/little_logger.git"
+dev-repo: "git+https://github.com/mooreryan/pasv.git"
