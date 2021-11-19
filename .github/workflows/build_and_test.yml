@@ -9,6 +9,9 @@ on:
     branches:
       - '*'
 
+env:
+  PROGRAM_NAME: pasv
+
 jobs:
   build:
     strategy:
@@ -81,22 +84,6 @@ jobs:
         run: opam update && opam install . --jobs 1 --deps-only --with-doc --with-test
         if: matrix.os == 'macos-latest'
 
-      - name: Build (Ubuntu)
-        run: opam exec -- make build
-        if: matrix.os == 'ubuntu-latest'
-
-      - name: Build (MacOS)
-        run: opam exec -- make build_mac
-        if: matrix.os == 'macos-latest'
-
-      - name: Install (Ubuntu)
-        run: opam exec -- make install
-        if: matrix.os == 'ubuntu-latest'
-
-      - name: Install (MacOS)
-        run: opam exec -- make install_mac
-        if: matrix.os == 'macos-latest'
-
       - name: Test (Ubuntu)
         run: opam exec -- make test
         if: matrix.os == 'ubuntu-latest'
@@ -110,8 +97,16 @@ jobs:
         env:
           COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Build (Ubuntu)
+        run: opam exec -- make build_release
+        if: matrix.os == 'ubuntu-latest'
+
+      - name: Build (MacOS)
+        run: opam exec -- make build_release_mac
+        if: matrix.os == 'macos-latest'
+
       - name: Upload the build artifact
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ matrix.os }}-${{ matrix.ocaml-compiler }}-pasv
-          path: _build/install/default/bin/pasv
+          name: ${{ matrix.os }}-${{ matrix.ocaml-compiler }}-${{ env.PROGRAM_NAME }}
+          path: _build/install/default/bin/${{ env.PROGRAM_NAME }}

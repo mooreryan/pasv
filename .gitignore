@@ -1,6 +1,9 @@
 # Ignore all dirs starting with _
 _*
 
+# Install files
+*.install
+
 # Un-ignore a couple of them
 !_assets
 !_examples

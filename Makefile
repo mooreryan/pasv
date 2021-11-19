@@ -14,11 +14,11 @@ build_mac:
 
 .PHONY: build_release
 build_release:
-	dune build --profile=release
+	dune build -p $(NAME)
 
 .PHONY: build_release_mac
 build_release_mac:
-	dune build -j 1 --profile=release
+	dune build -p $(NAME) -j 1
 
 .PHONY: clean
 clean:
@@ -26,11 +26,11 @@ clean:
 
 .PHONY: install
 install: build_release
-	dune install --profile=release
+	dune install -p $(NAME)
 
 .PHONY: install_mac
 install_mac: build_release_mac
-	dune install -j 1 --profile=release
+	dune install -p $(NAME) -j 1
 
 .PHONY: test_slow
 test_slow: build

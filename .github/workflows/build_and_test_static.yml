@@ -8,6 +8,9 @@ on:
     branches:
       - '*'
 
+env:
+  PROGRAM_NAME: pasv
+
 jobs:
   build_and_test_static:
     runs-on: ubuntu-latest
@@ -21,10 +24,10 @@ jobs:
           submodules: recursive
 
       - run: OCAMLPARAM=_,ccopt=-static opam exec -- make test
-      - run: OCAMLPARAM=_,ccopt=-static opam exec -- make install
+      - run: OCAMLPARAM=_,ccopt=-static opam exec -- make build_release
 
       - name: Upload the build artifact
         uses: actions/upload-artifact@v2
         with:
-          name: alpine-4.12.0-static-pasv
-          path: _build/install/default/bin/pasv
+          name: alpine-4.12.0-static-${{ env.PROGRAM_NAME }}
+          path: _build/install/default/bin/${{ env.PROGRAM_NAME }}
