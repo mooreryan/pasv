@@ -6,7 +6,7 @@
 
 (package
  (name pasv)
- (version 2.0.0-alpha)
+ (version 2.0.1)
  (license "MIT")
  (maintainers "Ryan Moore")
  (authors "Ryan Moore")
