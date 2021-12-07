@@ -594,7 +594,7 @@ module Msa = struct
   let run_wrapper common_opts msa_opts : unit =
     let open Async in
     never_returns
-      (Scheduler.go_main
+      (Scheduler.go_main ~max_num_threads:msa_opts.jobs
          ~main:(fun () ->
            let result = run common_opts msa_opts in
            don't_wait_for

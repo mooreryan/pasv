@@ -238,3 +238,11 @@ You can specify an aligner with a path (clustalo).
   [1]
   $ pasv msa --aligner=$(which clustalo) --outdir="${OUTDIR}" --roi-start="${ROI_START}" --roi-end="${ROI_END}" "${QUERIES}" "${REFS}" "${RESIDUES}"
   $ diff "${EXPECTED_SIGNATURES_WITH_ROI}" "${OUTDIR}/${ACTUAL_SIGNATURES}"
+
+Threads > 50 work.  (This is the typical default max threads for async.)
+
+  $ rm -r "${OUTDIR}" pasv.tmp.* "${ACTUAL_SIGNATURES}" 2> /dev/null
+  [1]
+  $ pasv msa --jobs=51 --aligner=$(which clustalo) --outdir="${OUTDIR}" --roi-start="${ROI_START}" --roi-end="${ROI_END}" "${QUERIES}" "${REFS}" "${RESIDUES}"
+  $ diff "${EXPECTED_SIGNATURES_WITH_ROI}" "${OUTDIR}/${ACTUAL_SIGNATURES}"
+
