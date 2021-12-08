@@ -194,7 +194,7 @@
                 <h1 id="installing-using-pasv-with-docker">Installing &amp; Using PASV with Docker</h1>
 <p><em>Note: If you're using Windows, I think this is your only option.  WSL may work, but I don't have a way to support it right now.</em></p>
 <p><em>Note: If you use Docker, you won't have to install the <a href="../installing-external-dependencies/">external dependencies</a> that PASV relies on.  (Other than Docker of course!)</em></p>
-<p>An easy way to get started with PASV is by using the <a href="ghcr.io/mooreryan/pasv:2.0.0-92a08a1">Docker image</a> we have created.</p>
+<p>An easy way to get started with PASV is by using the <a href="https://github.com/mooreryan/ocaml_docker_images/pkgs/container/pasv">Docker image</a> we have created.</p>
 <h2 id="install-docker">Install Docker</h2>
 <p>First, you will need to <a href="https://docs.docker.com/get-docker/">install Docker</a> on your computer.</p>
 <h2 id="run-pasv-in-docker">Run pasv in Docker</h2>
@@ -206,9 +206,10 @@
     -v $(pwd):$(pwd) \
     -w $(pwd) \
     --user $(id -u):$(id -g) \
-    ghcr.io/mooreryan/pasv:2.0.0-alpha.4-98a7d21 \
+    ghcr.io/mooreryan/pasv:VERSION \
     --help
 </code></pre>
+<p><em>Note: just replace VERSION above with the actual Docker image version, e.g., 2.0.2-7d7713a.</em></p>
 <h3 id="using-helper-scripts">Using helper scripts</h3>
 <p>That's a lot to remember to type, so I recommend using one of the <a href="https://github.com/mooreryan/ocaml_docker_images/tree/main/pasv/pasv/scripts">helper scripts</a>.</p>
 <p>To "install" the scripts, just download them and put them somewhere on your <code>PATH</code>.</p>
