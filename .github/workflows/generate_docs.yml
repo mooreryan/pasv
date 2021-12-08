@@ -24,8 +24,8 @@ jobs:
 
       - name: Commit site changes
         run: |
-          git config --global user.name 'Ryan M. Moore'
-          git config --global user.email 'moorer@udel.edu'
+          git config --global user.name github-actions
+          git config --global user.email github-actions@github.com
           git add docs
           git commit -m "Update docs site"
           git push

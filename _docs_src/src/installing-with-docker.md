@@ -4,7 +4,7 @@
 
 *Note: If you use Docker, you won't have to install the [external dependencies](./installing-external-dependencies.md) that PASV relies on.  (Other than Docker of course!)*
 
-An easy way to get started with PASV is by using the [Docker image](ghcr.io/mooreryan/pasv:2.0.0-92a08a1) we have created.
+An easy way to get started with PASV is by using the [Docker image](https://github.com/mooreryan/ocaml_docker_images/pkgs/container/pasv) we have created.
 
 ## Install Docker
 
@@ -24,9 +24,11 @@ $ docker run \
     -v $(pwd):$(pwd) \
     -w $(pwd) \
     --user $(id -u):$(id -g) \
-    ghcr.io/mooreryan/pasv:2.0.0-alpha.4-98a7d21 \
+    ghcr.io/mooreryan/pasv:VERSION \
     --help
 ```
+
+*Note: just replace VERSION above with the actual Docker image version, e.g., 2.0.2-7d7713a.*
 
 ### Using helper scripts
 
