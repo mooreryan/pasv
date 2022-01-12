@@ -17,7 +17,7 @@
  (synopsis "pasv -- protein active site validation")
  (depends
    async
-   bio_io
+  (bio_io (and (>= "0.3.0") (< "0.4.0")))
   (bisect_ppx :dev)
    core
   (core_kernel (= "v0.14.1"))

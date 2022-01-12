@@ -11,7 +11,7 @@ bug-reports: "https://github.com/mooreryan/pasv/issues"
 depends: [
   "dune" {>= "2.8"}
   "async"
-  "bio_io"
+  "bio_io" {>= "0.3.0" & < "0.4.0"}
   "bisect_ppx" {dev}
   "core"
   "core_kernel" {= "v0.14.1"}
