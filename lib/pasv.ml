@@ -281,12 +281,12 @@ module Check = struct
     let (_ : unit option) = assert_roi_good_or_exit ~roi_start ~roi_end in
     let sig_file_header = make_signature_file_header opts.key_residues in
     match
-      check_alignment ~positions:opts.key_residues
-        ~infile:(Check_alignment.Basic opts.alignment) ~roi_start ~roi_end
+      check_alignment_and_write_signatures
+        (Check_alignment.Basic opts.alignment) ~positions:opts.key_residues
+        ~roi_start ~roi_end ~outfile_header:sig_file_header
+        ~outfile_name:signatures_filename
     with
-    | Ok signatures ->
-        write_signatures ~filename:signatures_filename ~header:sig_file_header
-          signatures
+    | Ok () -> ()
     | Error err ->
         Logger.fatal (fun () ->
             "\n" ^ Error.to_string_hum
@@ -394,13 +394,12 @@ module Hmm = struct
           let (_ : unit option) = assert_roi_good_or_exit ~roi_start ~roi_end in
           let sig_file_header = make_signature_file_header opts.key_residues in
           match
-            check_alignment ~positions:opts.key_residues
-              ~infile:(Check_alignment.With_pasv_refs hmmalign_out.opts.outfile)
-              ~roi_start ~roi_end
+            check_alignment_and_write_signatures
+              (Check_alignment.With_pasv_refs hmmalign_out.opts.outfile)
+              ~positions:opts.key_residues ~roi_start ~roi_end
+              ~outfile_header:sig_file_header ~outfile_name:signatures_filename
           with
-          | Ok signatures ->
-              write_signatures ~filename:signatures_filename
-                ~header:sig_file_header signatures
+          | Ok () -> ()
           | Error err ->
               Logger.fatal (fun () ->
                   "\n" ^ Error.to_string_hum

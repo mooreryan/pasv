@@ -56,10 +56,24 @@ This one outputs "fake" aln file without key reference.
   D, [DATE TIME PID] DEBUG -- Running command: ./success_no_key_ref --outformat=afa -o apple/amk_queries.aln.fa P00582.refs.aln.hmm apple/pasv.tmp.REDACTED.queries.fasta
   F, [DATE TIME PID] FATAL -- 
   ("Error running pasv hmm"
-   ("error in check_alignment"
-    "We didn't find the key ref sequence in 'apple/amk_queries.aln.fa'"))
+   "We didn't find the key ref sequence in 'apple/amk_queries.aln.fa'")
 
 This one outputs "fake" aln file with zero length query seq.
+
+  $ rm -r "${OUTDIR}" pasv.tmp.* "${ACTUAL_SIGNATURES}" 2> /dev/null
+  [1]
+  $ pasv hmm -vv --hmmalign=./success_zero_len_seqs --outdir="${OUTDIR}" "${QUERIES}" "${REFS}" "${MAIN_REF}" 1,2 2> err
+  [1]
+  $ "${SANITIZE_LOGS}" err
+  D, [DATE TIME PID] DEBUG -- Running command: ./success_zero_len_seqs --outformat=afa -o apple/amk_queries.aln.fa P00582.refs.aln.hmm apple/pasv.tmp.REDACTED.queries.fasta
+  F, [DATE TIME PID] FATAL -- 
+  ("Error running pasv hmm"
+   ("Error in parse_alignment_file_with_pasv_refs_GOOD"
+    ("Caught exception"
+     (lib/check_alignment.ml.Bad_aln_length
+      "Seq num: 2, Expected length: 4, Actual length: 0"))))
+
+This one has residues that are out of bounds for the queries and main ref.
 
   $ rm -r "${OUTDIR}" pasv.tmp.* "${ACTUAL_SIGNATURES}" 2> /dev/null
   [1]
@@ -69,21 +83,20 @@ This one outputs "fake" aln file with zero length query seq.
   D, [DATE TIME PID] DEBUG -- Running command: ./success_zero_len_seqs --outformat=afa -o apple/amk_queries.aln.fa P00582.refs.aln.hmm apple/pasv.tmp.REDACTED.queries.fasta
   F, [DATE TIME PID] FATAL -- 
   ("Error running pasv hmm"
-   ("error in check_alignment"
-    ("Error parsing alignment"
-     (lib/check_alignment.ml.Bad_aln_length
-      "Seq num: 2, Expected length: 4, Actual length: 0"))))
+   ("Error in parse_alignment_file_with_pasv_refs_GOOD"
+    ("Caught exception"
+     ("The zero-indexed raw position does not have an in zero-indexed alignment position map.  Check the residues...are they out of bounds?"
+      ("key not found" 49) ("key not found" 51) ("key not found" 53)))))
 
 This one outputs "fake" aln file with no queries, just key seqs.
 
   $ rm -r "${OUTDIR}" pasv.tmp.* "${ACTUAL_SIGNATURES}" 2> /dev/null
   [1]
-  $ pasv hmm -vv --hmmalign=./success_only_key_seqs --outdir="${OUTDIR}" "${QUERIES}" "${REFS}" "${MAIN_REF}" "${RESIDUES}" 2> err
+  $ pasv hmm -vv --hmmalign=./success_only_key_seqs --outdir="${OUTDIR}" "${QUERIES}" "${REFS}" "${MAIN_REF}" 1,2 2> err
   [1]
   $ "${SANITIZE_LOGS}" err
   D, [DATE TIME PID] DEBUG -- Running command: ./success_only_key_seqs --outformat=afa -o apple/amk_queries.aln.fa P00582.refs.aln.hmm apple/pasv.tmp.REDACTED.queries.fasta
   F, [DATE TIME PID] FATAL -- 
   ("Error running pasv hmm"
-   ("error in check_alignment"
-    "Should have at least one non-key record in 'apple/amk_queries.aln.fa'"))
+   "There were no queries in 'apple/amk_queries.aln.fa'")
 

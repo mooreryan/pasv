@@ -64,9 +64,10 @@ Actually parsing residues that are too high.
   $ "${SANITIZE_LOGS}" err
   F, [DATE TIME PID] FATAL -- 
   ("Error running pasv hmm"
-   ("error in check_alignment"
-    ("The zero-indexed raw position does not have an in zero-indexed alignment position map.  Check the residues...are they out of bounds?"
-     ("key not found" 199999))))
+   ("Error in parse_alignment_file_with_pasv_refs_GOOD"
+    ("Caught exception"
+     ("The zero-indexed raw position does not have an in zero-indexed alignment position map.  Check the residues...are they out of bounds?"
+      ("key not found" 199999)))))
 
 #################
 #### Bad ROI ####

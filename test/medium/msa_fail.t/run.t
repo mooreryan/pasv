@@ -328,7 +328,7 @@ This one outputs "fake" aln file with no queries, just key seqs.
   I, [DATE TIME PID] INFO -- Working on query 1
   D, [DATE TIME PID] DEBUG -- Running command: ./clustalo.msa_success_only_key_seqs --threads=1 -i apple/refs_and_query_0.fa -o apple/refs_and_query_0.aln.fa
   E, [DATE TIME PID] ERROR -- ("error in check_alignment"
-   "Should have at least one non-key record in 'apple/refs_and_query_0.aln.fa'")
+   "Should have at least one query record in 'apple/refs_and_query_0.aln.fa'")
   F, [DATE TIME PID] FATAL -- Could not get signatures for any of the queries!
 
 ###############
@@ -563,7 +563,7 @@ This one outputs "fake" aln file with no queries, just key seqs.
   I, [DATE TIME PID] INFO -- Working on query 1
   D, [DATE TIME PID] DEBUG -- Running command: ./mafft.msa_success_only_key_seqs --auto --thread 1 apple/refs_and_query_0.fa
   E, [DATE TIME PID] ERROR -- ("error in check_alignment"
-   "Should have at least one non-key record in 'apple/refs_and_query_0.aln.fa'")
+   "Should have at least one query record in 'apple/refs_and_query_0.aln.fa'")
   F, [DATE TIME PID] FATAL -- Could not get signatures for any of the queries!
 
 ##################################
