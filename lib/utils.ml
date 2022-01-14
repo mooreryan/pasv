@@ -128,3 +128,7 @@ let get_from_end ary i =
 
 let all_true l = List.fold l ~init:true ~f:( && )
 let any_true l = List.fold l ~init:false ~f:( || )
+
+let gap_char = Re2.create_exn "[^a-zA-Z]"
+let is_gap_char c = Re2.matches gap_char (String.of_char c)
+let is_non_gap_char c = not (is_gap_char c)

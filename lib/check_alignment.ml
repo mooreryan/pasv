@@ -1,36 +1,12 @@
 open! Core
 open Mod
 
+(* TODO with the streaming and in-mem versions, this module has gotten a little
+   chaotic. Clean up please :) *)
+
 exception Bad_aln_length of string [@@deriving sexp]
 
-let gap_char = Re2.create_exn "[^a-zA-Z]"
-let is_gap_char c = Re2.matches gap_char (String.of_char c)
-let is_non_gap_char c = not (is_gap_char c)
-
-let make_zero_raw_to_zero_aln_pos_map (aln_rec : Position.aln Record.t) =
-  let _, map =
-    aln_rec |> Record.to_fasta_record |> Bio_io.Fasta_record.seq
-    |> String.to_array
-    |> Array.foldi
-         ~init:
-           (Position.zero_raw_of_int 0, Position.Map_wrt.empty_zero_raw_aln ())
-         ~f:(fun aln_column (seq_position, map) char ->
-           let aln_column = Position.zero_aln_of_int aln_column in
-           if is_gap_char char then (seq_position, map)
-           else
-             ( Position.(seq_position + zero_raw_of_int 1),
-               (* _exn is okay here as new_seq_position is always increasing. *)
-               Position.Map_wrt.add_exn map ~from:seq_position ~to_:aln_column
-               (* Map.add_exn map ~key:seq_position ~data:aln_column *) ))
-  in
-  map
-
-let bad_aln_length_exn seq_i ~expected_len ~actual_len =
-  let i = seq_i + 1 in
-  Bad_aln_length
-    [%string
-      "Seq num: %{i#Int}, Expected length: %{expected_len#Int}, Actual length: \
-       %{actual_len#Int}"]
+type alignment_infile = Basic of string | With_pasv_refs of string
 
 type alignment_file_data = {
   zero_raw_aln_pos_map :
@@ -47,6 +23,53 @@ let empty_alignment_data () =
     alignment_length = 0;
     num_records = 0;
   }
+
+type parse_alignment_state = {
+  unprocessed_query_records : Position.aln Record.t list;
+  expected_len : int;
+  key_ref_seen : bool;
+  roi_start_zero_aln : (Position.zero_indexed, Position.aln) Position.t option;
+  roi_end_zero_aln : (Position.zero_indexed, Position.aln) Position.t option;
+  aln_positions_zero_aln :
+    (Position.zero_indexed, Position.aln) Position.List.t option;
+  num_queries : int;
+}
+
+let init_parse_alignment_state () =
+  {
+    unprocessed_query_records = [];
+    expected_len = 0;
+    key_ref_seen = false;
+    roi_start_zero_aln = None;
+    roi_end_zero_aln = None;
+    aln_positions_zero_aln = None;
+    num_queries = 0;
+  }
+
+let make_zero_raw_to_zero_aln_pos_map (aln_rec : Position.aln Record.t) =
+  let _, map =
+    aln_rec |> Record.to_fasta_record |> Bio_io.Fasta_record.seq
+    |> String.to_array
+    |> Array.foldi
+         ~init:
+           (Position.zero_raw_of_int 0, Position.Map_wrt.empty_zero_raw_aln ())
+         ~f:(fun aln_column (seq_position, map) char ->
+           let aln_column = Position.zero_aln_of_int aln_column in
+           if Utils.is_gap_char char then (seq_position, map)
+           else
+             ( Position.(seq_position + zero_raw_of_int 1),
+               (* _exn is okay here as new_seq_position is always increasing. *)
+               Position.Map_wrt.add_exn map ~from:seq_position ~to_:aln_column
+               (* Map.add_exn map ~key:seq_position ~data:aln_column *) ))
+  in
+  map
+
+let bad_aln_length_exn seq_i ~expected_len ~actual_len =
+  let i = seq_i + 1 in
+  Bad_aln_length
+    [%string
+      "Seq num: %{i#Int}, Expected length: %{expected_len#Int}, Actual length: \
+       %{actual_len#Int}"]
 
 let assert_alignment_length_good ~expected_len ~actual_len i =
   if actual_len <> expected_len then
@@ -68,8 +91,6 @@ let finish_alignment_file_data data infile =
       infile
   else Or_error.return { data with records = List.rev data.records }
 
-type alignment_infile = Basic of string | With_pasv_refs of string
-
 (* Take a pos map and go from raw to aln positions (zero-indexed for both). *)
 let get_aln_positions zero_raw_aln_pos_map zero_indexed_positions =
   Position.List.zero_raw_to_zero_aln zero_raw_aln_pos_map zero_indexed_positions
@@ -82,56 +103,12 @@ let get_aln_positions zero_raw_aln_pos_map zero_indexed_positions =
 let make_signature_file_header
     (positions : (Position.one_indexed, Position.raw) Position.List.t) : string
     =
-  let posns = Position.List.to_list positions in
-  let posns = List.map posns ~f:(fun i -> "pos_" ^ Int.to_string i) in
-  let posns = String.concat posns ~sep:"\t" in
-  [%string "name\t%{posns}\tsignature\tspans_start\tspans_end\tspans"]
-
-type spans_boundary = Yes | No | Na
-let spans_boundary_to_string = function Yes -> "Yes" | No -> "No" | Na -> "NA"
-
-type spannning_info = Both | Start | End | Neither | Na
-
-let spanning_info_to_string = function
-  | Both -> "Both"
-  | Start -> "Start"
-  | End -> "End"
-  | Neither -> "Neither"
-  | Na -> "NA"
-
-let get_spanning_info ~spans_start ~spans_end =
-  match (spans_start, spans_end) with
-  | Yes, Yes -> Both
-  | No, Yes -> End
-  | Yes, No -> Start
-  | No, No -> Neither
-  | Na, Yes | Na, No | Yes, Na | No, Na | Na, Na -> Na
-
-let spans s =
-  let non_gap_char_count =
-    s |> String.to_list |> List.count ~f:is_non_gap_char
+  let posns =
+    positions |> Position.List.to_list
+    |> List.map ~f:(fun i -> "pos_" ^ Int.to_string i)
+    |> String.concat ~sep:"\t"
   in
-  if non_gap_char_count > 0 then Yes else No
-
-let spans_roi_start (record : Position.aln Record.t) = function
-  | Some (roi_start : Position.zero_indexed_aln) ->
-      let record = Record.to_fasta_record record in
-      let prefix_len = Position.to_int roi_start + 1 in
-      let prefix = String.prefix (Bio_io.Fasta_record.seq record) prefix_len in
-      spans prefix
-  | None -> Na
-
-let spans_roi_end (record : Position.aln Record.t) = function
-  | Some (roi_end : Position.zero_indexed_aln) ->
-      let record = Record.to_fasta_record record in
-      let seq = Bio_io.Fasta_record.seq record in
-      let suffix =
-        let pos = Position.to_int roi_end in
-        let len = String.length seq - pos in
-        String.sub seq ~pos ~len
-      in
-      spans suffix
-  | None -> Na
+  [%string "name\t%{posns}\tsignature\tspans_start\tspans_end\tspans"]
 
 let map_roi_boundary map = function
   | Some boundary -> (
@@ -142,16 +119,16 @@ let map_roi_boundary map = function
 
 let make_aln_record_info ~aln_positions ~roi_start ~roi_end record =
   let id = Bio_io.Fasta_record.id @@ Record.to_fasta_record record in
-  let spans_start = spans_roi_start record roi_start in
-  let spans_end = spans_roi_end record roi_end in
-  let spans_region = get_spanning_info ~spans_start ~spans_end in
+  let spans_start = Spanning.spans_roi_start record roi_start in
+  let spans_end = Spanning.spans_roi_end record roi_end in
+  let spans_region = Spanning.get_spanning_info ~spans_start ~spans_end in
   let key_residues = Record.get_aln_residues aln_positions record in
   let signature = String.concat key_residues ~sep:"" in
   let key_residues = String.concat key_residues ~sep:"\t" in
   let line =
-    let ss = spans_boundary_to_string spans_start in
-    let se = spans_boundary_to_string spans_end in
-    let sr = spanning_info_to_string spans_region in
+    let ss = Spanning.spans_boundary_to_string spans_start in
+    let se = Spanning.spans_boundary_to_string spans_end in
+    let sr = Spanning.spanning_info_to_string spans_region in
     String.concat [ id; key_residues; signature; ss; se; sr ] ~sep:"\t"
   in
   line
@@ -185,28 +162,6 @@ let parse_alignment_file_basic infile =
       Or_error.of_exn exn |> Or_error.tag ~tag:"Error parsing alignment"
   | aln -> finish_alignment_file_data aln infile
 
-type parse_alignment_state = {
-  unprocessed_query_records : Position.aln Record.t list;
-  expected_len : int;
-  key_ref_seen : bool;
-  roi_start_zero_aln : (Position.zero_indexed, Position.aln) Position.t option;
-  roi_end_zero_aln : (Position.zero_indexed, Position.aln) Position.t option;
-  aln_positions_zero_aln :
-    (Position.zero_indexed, Position.aln) Position.List.t option;
-  num_queries : int;
-}
-
-let init_parse_alignment_state () =
-  {
-    unprocessed_query_records = [];
-    expected_len = 0;
-    key_ref_seen = false;
-    roi_start_zero_aln = None;
-    roi_end_zero_aln = None;
-    aln_positions_zero_aln = None;
-    num_queries = 0;
-  }
-
 let write_query_record record ~state ~out_channel =
   let aln_positions_zero_aln =
     (* If this is None, it means it wasn't set properly when we saw the key_ref
@@ -220,7 +175,6 @@ let write_query_record record ~state ~out_channel =
   Out_channel.output_lines out_channel [ record_info ]
 
 (* Doesn't read everything into memory. *)
-(* TODO need a test in which the key ref is not first. *)
 let parse_alignment_file_with_pasv_refs_streaming ~infile ~positions
     ~roi_start_zero_raw ~roi_end_zero_raw ~out_channel =
   let zero_raw_positions = Position.List.one_to_zero positions in
@@ -361,15 +315,12 @@ let parse_alignment_file_with_pasv_refs_in_mem infile =
       Or_error.of_exn exn |> Or_error.tag ~tag:"Error parsing alignment"
   | aln -> finish_alignment_file_data aln infile
 
-let parse_alignment_file = function
-  | Basic infile -> parse_alignment_file_basic infile
-  | With_pasv_refs infile -> parse_alignment_file_with_pasv_refs_in_mem infile
-
-let check_alignment ~infile ~roi_start ~roi_end ~positions =
+let get_signatures_from_alignment_with_pasv_refs_in_mem ~infile ~roi_start
+    ~roi_end ~positions =
   let f () =
     let open Or_error.Let_syntax in
     let zi_positions = Position.List.one_to_zero positions in
-    let%bind aln_file = parse_alignment_file infile in
+    let%bind aln_file = parse_alignment_file_with_pasv_refs_in_mem infile in
     let aln_records = Array.of_list aln_file.records in
     let%bind aln_positions =
       get_aln_positions aln_file.zero_raw_aln_pos_map zi_positions
@@ -378,23 +329,8 @@ let check_alignment ~infile ~roi_start ~roi_end ~positions =
       map_roi_boundary aln_file.zero_raw_aln_pos_map roi_start
     in
     let%map roi_end = map_roi_boundary aln_file.zero_raw_aln_pos_map roi_end in
-    let make_aln_record_info record =
-      let id = Bio_io.Fasta_record.id @@ Record.to_fasta_record record in
-      let spans_start = spans_roi_start record roi_start in
-      let spans_end = spans_roi_end record roi_end in
-      let spans_region = get_spanning_info ~spans_start ~spans_end in
-      let key_residues = Record.get_aln_residues aln_positions record in
-      let signature = String.concat key_residues ~sep:"" in
-      let key_residues = String.concat key_residues ~sep:"\t" in
-      let line =
-        let ss = spans_boundary_to_string spans_start in
-        let se = spans_boundary_to_string spans_end in
-        let sr = spanning_info_to_string spans_region in
-        String.concat [ id; key_residues; signature; ss; se; sr ] ~sep:"\t"
-      in
-      line
-    in
-    Array.map aln_records ~f:make_aln_record_info
+    Array.map aln_records
+      ~f:(make_aln_record_info ~aln_positions ~roi_start ~roi_end)
   in
   match f () with
   | Ok signatures -> Or_error.return signatures
@@ -406,37 +342,48 @@ let write_signatures ~filename ~header signatures =
       Array.iter signatures ~f:(fun signature ->
           Out_channel.output_string out_chan (signature ^ "\n")))
 
+(* TODO confusing names follow!! *)
+
+let check_alignment_and_write_signatures_basic ~roi_start ~roi_end ~positions
+    ~outfile_name ~outfile_header ~infile =
+  let open Or_error.Let_syntax in
+  let%bind signatures =
+    let f () =
+      let open Or_error.Let_syntax in
+      let zi_positions = Position.List.one_to_zero positions in
+      let%bind aln_file = parse_alignment_file_basic infile in
+      let aln_records = Array.of_list aln_file.records in
+      let%bind aln_positions =
+        get_aln_positions aln_file.zero_raw_aln_pos_map zi_positions
+      in
+      let%bind roi_start =
+        map_roi_boundary aln_file.zero_raw_aln_pos_map roi_start
+      in
+      let%map roi_end =
+        map_roi_boundary aln_file.zero_raw_aln_pos_map roi_end
+      in
+      Array.map aln_records
+        ~f:(make_aln_record_info ~aln_positions ~roi_start ~roi_end)
+    in
+    match f () with
+    | Ok signatures -> Or_error.return signatures
+    | Error err -> Error err |> Or_error.tag ~tag:"error in check_alignment"
+  in
+  Or_error.try_with (fun () ->
+      write_signatures signatures ~filename:outfile_name ~header:outfile_header)
+
+let check_alignment_and_write_signatures_with_pasv_refs_streaming ~roi_start
+    ~roi_end ~positions ~outfile_name ~outfile_header ~infile =
+  Out_channel.with_file outfile_name ~f:(fun out_channel ->
+      Out_channel.output_string out_channel (outfile_header ^ "\n");
+      parse_alignment_file_with_pasv_refs_streaming ~infile ~positions
+        ~roi_start_zero_raw:roi_start ~roi_end_zero_raw:roi_end ~out_channel)
+
 let check_alignment_and_write_signatures ~roi_start ~roi_end ~positions
     ~outfile_name ~outfile_header = function
   | Basic infile ->
-      let open Or_error.Let_syntax in
-      let%bind signatures =
-        let f () =
-          let open Or_error.Let_syntax in
-          let zi_positions = Position.List.one_to_zero positions in
-          let%bind aln_file = parse_alignment_file_basic infile in
-          let aln_records = Array.of_list aln_file.records in
-          let%bind aln_positions =
-            get_aln_positions aln_file.zero_raw_aln_pos_map zi_positions
-          in
-          let%bind roi_start =
-            map_roi_boundary aln_file.zero_raw_aln_pos_map roi_start
-          in
-          let%map roi_end =
-            map_roi_boundary aln_file.zero_raw_aln_pos_map roi_end
-          in
-          Array.map aln_records
-            ~f:(make_aln_record_info ~aln_positions ~roi_start ~roi_end)
-        in
-        match f () with
-        | Ok signatures -> Or_error.return signatures
-        | Error err -> Error err |> Or_error.tag ~tag:"error in check_alignment"
-      in
-      Or_error.try_with (fun () ->
-          write_signatures signatures ~filename:outfile_name
-            ~header:outfile_header)
+      check_alignment_and_write_signatures_basic ~roi_start ~roi_end ~positions
+        ~outfile_name ~outfile_header ~infile
   | With_pasv_refs infile ->
-      Out_channel.with_file outfile_name ~f:(fun out_channel ->
-          Out_channel.output_string out_channel (outfile_header ^ "\n");
-          parse_alignment_file_with_pasv_refs_streaming ~infile ~positions
-            ~roi_start_zero_raw:roi_start ~roi_end_zero_raw:roi_end ~out_channel)
+      check_alignment_and_write_signatures_with_pasv_refs_streaming ~roi_start
+        ~roi_end ~positions ~outfile_name ~outfile_header ~infile

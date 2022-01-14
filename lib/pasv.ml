@@ -275,13 +275,14 @@ module Check = struct
       U.make_signatures_filename ~infile:opts.alignment
         ~outdir:common_opts.outdir
     in
-    let open Check_alignment in
     let roi_start = Option.map opts.roi_start ~f:Position.one_to_zero in
     let roi_end = Option.map opts.roi_end ~f:Position.one_to_zero in
     let (_ : unit option) = assert_roi_good_or_exit ~roi_start ~roi_end in
-    let sig_file_header = make_signature_file_header opts.key_residues in
+    let sig_file_header =
+      Check_alignment.make_signature_file_header opts.key_residues
+    in
     match
-      check_alignment_and_write_signatures
+      Check_alignment.check_alignment_and_write_signatures
         (Check_alignment.Basic opts.alignment) ~positions:opts.key_residues
         ~roi_start ~roi_end ~outfile_header:sig_file_header
         ~outfile_name:signatures_filename
@@ -388,13 +389,14 @@ module Hmm = struct
     let () =
       match hmmalign_out.result with
       | Ok () -> (
-          let open Check_alignment in
           let roi_start = Option.map opts.roi_start ~f:Position.one_to_zero in
           let roi_end = Option.map opts.roi_end ~f:Position.one_to_zero in
           let (_ : unit option) = assert_roi_good_or_exit ~roi_start ~roi_end in
-          let sig_file_header = make_signature_file_header opts.key_residues in
+          let sig_file_header =
+            Check_alignment.make_signature_file_header opts.key_residues
+          in
           match
-            check_alignment_and_write_signatures
+            Check_alignment.check_alignment_and_write_signatures
               (Check_alignment.With_pasv_refs hmmalign_out.opts.outfile)
               ~positions:opts.key_residues ~roi_start ~roi_end
               ~outfile_header:sig_file_header ~outfile_name:signatures_filename
@@ -430,14 +432,13 @@ module Msa = struct
   let get_signature msa_out outfile (opts : opts) =
     match msa_out with
     | Ok _stdout -> (
-        let open Check_alignment in
         let roi_start = Option.map opts.roi_start ~f:Position.one_to_zero in
         let roi_end = Option.map opts.roi_end ~f:Position.one_to_zero in
         let (_ : unit option) = assert_roi_good_or_exit ~roi_start ~roi_end in
         let open Or_error.Let_syntax in
         let%bind signatures =
-          check_alignment ~positions:opts.key_residues
-            ~infile:(Check_alignment.With_pasv_refs outfile) ~roi_start ~roi_end
+          Check_alignment.get_signatures_from_alignment_with_pasv_refs_in_mem
+            ~positions:opts.key_residues ~infile:outfile ~roi_start ~roi_end
         in
         match Array.length signatures with
         | 1 -> Or_error.return @@ signatures.(0)
