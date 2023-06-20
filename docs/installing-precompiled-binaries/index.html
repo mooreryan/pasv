@@ -98,6 +98,8 @@
                   </li>
                   <li class="toctree-l1 current"><a class="reference internal current" href="./">Installing Precompiled Binaries</a>
     <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#example">Example</a>
+    </li>
     </ul>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../installing-with-docker/">Installing With Docker</a>
@@ -168,7 +170,16 @@
 <li>If you are on Linux, this is the one you probably want.</li>
 </ul>
 <p>You can find them all on the <a href="https://github.com/mooreryan/pasv/releases">releases</a> page.</p>
-<p>Additionally, you will need to install the <a href="../installing-external-dependencies/">external dependencies</a> that PASV relies on.</p>
+<p>Don't forget that after downloading one of the binaries, you will need to adjust the permissions to make it executable.
+Additionally, you will need to install the <a href="../installing-external-dependencies/">external dependencies</a> that PASV relies on.</p>
+<h2 id="example">Example</h2>
+<p>Here is an example of getting one of the <code>pasv</code> binaries working:</p>
+<pre><code>$ wget https://github.com/mooreryan/pasv/releases/download/2.0.2/pasv-2.0.2-alpine-static.zip
+$ unzip pasv-2.0.2-alpine-static.zip
+$ chmod 755 pasv
+$ ./pasv --help
+</code></pre>
+<p>Note that it is for <code>pasv</code> version 2.0.2 and using the <code>alpine-static</code> version. You can find other versions on the release page.</p>
               
             </div>
           </div><footer>
