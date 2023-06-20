@@ -77,11 +77,11 @@ jobs:
           cache-prefix: v1-${{ matrix.os }}
 
       - name: Install OCaml deps (Ubuntu)
-        run: opam update && opam install . --deps-only --with-doc --with-test
+        run: opam update && opam install --locked . --deps-only --with-doc --with-test
         if: matrix.os == 'ubuntu-latest'
 
       - name: Install OCaml deps (MacOS)
-        run: opam update && opam install . --jobs 1 --deps-only --with-doc --with-test
+        run: opam update && opam install --locked . --jobs 1 --deps-only --with-doc --with-test
         if: matrix.os == 'macos-latest'
 
       - name: Test (Ubuntu)
