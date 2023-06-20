@@ -20,7 +20,7 @@ For full CLI usage info, run `pasv msa --help`.
 
 ## Set up environment variables
 
-These are some environment variables that we will use in the example scripts.  I am assuming you are running this from the following directory with respect to the `pasv` source directory: `./_examples/pasv_msa`.
+These are some environment variables that we will use in the example scripts. I am assuming you are running this from the following directory with respect to the `pasv` source directory: `./_examples/pasv_msa`. (If you are not, you can download the data files on [GitHub](https://github.com/mooreryan/pasv/tree/master/_examples/pasv_msa).)
 
 ```
 export QUERIES=amk_queries.fa

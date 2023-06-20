@@ -14,9 +14,11 @@ A multiple sequence alignment in fasta format.
 
 The first sequence in the alignment file is treated as the [key reference sequence](./jargon.md#key-reference-sequences-positions-residues).
 
+You can download the `aln.fa` file from [GitHub](https://raw.githubusercontent.com/mooreryan/pasv/12a37d5aa863e8cee6a0f4c3a583eee78dbfca61/_examples/pasv_check/aln.fa).
+
 ## Set up environment variables
 
-These are some environment variables that we will use in the example scripts.  I am assuming you are running this from the following directory with respect to the `pasv` source directory: `./_examples/pasv_check`.
+These are some environment variables that we will use in the example scripts. I am assuming you are running this from the following directory with respect to the `pasv` source directory: `./_examples/pasv_check`. (If you are not, you can download the data files on [GitHub](https://github.com/mooreryan/pasv/tree/master/_examples/pasv_check).)
 
 ```
 $ export ALN=aln.fa
