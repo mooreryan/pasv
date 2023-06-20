@@ -6,25 +6,40 @@
 
 (package
  (name pasv)
- (version 2.0.2)
+ (version 2.0.3-SNAPSHOT)
  (license "MIT")
- (maintainers "Ryan Moore")
- (authors "Ryan Moore")
+ (maintainers "Ryan M. Moore")
+ (authors "Ryan M. Moore")
  (homepage "https://github.com/mooreryan/pasv")
- (source (github mooreryan/pasv))
+ (source
+  (github mooreryan/pasv))
  (documentation "https://mooreryan.github.io/pasv/")
  (bug_reports "https://github.com/mooreryan/pasv/issues")
- (synopsis "pasv -- protein active site validation")
+ (synopsis "PASV -- Protein Active Site Validation")
  (depends
-   async
-  (bio_io (and (>= "0.3.0") (< "0.4.0")))
-  (bisect_ppx :dev)
-   core
-  (core_kernel (= "v0.14.1"))
-   cmdliner
-   little_logger
-   ocaml
-   ppx_deriving
-   ppx_jane
-  (ppx_optcomp (= "v0.14.2"))
-   re2))
+  (async
+   (= "v0.14.0"))
+  (bio_io
+   (and
+    (>= "0.3.0")
+    (< "0.4.0")))
+  (bisect_ppx
+   (= "2.7.0"))
+  (core
+   (= "v0.14.1"))
+  (core_kernel
+   (= "v0.14.1"))
+  (cmdliner
+   (= "1.0.4"))
+  (little_logger
+   (= "0.2.0"))
+  (ocaml
+   (= "4.12.0"))
+  (ppx_deriving
+   (= "5.2.1"))
+  (ppx_jane
+   (= "v0.14.0"))
+  (ppx_optcomp
+   (= "v0.14.2"))
+  (re2
+   (= "v0.14.0"))))
