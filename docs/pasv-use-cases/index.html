@@ -1,32 +1,28 @@
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <meta name="author" content="Ryan Moore">
-  <link rel="canonical" href="https://mooreryan.github.io/pasv/pasv-use-cases/">
-  <link rel="shortcut icon" href="../img/favicon.ico">
-  <title>PASV Use Cases - PASV -- Protein Active Site Validation</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700" />
-
-  <link rel="stylesheet" href="../css/theme.css" />
-  <link rel="stylesheet" href="../css/theme_extra.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
-  
-  <script>
-    // Current page data
-    var mkdocs_page_name = "PASV Use Cases";
-    var mkdocs_page_input_path = "pasv-use-cases.md";
-    var mkdocs_page_url = "/pasv/pasv-use-cases/";
-  </script>
-  
-  <script src="../js/jquery-2.1.1.min.js" defer></script>
-  <script src="../js/modernizr-2.8.3.min.js" defer></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
-  <script>hljs.initHighlightingOnLoad();</script>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Ryan Moore" /><link rel="canonical" href="https://mooreryan.github.io/pasv/pasv-use-cases/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>PASV Use Cases - PASV -- Protein Active Site Validation</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "PASV Use Cases";
+        var mkdocs_page_input_path = "pasv-use-cases.md";
+        var mkdocs_page_url = "/pasv/pasv-use-cases/";
+      </script>
+    
+    <script src="../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script>
   
 
   
@@ -69,29 +65,27 @@
 <body class="wy-body-for-nav" role="document">
 
   <div class="wy-grid-for-nav">
-
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
     <div class="wy-side-scroll">
       <div class="wy-side-nav-search">
-        <a href=".." class="icon icon-home"> PASV -- Protein Active Site Validation</a>
-        <div role="search">
+          <a href=".." class="icon icon-home"> PASV -- Protein Active Site Validation
+        </a><div role="search">
   <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
-      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
   </form>
 </div>
       </div>
 
-      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-                <ul>
-                    <li class="toctree-l1"><a class="reference internal" href="..">PASV</a>
-                    </li>
-                </ul>
-                <p class="caption"><span class="caption-text">Overview</span></p>
-                <ul class="current">
-                    <li class="toctree-l1"><a class="reference internal" href="../getting-started/">Getting Started</a>
-                    </li>
-                    <li class="toctree-l1 current"><a class="reference internal current" href="./">PASV Use Cases</a>
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">PASV</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Overview</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../getting-started/">Getting Started</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">PASV Use Cases</a>
     <ul class="current">
     <li class="toctree-l2"><a class="reference internal" href="#eliminating-bycatch-after-sensitive-homology-search">Eliminating bycatch after sensitive homology search</a>
     </li>
@@ -100,86 +94,71 @@
     <li class="toctree-l2"><a class="reference internal" href="#other-potential-use-cases">Other potential use cases</a>
     </li>
     </ul>
-                    </li>
-                    <li class="toctree-l1"><a class="reference internal" href="../jargon/">Definitions & Jargon</a>
-                    </li>
-                    <li class="toctree-l1"><a class="reference internal" href="../bibliography/">Bibliography</a>
-                    </li>
-                </ul>
-                <p class="caption"><span class="caption-text">Installation</span></p>
-                <ul>
-                    <li class="toctree-l1"><a class="reference internal" href="../installing-external-dependencies/">Installing External Software Dependencies</a>
-                    </li>
-                    <li class="toctree-l1"><a class="reference internal" href="../installing-precompiled-binaries/">Installing Precompiled Binaries</a>
-                    </li>
-                    <li class="toctree-l1"><a class="reference internal" href="../installing-with-docker/">Installing With Docker</a>
-                    </li>
-                    <li class="toctree-l1"><a class="reference internal" href="../installing-from-source/">Installing From Source</a>
-                    </li>
-                </ul>
-                <p class="caption"><span class="caption-text">Usage</span></p>
-                <ul>
-                    <li class="toctree-l1"><a class="reference internal" href="../cli/">Command Line Interface</a>
-                    </li>
-                    <li class="toctree-l1"><a class="reference internal" href="../pasv-output/">PASV Output</a>
-                    </li>
-                    <li class="toctree-l1"><a class="reference internal" href="../picking-refs-and-residues/">Picking References and Residues</a>
-                    </li>
-                </ul>
-                <p class="caption"><span class="caption-text">Examples</span></p>
-                <ul>
-                    <li class="toctree-l1"><a class="reference internal" href="../tons-of-examples/">Tons of Examples</a>
-                    </li>
-                    <li class="toctree-l1"><a class="reference internal" href="../examples-pasv-check/">pasv-check</a>
-                    </li>
-                    <li class="toctree-l1"><a class="reference internal" href="../examples-pasv-hmm/">pasv-hmm</a>
-                    </li>
-                    <li class="toctree-l1"><a class="reference internal" href="../examples-pasv-msa/">pasv-msa</a>
-                    </li>
-                    <li class="toctree-l1"><a class="reference internal" href="../examples-pasv-select/">pasv-select</a>
-                    </li>
-                    <li class="toctree-l1"><a class="reference internal" href="../examples-aox-ptox/">AOX/PTOX Example</a>
-                    </li>
-                </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../jargon/">Definitions & Jargon</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../bibliography/">Bibliography</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Installation</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../installing-external-dependencies/">Installing External Software Dependencies</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../installing-precompiled-binaries/">Installing Precompiled Binaries</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../installing-with-docker/">Installing With Docker</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../installing-from-source/">Installing From Source</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Usage</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../cli/">Command Line Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../pasv-output/">PASV Output</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../picking-refs-and-residues/">Picking References and Residues</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Examples</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../tons-of-examples/">Tons of Examples</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../examples-pasv-check/">pasv-check</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../examples-pasv-hmm/">pasv-hmm</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../examples-pasv-msa/">pasv-msa</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../examples-pasv-select/">pasv-select</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../examples-aox-ptox/">AOX/PTOX Example</a>
+                  </li>
+              </ul>
       </div>
     </div>
     </nav>
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="..">PASV -- Protein Active Site Validation</a>
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">PASV -- Protein Active Site Validation</a>
+        
       </nav>
-
-      
       <div class="wy-nav-content">
-        <div class="rst-content">
-          <div role="navigation" aria-label="breadcrumbs navigation">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
-    <li><a href="..">Docs</a> &raquo;</li>
-    
-      
-        
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a> &raquo;</li>
           <li>Overview &raquo;</li>
-        
-      
-    
-    <li>PASV Use Cases</li>
+      <li>PASV Use Cases</li>
     <li class="wy-breadcrumbs-aside">
-      
-        <a href="https://github.com/mooreryan/pasv/edit/master/_docs_src/src/pasv-use-cases.md"
-          class="icon icon-github"> Edit on GitHub</a>
-      
+          <a href="https://github.com/mooreryan/pasv/edit/master/_docs_src/src/pasv-use-cases.md" class="icon icon-github"> Edit on GitHub</a>
     </li>
   </ul>
-  
   <hr/>
 </div>
-
-          <div role="main">
-            <div class="section">
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
               
                 <h1 id="pasv-use-cases">PASV Use Cases</h1>
 <p>In the <a href="https://doi.org/10.1101/2021.01.20.427478">manuscipt</a>, we used PASV for a couple of different test cases.</p>
@@ -204,29 +183,21 @@
 <p>There are many examples of point mutation(s) in bacterial proteins that prevent antibiotics from binding and, thus, inhibit the function of the antibiotic (e.g., K88R in <em>rpsL</em> (<a href="http://dx.doi.org/10.1186/1471-2180-12-191">Ballif et al., 2012</a>), C117D in <em>murA</em> (<a href="http://dx.doi.org/10.1099/00221287-145-11-3177">De_Smet et al., 1999</a>), H526T in <em>rpoB</em> (<a href="http://dx.doi.org/10.1128/JCM.42.6.2425-2431.2004">Sajduda et al., 2004</a>), Q124K in EF-Tu (<a href="http://dx.doi.org/10.1006/jmbi.1999.3296">Zuurmond et al., 1999</a>), V246A and V300G in <em>ndh</em> (<a href="http://dx.doi.org/10.1128/AAC.49.2.708-720.2005">Vilcheze et al., 2005</a>)).  Such point mutations within a protein would not be readily apparent from homology search alone.  Thus PASV could be used for validating and grouping these peptide sequences according to key point mutations following identification via homology search.</p>
               
             </div>
-          </div>
-          <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../getting-started/" class="btn btn-neutral float-left" title="Getting Started"><span class="icon icon-circle-arrow-left"></span> Previous</a>
         <a href="../jargon/" class="btn btn-neutral float-right" title="Definitions & Jargon">Next <span class="icon icon-circle-arrow-right"></span></a>
-      
-      
-        <a href="../getting-started/" class="btn btn-neutral" title="Getting Started"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-      
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <!-- Copyright etc -->
-    
   </div>
 
-  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
 </footer>
-      
+          
         </div>
       </div>
 
@@ -234,11 +205,11 @@
 
   </div>
 
-  <div class="rst-versions" role="note" aria-label="versions">
+  <div class="rst-versions" role="note" aria-label="Versions">
   <span class="rst-current-version" data-toggle="rst-current-version">
     
         <span>
-          <a href="https://github.com/mooreryan/pasv/" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+          <a href="https://github.com/mooreryan/pasv" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
         </span>
     
     
