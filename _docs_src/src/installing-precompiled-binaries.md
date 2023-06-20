@@ -15,4 +15,18 @@ A couple different "flavors" are available:
 
 You can find them all on the [releases](https://github.com/mooreryan/pasv/releases) page.
 
+Don't forget that after downloading one of the binaries, you will need to adjust the permissions to make it executable.
 Additionally, you will need to install the [external dependencies](./installing-external-dependencies.md) that PASV relies on.
+
+## Example
+
+Here is an example of getting one of the `pasv` binaries working:
+
+```
+$ wget https://github.com/mooreryan/pasv/releases/download/2.0.2/pasv-2.0.2-alpine-static.zip
+$ unzip pasv-2.0.2-alpine-static.zip
+$ chmod 755 pasv
+$ ./pasv --help
+```
+
+Note that it is for `pasv` version 2.0.2 and using the `alpine-static` version. You can find other versions on the release page.
