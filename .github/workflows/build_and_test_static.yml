@@ -3,7 +3,8 @@ name: Build and Test Static
 on:
   push:
     branches:
-      - '*'
+      - 'master'
+      - 'staging'
   pull_request:
     branches:
       - '*'
