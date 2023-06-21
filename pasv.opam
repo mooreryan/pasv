@@ -10,17 +10,17 @@ doc: "https://mooreryan.github.io/pasv/"
 bug-reports: "https://github.com/mooreryan/pasv/issues"
 depends: [
   "dune" {>= "2.8"}
-  "async" {= "v0.14.0"}
-  "bio_io" {>= "0.4.0" & < "0.5.0"}
+  "async" {>= "v0.15.0" & < "v0.16.0"}
+  "bio_io" {>= "0.6.0" & < "0.7.0"}
   "bisect_ppx" {= "2.7.0"}
-  "core" {= "v0.14.1"}
-  "core_kernel" {= "v0.14.1"}
+  "core" {>= "v0.15.0" & < "v0.16.0"}
+  "core_unix" {>= "v0.15.0" & < "v0.16.0"}
   "cmdliner" {= "1.2.0"}
   "little_logger" {= "0.2.0"}
   "ocaml" {= "4.14.1"}
   "ocamlformat" {= "0.25.1"}
-  "ppx_jane" {= "v0.14.0"}
-  "re2" {= "v0.14.0"}
+  "ppx_jane" {>= "v0.15.0" & < "v0.16.0"}
+  "re2" {>= "v0.15.0" & < "v0.16.0"}
   "odoc" {with-doc}
 ]
 build: [

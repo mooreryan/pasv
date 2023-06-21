@@ -17,10 +17,10 @@ let is_reference record =
   Re2.matches reference_id_prefix_re @@ Bio_io.Fasta.Record.id record
 
 let is_file name =
-  match Sys.is_file name with `Yes -> true | `No | `Unknown -> false
+  match Sys_unix.is_file name with `Yes -> true | `No | `Unknown -> false
 
 let is_directory name =
-  match Sys.is_directory name with `Yes -> true | `No | `Unknown -> false
+  match Sys_unix.is_directory name with `Yes -> true | `No | `Unknown -> false
 
 (* See
    https://github.com/ocaml/dune/commit/154272b779fe8943a9ce1b4afabb30150ab94ba6 *)
@@ -31,17 +31,17 @@ let is_directory name =
 let readdir path =
   Array.fold ~init:[]
     ~f:(fun acc entry -> Filename.concat path entry :: acc)
-    (Sys.readdir path)
+    (Sys_unix.readdir path)
 
 (* May raise some unix errors? *)
 let rec rm_rf name =
-  match Unix.lstat name with
+  match Core_unix.lstat name with
   | {st_kind= S_DIR; _} ->
       List.iter (readdir name) ~f:rm_rf ;
-      Unix.rmdir name
+      Core_unix.rmdir name
   | _ ->
-      Unix.unlink name
-  | exception Unix.Unix_error (ENOENT, _, _) ->
+      Core_unix.unlink name
+  | exception Core_unix.Unix_error (ENOENT, _, _) ->
       ()
 
 let clean_up keep_intermediate_files filenames =
@@ -68,7 +68,7 @@ let make_outdir outdir force =
       errorf "--outdir '%s' already exists but --force was not given" outdir
   | false, _ ->
       (* If the dir doesn't exist, make it regardless of the force option. *)
-      return @@ Unix.mkdir_p outdir ~perm:0o755
+      return @@ Core_unix.mkdir_p outdir ~perm:0o755
 
 let make_outdir_or_exit outdir force =
   match make_outdir outdir force with

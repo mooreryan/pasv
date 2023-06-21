@@ -204,27 +204,29 @@ module Select = struct
        a sequence. *)
     let out_channels = Hashtbl.create (module String) in
     match
-      Bio_io.Fasta.In_channel.with_file_fold_records opts.query_file ~init:0
-        ~f:(fun num_printed record ->
-          let open Bio_io.Fasta.Record in
-          let id = id record in
-          match Map.find keep_these_queries id with
-          | None ->
-              num_printed
-          | Some signature ->
-              (* Make sure the signature has an outfile. *)
-              let out_chan =
-                Hashtbl.find_or_add out_channels signature ~default:(fun () ->
-                    let filename =
-                      make_partition_filename ~outdir:common_opts.outdir
-                        ~signature
-                    in
-                    Logger.debug (fun () ->
-                        [%string "outfile file: %{filename}"] ) ;
-                    Out_channel.create filename ~perm:0o644 )
-              in
-              Out_channel.output_lines out_chan [to_string record] ;
-              num_printed + 1 )
+      Or_error.try_with (fun () ->
+          Bio_io.Fasta.In_channel.with_file_fold_records opts.query_file ~init:0
+            ~f:(fun num_printed record ->
+              let open Bio_io.Fasta.Record in
+              let id = id record in
+              match Map.find keep_these_queries id with
+              | None ->
+                  num_printed
+              | Some signature ->
+                  (* Make sure the signature has an outfile. *)
+                  let out_chan =
+                    Hashtbl.find_or_add out_channels signature
+                      ~default:(fun () ->
+                        let filename =
+                          make_partition_filename ~outdir:common_opts.outdir
+                            ~signature
+                        in
+                        Logger.debug (fun () ->
+                            [%string "outfile file: %{filename}"] ) ;
+                        Out_channel.create filename ~perm:0o644 )
+                  in
+                  Out_channel.output_lines out_chan [to_string record] ;
+                  num_printed + 1 ) )
     with
     | Ok num_printed ->
         (num_printed, out_channels)
@@ -324,14 +326,14 @@ module Hmm = struct
   let make_queries_temp_file in_dir =
     let prefix = "pasv" in
     let suffix = ".queries.fasta" in
-    Filename.temp_file ~perm:0o755 ~in_dir prefix suffix
+    Filename_unix.temp_file ~perm:0o755 ~in_dir prefix suffix
 
   (* Doesn't bother checking if more than one sequence was passed in. *)
   let get_key_ref_seq_exn filename =
     let open Bio_io.Fasta.In_channel in
     let open Bio_io.Fasta.Record in
-    with_file_exn filename ~f:(fun chan ->
-        match input_record_exn chan with
+    with_file filename ~f:(fun chan ->
+        match input_record chan with
         | Some record ->
             with_desc None record |> with_id U.key_reference_id
         | None ->
@@ -342,7 +344,7 @@ module Hmm = struct
 
   let cat_records_exn in_filename out_chan =
     let open Bio_io in
-    Fasta.In_channel.with_file_iter_records_exn in_filename ~f:(fun record ->
+    Fasta.In_channel.with_file_iter_records in_filename ~f:(fun record ->
         output_record out_chan record )
 
   (* We need to add the key reference sequence to the top of the the queries
@@ -563,11 +565,9 @@ module Msa = struct
           ~outdir:common_opts.outdir
       in
       let references =
-        Bio_io.Fasta.In_channel.with_file_records_exn opts.references
+        Bio_io.Fasta.In_channel.with_file_records opts.references
       in
-      let queries =
-        Bio_io.Fasta.In_channel.with_file_records_exn opts.queries
-      in
+      let queries = Bio_io.Fasta.In_channel.with_file_records opts.queries in
       let open Async in
       (* Now that we're in async world, make sure the logger is async. *)
       Logger.set_printer Async.prerr_endline ;

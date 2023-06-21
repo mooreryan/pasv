@@ -18,17 +18,23 @@
  (synopsis "PASV -- Protein Active Site Validation")
  (depends
   (async
-   (= "v0.14.0"))
+   (and
+    (>= "v0.15.0")
+    (< "v0.16.0")))
   (bio_io
    (and
-    (>= "0.4.0")
-    (< "0.5.0")))
+    (>= "0.6.0")
+    (< "0.7.0")))
   (bisect_ppx
    (= "2.7.0"))
   (core
-   (= "v0.14.1"))
-  (core_kernel
-   (= "v0.14.1"))
+   (and
+    (>= "v0.15.0")
+    (< "v0.16.0")))
+  (core_unix
+   (and
+    (>= "v0.15.0")
+    (< "v0.16.0")))
   (cmdliner
    (= "1.2.0"))
   (little_logger
@@ -38,6 +44,10 @@
   (ocamlformat
    (= "0.25.1"))
   (ppx_jane
-   (= "v0.14.0"))
+   (and
+    (>= "v0.15.0")
+    (< "v0.16.0")))
   (re2
-   (= "v0.14.0"))))
+   (and
+    (>= "v0.15.0")
+    (< "v0.16.0")))))

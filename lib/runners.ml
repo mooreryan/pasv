@@ -7,7 +7,7 @@ open Little_logger
 let assert_program_good_or_exit name_or_path cmd =
   (* TODO it would be nice to give the user a more specific reason for the
      program failing. *)
-  match Unix.Exit_or_signal.or_error @@ Unix.system cmd with
+  match Core_unix.Exit_or_signal.or_error @@ Core_unix.system cmd with
   | Ok () ->
       ()
   | Error err ->
@@ -179,10 +179,14 @@ module Hmmalign = struct
     in
     Logger.debug (fun () -> [%string "Running command: %{cmd}"]) ;
     (* Pass in the env explicitly to work with Alpine linux. *)
-    let chan = Unix.open_process_full cmd ~env:(Unix.environment ()) in
+    let chan =
+      Core_unix.open_process_full cmd ~env:(Core_unix.environment ())
+    in
     let stdout = In_channel.input_all chan.stdout in
     let stderr = In_channel.input_all chan.stderr in
-    match Unix.close_process_full chan |> Unix.Exit_or_signal.or_error with
+    match
+      Core_unix.close_process_full chan |> Core_unix.Exit_or_signal.or_error
+    with
     | Ok () ->
         let result =
           if Utils.is_file opts.outfile then Or_error.return ()
@@ -194,7 +198,7 @@ module Hmmalign = struct
         {result; stdout; stderr; opts}
     | Error err ->
         (* hmmalign failed, make sure the outfile is deleted *)
-        if Utils.is_file opts.outfile then Sys.remove opts.outfile ;
+        if Utils.is_file opts.outfile then Sys_unix.remove opts.outfile ;
         let result = Or_error.error "hmmalign failed" err Error.sexp_of_t in
         {result; stdout; stderr; opts}
 end

@@ -1,6 +1,15 @@
 (library
  (name pasv_lib)
- (libraries async bio_io core little_logger re2 cmdliner)
+ (libraries
+  async
+  bio_io
+  core
+  core_unix
+  core_unix.sys_unix
+  core_unix.filename_unix
+  little_logger
+  re2
+  cmdliner)
  (instrumentation
   (backend bisect_ppx))
  (preprocess

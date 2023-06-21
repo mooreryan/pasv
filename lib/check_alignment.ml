@@ -74,7 +74,7 @@ type alignment_infile = Basic of string | With_pasv_refs of string
 let parse_alignment_file_basic infile =
   let open Bio_io in
   let f () =
-    Fasta.In_channel.with_file_foldi_records_exn infile
+    Fasta.In_channel.with_file_foldi_records infile
       ~init:(empty_alignment_data ()) ~f:(fun i aln record ->
         let this_aln_len = String.length (Fasta.Record.seq record) in
         (* Regardless of whether it is a key ref, pasv ref, or query, all aln
@@ -103,7 +103,7 @@ let parse_alignment_file_with_pasv_refs infile =
   let is_reference = Utils.is_reference in
   let open Bio_io in
   let f () =
-    Fasta.In_channel.with_file_foldi_records_exn infile
+    Fasta.In_channel.with_file_foldi_records infile
       ~init:(empty_alignment_data ()) ~f:(fun i aln record ->
         let this_aln_len = String.length (Fasta.Record.seq record) in
         (* Regardless of whether it is a key ref, pasv ref, or query, all aln

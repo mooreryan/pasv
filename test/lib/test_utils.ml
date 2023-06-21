@@ -3,7 +3,7 @@ open Pasv_lib
 
 let%test_unit "rm_rf" =
   let dir = "apple" in
-  Unix.mkdir dir ;
+  Core_unix.mkdir dir ;
   assert (Utils.is_directory dir) ;
   let name = "pie" in
   let filename = Filename.concat dir name in
