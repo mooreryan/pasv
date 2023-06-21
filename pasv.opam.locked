@@ -22,7 +22,7 @@ depends: [
   "base_bigstring" {= "v0.14.0"}
   "base_quickcheck" {= "v0.14.1"}
   "bin_prot" {= "v0.14.1"}
-  "bio_io" {= "0.3.0"}
+  "bio_io" {= "0.4.0"}
   "bisect_ppx" {= "2.7.0"}
   "camlp-streams" {= "5.0.1"}
   "cmdliner" {= "1.2.0"}

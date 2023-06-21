@@ -204,9 +204,9 @@ module Select = struct
        a sequence. *)
     let out_channels = Hashtbl.create (module String) in
     match
-      Bio_io.Fasta_in_channel.with_file_fold_records opts.query_file ~init:0
+      Bio_io.Fasta.In_channel.with_file_fold_records opts.query_file ~init:0
         ~f:(fun num_printed record ->
-          let open Bio_io.Fasta_record in
+          let open Bio_io.Fasta.Record in
           let id = id record in
           match Map.find keep_these_queries id with
           | None ->
@@ -328,8 +328,8 @@ module Hmm = struct
 
   (* Doesn't bother checking if more than one sequence was passed in. *)
   let get_key_ref_seq_exn filename =
-    let open Bio_io.Fasta_in_channel in
-    let open Bio_io.Fasta_record in
+    let open Bio_io.Fasta.In_channel in
+    let open Bio_io.Fasta.Record in
     with_file_exn filename ~f:(fun chan ->
         match input_record_exn chan with
         | Some record ->
@@ -338,11 +338,11 @@ module Hmm = struct
             raise (Exn "No fasta records in key_reference file") )
 
   let output_record chan record =
-    Out_channel.output_string chan (Bio_io.Fasta_record.to_string record ^ "\n")
+    Out_channel.output_string chan (Bio_io.Fasta.Record.to_string record ^ "\n")
 
   let cat_records_exn in_filename out_chan =
     let open Bio_io in
-    Fasta_in_channel.with_file_iter_records_exn in_filename ~f:(fun record ->
+    Fasta.In_channel.with_file_iter_records_exn in_filename ~f:(fun record ->
         output_record out_chan record )
 
   (* We need to add the key reference sequence to the top of the the queries
@@ -450,7 +450,7 @@ module Msa = struct
   let write_msa_infile filename references query =
     let refs =
       List.mapi references ~f:(fun i reference ->
-          let open Bio_io.Fasta_record in
+          let open Bio_io.Fasta.Record in
           let id =
             if Int.(i = 0) then U.key_reference_id else U.make_reference_id i
           in
@@ -459,7 +459,7 @@ module Msa = struct
     Out_channel.with_file filename ~f:(fun chan ->
         Out_channel.output_lines chan refs ;
         Out_channel.output_string chan
-          (Bio_io.Fasta_record.to_string query ^ "\n") )
+          (Bio_io.Fasta.Record.to_string query ^ "\n") )
 
   let make_msa_filenames outdir i =
     let infile =
@@ -563,10 +563,10 @@ module Msa = struct
           ~outdir:common_opts.outdir
       in
       let references =
-        Bio_io.Fasta_in_channel.with_file_records_exn opts.references
+        Bio_io.Fasta.In_channel.with_file_records_exn opts.references
       in
       let queries =
-        Bio_io.Fasta_in_channel.with_file_records_exn opts.queries
+        Bio_io.Fasta.In_channel.with_file_records_exn opts.queries
       in
       let open Async in
       (* Now that we're in async world, make sure the logger is async. *)

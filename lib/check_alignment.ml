@@ -11,7 +11,7 @@ let is_non_gap_char c = not (is_gap_char c)
 
 let make_zero_raw_aln_pos_map (aln_rec : Position.aln Record.t) =
   let _, map =
-    aln_rec |> Record.to_fasta_record |> Bio_io.Fasta_record.seq
+    aln_rec |> Record.to_fasta_record |> Bio_io.Fasta.Record.seq
     |> String.to_array
     |> Array.foldi
          ~init:
@@ -74,9 +74,9 @@ type alignment_infile = Basic of string | With_pasv_refs of string
 let parse_alignment_file_basic infile =
   let open Bio_io in
   let f () =
-    Fasta_in_channel.with_file_foldi_records_exn infile
+    Fasta.In_channel.with_file_foldi_records_exn infile
       ~init:(empty_alignment_data ()) ~f:(fun i aln record ->
-        let this_aln_len = String.length (Fasta_record.seq record) in
+        let this_aln_len = String.length (Fasta.Record.seq record) in
         (* Regardless of whether it is a key ref, pasv ref, or query, all aln
            lengths should match the first record's length. *)
         if i = 0 then
@@ -103,9 +103,9 @@ let parse_alignment_file_with_pasv_refs infile =
   let is_reference = Utils.is_reference in
   let open Bio_io in
   let f () =
-    Fasta_in_channel.with_file_foldi_records_exn infile
+    Fasta.In_channel.with_file_foldi_records_exn infile
       ~init:(empty_alignment_data ()) ~f:(fun i aln record ->
-        let this_aln_len = String.length (Fasta_record.seq record) in
+        let this_aln_len = String.length (Fasta.Record.seq record) in
         (* Regardless of whether it is a key ref, pasv ref, or query, all aln
            lengths should match the first record's length. *)
         let aln =
@@ -202,7 +202,7 @@ let spans_roi_start (record : Position.aln Record.t) = function
   | Some (roi_start : Position.zero_indexed_aln) ->
       let record = Record.to_fasta_record record in
       let prefix_len = Position.to_int roi_start + 1 in
-      let prefix = String.prefix (Bio_io.Fasta_record.seq record) prefix_len in
+      let prefix = String.prefix (Bio_io.Fasta.Record.seq record) prefix_len in
       spans prefix
   | None ->
       Na
@@ -210,7 +210,7 @@ let spans_roi_start (record : Position.aln Record.t) = function
 let spans_roi_end (record : Position.aln Record.t) = function
   | Some (roi_end : Position.zero_indexed_aln) ->
       let record = Record.to_fasta_record record in
-      let seq = Bio_io.Fasta_record.seq record in
+      let seq = Bio_io.Fasta.Record.seq record in
       let suffix =
         let pos = Position.to_int roi_end in
         let len = String.length seq - pos in
@@ -244,7 +244,7 @@ let check_alignment ~infile ~roi_start ~roi_end ~positions =
     in
     let%map roi_end = map_roi_boundary aln_file.zero_raw_aln_pos_map roi_end in
     let make_aln_record_info record =
-      let id = Bio_io.Fasta_record.id @@ Record.to_fasta_record record in
+      let id = Bio_io.Fasta.Record.id @@ Record.to_fasta_record record in
       let spans_start = spans_roi_start record roi_start in
       let spans_end = spans_roi_end record roi_end in
       let spans_region = get_spanning_info ~spans_start ~spans_end in

@@ -520,8 +520,7 @@ nothing to stdout.  This would be a weird mafft bug.
   D, [DATE TIME PID] DEBUG -- Running command: ./mafft.msa_success_no_outfile --auto --thread 1 apple/refs_and_query_0.fa
   E, [DATE TIME PID] ERROR -- ("error in check_alignment"
    ("Error parsing alignment"
-    (src/fasta_in_channel.ml.Exn
-     "Not at a header line, but not currently in a sequence")))
+    (Failure "Not at a header line, but not currently in a sequence")))
   F, [DATE TIME PID] FATAL -- Could not get signatures for any of the queries!
 
 This one outputs "fake" aln file without key reference.

@@ -4,7 +4,7 @@ open Little_logger
 let key_reference_id = "______pasv_key_reference______"
 
 let is_key_reference record =
-  String.(Bio_io.Fasta_record.id record = key_reference_id)
+  String.(Bio_io.Fasta.Record.id record = key_reference_id)
 
 let reference_id_prefix = "______pasv_reference______seq_"
 
@@ -14,7 +14,7 @@ let reference_id_prefix_re =
   Re2.create_exn "^______pasv_reference______seq_[0-9]+$"
 
 let is_reference record =
-  Re2.matches reference_id_prefix_re @@ Bio_io.Fasta_record.id record
+  Re2.matches reference_id_prefix_re @@ Bio_io.Fasta.Record.id record
 
 let is_file name =
   match Sys.is_file name with `Yes -> true | `No | `Unknown -> false

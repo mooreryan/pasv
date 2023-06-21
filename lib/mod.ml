@@ -170,18 +170,18 @@ end
 and Record : sig
   type 'position t
 
-  val aln_of_fasta_record : Bio_io.Fasta_record.t -> Position.aln t
+  val aln_of_fasta_record : Bio_io.Fasta.Record.t -> Position.aln t
 
-  val raw_of_fasta_record : Bio_io.Fasta_record.t -> Position.raw t
+  val raw_of_fasta_record : Bio_io.Fasta.Record.t -> Position.raw t
 
-  val to_fasta_record : 'positions t -> Bio_io.Fasta_record.t
+  val to_fasta_record : 'positions t -> Bio_io.Fasta.Record.t
 
   val get_aln_residues :
        (Position.zero_indexed, Position.aln) Position.List.t
     -> Position.aln t
     -> string list
 end = struct
-  type 'position t = Bio_io.Fasta_record.t
+  type 'position t = Bio_io.Fasta.Record.t
 
   let aln_of_fasta_record x = x
 
@@ -190,6 +190,6 @@ end = struct
   let to_fasta_record x = x
 
   let get_aln_residues positions record =
-    let seq = Bio_io.Fasta_record.seq record in
+    let seq = Bio_io.Fasta.Record.seq record in
     List.map positions ~f:(fun aln_i -> String.of_char @@ String.get seq aln_i)
 end
