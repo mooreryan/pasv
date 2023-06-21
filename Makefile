@@ -20,6 +20,10 @@ build_release:
 build_release_mac:
 	dune build -p $(NAME) -j 1
 
+.PHONY: build_static
+build_static:
+	dune build --profile=static
+
 .PHONY: clean
 clean:
 	dune clean
@@ -40,6 +44,10 @@ test_slow: build
 test_slow_mac: build_mac
 	dune test -j 1 test/slow
 
+.PHONY: test_slow_static
+test_slow_static: build
+	dune test test/slow --profile=static
+
 .PHONY: test_medium
 test_medium: build
 	dune test test/medium
@@ -47,6 +55,10 @@ test_medium: build
 .PHONY: test_medium_mac
 test_medium_mac: build_mac
 	dune test -j 1 test/medium
+
+.PHONY: test_medium_static
+test_medium_static: build
+	dune test test/medium --profile=static
 
 .PHONY: test_fast
 test_fast: build
@@ -56,11 +68,18 @@ test_fast: build
 test_fast_mac: build_mac
 	dune test -j 1 test/fast
 
+.PHONY: test_fast_static
+test_fast_static: build
+	dune test test/fast --profile=static
+
 .PHONY: test
 test: test_fast test_medium test_slow
 
 .PHONY: test_mac
 test_mac: test_fast_mac test_medium_mac test_slow_mac
+
+.PHONY: test_static
+test: test_fast_static test_medium_static test_slow_static
 
 .PHONY: test_coverage
 test_coverage:

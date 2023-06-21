@@ -6,3 +6,8 @@
   (backend bisect_ppx))
  (preprocess
   (pps ppx_jane ppx_expect)))
+
+(env
+ (static
+  (flags
+   (:standard -ccopt -static -cclib -static -cclib -no-pie))))

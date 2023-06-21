@@ -25,11 +25,11 @@ jobs:
         with:
           submodules: recursive
 
-      - run: OCAMLPARAM=_,ccopt=-static opam exec -- make test
-      - run: OCAMLPARAM=_,ccopt=-static opam exec -- make build_release
+      - run: opam exec -- make test_static
+      - run: opam exec -- make build_static
 
       - name: Upload the build artifact
         uses: actions/upload-artifact@v2
         with:
-          name: alpine-4.12.0-static-${{ env.PROGRAM_NAME }}
+          name: alpine-4.14.1-static-${{ env.PROGRAM_NAME }}
           path: _build/install/default/bin/${{ env.PROGRAM_NAME }}
