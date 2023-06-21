@@ -3,11 +3,11 @@ name: Build and Test
 on:
   push:
     branches:
-      - 'master'
-      - 'staging'
+      - "master"
+      - "staging"
   pull_request:
     branches:
-      - '*'
+      - "*"
 
 env:
   PROGRAM_NAME: pasv
@@ -73,7 +73,7 @@ jobs:
         uses: ocaml/setup-ocaml@v2
         with:
           ocaml-compiler: ${{ matrix.ocaml-compiler }}
-          dune-cache: true
+          dune-cache: ${{ matrix.os != 'macos-latest' }}
           cache-prefix: v1-${{ matrix.os }}
 
       - name: Install OCaml deps (Ubuntu)
