@@ -18,7 +18,7 @@ depends: [
   "cmdliner" {= "1.2.0"}
   "little_logger" {= "0.2.0"}
   "ocaml" {= "4.14.1"}
-  "ocamlformat" {= "0.20.1"}
+  "ocamlformat" {= "0.25.1"}
   "ppx_jane" {= "v0.14.0"}
   "re2" {= "v0.14.0"}
   "odoc" {with-doc}

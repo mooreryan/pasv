@@ -54,11 +54,12 @@ depends: [
   "ocaml-version" {= "3.5.0"}
   "ocamlbuild" {= "0.14.2"}
   "ocamlfind" {= "1.9.6"}
-  "ocamlformat" {= "0.20.1"}
+  "ocamlformat" {= "0.25.1"}
+  "ocamlformat-lib" {= "0.25.1"}
   "ocp-indent" {= "1.8.1"}
   "octavius" {= "1.2.2"}
   "odoc" {= "2.1.1" & with-doc}
-  "odoc-parser" {= "1.0.1"}
+  "odoc-parser" {= "1.0.1" & with-doc}
   "parsexp" {= "v0.14.2"}
   "ppx_assert" {= "v0.14.0"}
   "ppx_base" {= "v0.14.0"}
