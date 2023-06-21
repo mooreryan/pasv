@@ -48,7 +48,7 @@ jobs:
         # 1.2.4 isn't available for MacOS
         run: |
           \curl -L http://www.clustal.org/omega/clustal-omega-1.2.3-macosx > "$CLUSTALO_EXE"
-        if: matrix.os == 'macos-latest'
+        if: matrix.os == 'macos-11'
 
       - name: Setup and check Clustal Omega
         run: |
@@ -73,7 +73,7 @@ jobs:
         uses: ocaml/setup-ocaml@v2
         with:
           ocaml-compiler: ${{ matrix.ocaml-compiler }}
-          dune-cache: ${{ matrix.os != 'macos-latest' }}
+          dune-cache: ${{ matrix.os != 'macos-11' }}
           cache-prefix: v1-${{ matrix.os }}
 
       - name: Install OCaml deps (Ubuntu)
@@ -82,7 +82,7 @@ jobs:
 
       - name: Install OCaml deps (MacOS)
         run: opam update && opam install --locked . --jobs 1 --deps-only --with-doc --with-test
-        if: matrix.os == 'macos-latest'
+        if: matrix.os == 'macos-11'
 
       - name: Test (Ubuntu)
         run: opam exec -- make test
@@ -90,7 +90,7 @@ jobs:
 
       - name: Test (MacOS)
         run: opam exec -- make test_mac
-        if: matrix.os == 'macos-latest'
+        if: matrix.os == 'macos-11'
 
       - run: opam exec -- make send_coverage
         if: matrix.ocaml-compiler == '4.12.0'
@@ -99,11 +99,11 @@ jobs:
 
       - name: Build (Ubuntu)
         run: opam exec -- make build_release
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-20.04'
 
       - name: Build (MacOS)
         run: opam exec -- make build_release_mac
-        if: matrix.os == 'macos-latest'
+        if: matrix.os == 'macos-11'
 
       - name: Upload the build artifact
         uses: actions/upload-artifact@v2
