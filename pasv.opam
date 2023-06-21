@@ -15,8 +15,8 @@ depends: [
   "bisect_ppx" {>= "2.8.0" & < "2.9.0"}
   "core" {>= "v0.15.0" & < "v0.16.0"}
   "core_unix" {>= "v0.15.0" & < "v0.16.0"}
-  "cmdliner" {= "1.2.0"}
-  "little_logger" {= "0.2.0"}
+  "cmdliner" {>= "1.2.0" & < "1.3.0"}
+  "little_logger" {>= "0.2.0" & < "0.3.0"}
   "ocaml" {= "4.14.1"}
   "ocamlformat" {= "0.25.1"}
   "ppx_jane" {>= "v0.15.0" & < "v0.16.0"}
