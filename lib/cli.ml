@@ -111,11 +111,11 @@ let common_man_sections =
   List.concat [common_opts; more_help; bugs; see_also; authors]
 
 module type Pasv_command = sig
-  val info : Term.info
+  val info : Cmd.info
 
   val term : (Pasv.common_opts * Pasv.specific_opts) Term.t
 
-  val program : (Pasv.common_opts * Pasv.specific_opts) Term.t * Term.info
+  val program : (Pasv.common_opts * Pasv.specific_opts) Cmd.t
 end
 
 module Command = struct
@@ -175,9 +175,10 @@ module Command = struct
             \               aln.faa \\\\ \n\
             \               500,502,504" ]
       in
-      Term.info "check" ~version ~doc ~man ~sdocs:Manpage.s_common_options
+      Cmd.info "check" ~version ~doc ~man ~sdocs:Manpage.s_common_options
+        ~exits:[]
 
-    let program = (term, info)
+    let program = Cmd.v info term
   end
 
   module Hmm : Pasv_command = struct
@@ -260,9 +261,10 @@ module Command = struct
             \             main_ref.faa \\\\ \n\
             \             500,502,504" ]
       in
-      Term.info "hmm" ~version ~doc ~man ~sdocs:Manpage.s_common_options
+      Cmd.info "hmm" ~version ~doc ~man ~sdocs:Manpage.s_common_options
+        ~exits:[]
 
-    let program = (term, info)
+    let program = Cmd.v info term
   end
 
   module Msa : Pasv_command = struct
@@ -377,9 +379,10 @@ module Command = struct
             \             refs.faa \\\\ \n\
             \             500,502,504" ]
       in
-      Term.info "msa" ~version ~doc ~man ~sdocs:Manpage.s_common_options
+      Cmd.info "msa" ~version ~doc ~man ~sdocs:Manpage.s_common_options
+        ~exits:[]
 
-    let program = (term, info)
+    let program = Cmd.v info term
   end
 
   module Root : Pasv_command = struct
@@ -394,9 +397,10 @@ module Command = struct
              specific residues (active sites, conserved residues, etc)."
         ; `Blocks common_man_sections ]
       in
-      Term.info "pasv" ~version ~doc ~man ~sdocs:Manpage.s_common_options
+      Cmd.info "pasv" ~version ~doc ~man ~sdocs:Manpage.s_common_options
+        ~exits:[]
 
-    let program = (term, info)
+    let program = Cmd.v info term
   end
 
   module Select : Pasv_command = struct
@@ -463,9 +467,10 @@ module Command = struct
         ; `P "Print queries that do not have the given signature(s)."
         ; `Pre "  \\$ pasv select -rF queries.fa signatures.tsv AAA,AAB" ]
       in
-      Term.info "select" ~version ~doc ~man ~sdocs:Manpage.s_common_options
+      Cmd.info "select" ~version ~doc ~man ~sdocs:Manpage.s_common_options
+        ~exits:[]
 
-    let program = (term, info)
+    let program = Cmd.v info term
   end
 end
 

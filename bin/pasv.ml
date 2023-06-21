@@ -4,12 +4,16 @@ open Little_logger
 open Pasv_lib
 
 let parse_cli () =
-  match Term.eval_choice Cli.Command.Root.program Cli.subcommands with
-  | `Ok opts ->
+  let cmd =
+    Cmd.group ~default:Cli.Command.Root.term Cli.Command.Root.info
+      Cli.subcommands
+  in
+  match Cmd.eval_value cmd with
+  | Ok (`Ok opts) ->
       Either.first opts
-  | `Help | `Version ->
+  | Ok `Help | Ok `Version ->
       Either.second 0
-  | `Error _ ->
+  | Error _ ->
       Either.second 1
 
 let main () =

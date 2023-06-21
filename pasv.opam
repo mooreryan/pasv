@@ -15,7 +15,7 @@ depends: [
   "bisect_ppx" {= "2.7.0"}
   "core" {= "v0.14.1"}
   "core_kernel" {= "v0.14.1"}
-  "cmdliner" {= "1.0.4"}
+  "cmdliner" {= "1.2.0"}
   "little_logger" {= "0.2.0"}
   "ocaml" {= "4.14.1"}
   "ocamlformat" {= "0.20.1"}

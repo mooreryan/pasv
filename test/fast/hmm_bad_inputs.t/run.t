@@ -23,8 +23,8 @@ Missing residue positions.
   [1]
   $ pasv hmm --outdir="${OUTDIR}" "${QUERIES}" "${REFS}" "${MAIN_REF}"
   pasv: required argument KEY_RESIDUES is missing
-  Usage: pasv hmm [OPTION]... QUERIES REFERENCES KEY_REFERENCE KEY_RESIDUES
-  Try `pasv hmm --help' or `pasv --help' for more information.
+  Usage: pasv hmm [OPTION]… QUERIES REFERENCES KEY_REFERENCE KEY_RESIDUES
+  Try 'pasv hmm --help' or 'pasv --help' for more information.
   [1]
 
 Single of range residue.
@@ -32,16 +32,16 @@ Single of range residue.
   $ rm -r "${OUTDIR}" pasv.tmp.* "${ACTUAL_SIGNATURES}" 2> /dev/null
   [1]
   $ pasv hmm --outdir="${OUTDIR}" "${QUERIES}" "${REFS}" "${MAIN_REF}" -234
-  pasv: unknown option `-2'.
-  Usage: pasv hmm [OPTION]... QUERIES REFERENCES KEY_REFERENCE KEY_RESIDUES
-  Try `pasv hmm --help' or `pasv --help' for more information.
+  pasv: unknown option '-2'.
+  Usage: pasv hmm [OPTION]… QUERIES REFERENCES KEY_REFERENCE KEY_RESIDUES
+  Try 'pasv hmm --help' or 'pasv --help' for more information.
   [1]
   $ rm -r "${OUTDIR}" pasv.tmp.* "${ACTUAL_SIGNATURES}" 2> /dev/null
   [1]
   $ pasv hmm --outdir="${OUTDIR}" "${QUERIES}" "${REFS}" "${MAIN_REF}" -234,20
-  pasv: unknown option `-2'.
-  Usage: pasv hmm [OPTION]... QUERIES REFERENCES KEY_REFERENCE KEY_RESIDUES
-  Try `pasv hmm --help' or `pasv --help' for more information.
+  pasv: unknown option '-2'.
+  Usage: pasv hmm [OPTION]… QUERIES REFERENCES KEY_REFERENCE KEY_RESIDUES
+  Try 'pasv hmm --help' or 'pasv --help' for more information.
   [1]
 
 Actually parsing negative residues. 
@@ -49,10 +49,10 @@ Actually parsing negative residues.
   $ rm -r "${OUTDIR}" pasv.tmp.* "${ACTUAL_SIGNATURES}" 2> /dev/null
   [1]
   $ pasv hmm --outdir="${OUTDIR}" "${QUERIES}" "${REFS}" "${MAIN_REF}" 20,-234
-  pasv: KEY_RESIDUES argument: invalid element in list (`20,-234'): invalid
+  pasv: KEY_RESIDUES argument: invalid element in list ('20,-234'): invalid
         value '-234', expected a number >= 1
-  Usage: pasv hmm [OPTION]... QUERIES REFERENCES KEY_REFERENCE KEY_RESIDUES
-  Try `pasv hmm --help' or `pasv --help' for more information.
+  Usage: pasv hmm [OPTION]… QUERIES REFERENCES KEY_REFERENCE KEY_RESIDUES
+  Try 'pasv hmm --help' or 'pasv --help' for more information.
   [1]
 
 Actually parsing residues that are too high.
@@ -77,9 +77,9 @@ Negative ROI start (long, equals)
   $ rm -r "${OUTDIR}" pasv.tmp.* "${ACTUAL_SIGNATURES}" 2> /dev/null
   [1]
   $ pasv hmm --roi-start=-200 --outdir="${OUTDIR}" "${QUERIES}" "${REFS}" "${MAIN_REF}" "${RESIDUES}"
-  pasv: option `--roi-start': invalid value '-200', expected a number >= 1
-  Usage: pasv hmm [OPTION]... QUERIES REFERENCES KEY_REFERENCE KEY_RESIDUES
-  Try `pasv hmm --help' or `pasv --help' for more information.
+  pasv: option '--roi-start': invalid value '-200', expected a number >= 1
+  Usage: pasv hmm [OPTION]… QUERIES REFERENCES KEY_REFERENCE KEY_RESIDUES
+  Try 'pasv hmm --help' or 'pasv --help' for more information.
   [1]
 
 Negative ROI start (long, space)
@@ -87,9 +87,9 @@ Negative ROI start (long, space)
   $ rm -r "${OUTDIR}" pasv.tmp.* "${ACTUAL_SIGNATURES}" 2> /dev/null
   [1]
   $ pasv hmm --roi-start -200 --outdir="${OUTDIR}" "${QUERIES}" "${REFS}" "${MAIN_REF}" "${RESIDUES}"
-  pasv: unknown option `-2'.
-  Usage: pasv hmm [OPTION]... QUERIES REFERENCES KEY_REFERENCE KEY_RESIDUES
-  Try `pasv hmm --help' or `pasv --help' for more information.
+  pasv: unknown option '-2'.
+  Usage: pasv hmm [OPTION]… QUERIES REFERENCES KEY_REFERENCE KEY_RESIDUES
+  Try 'pasv hmm --help' or 'pasv --help' for more information.
   [1]
 
 Negative ROI start (short option)
@@ -97,9 +97,9 @@ Negative ROI start (short option)
   $ rm -r "${OUTDIR}" pasv.tmp.* "${ACTUAL_SIGNATURES}" 2> /dev/null
   [1]
   $ pasv hmm -s-200 --outdir="${OUTDIR}" "${QUERIES}" "${REFS}" "${MAIN_REF}" "${RESIDUES}"
-  pasv: option `-s': invalid value '-200', expected a number >= 1
-  Usage: pasv hmm [OPTION]... QUERIES REFERENCES KEY_REFERENCE KEY_RESIDUES
-  Try `pasv hmm --help' or `pasv --help' for more information.
+  pasv: option '-s': invalid value '-200', expected a number >= 1
+  Usage: pasv hmm [OPTION]… QUERIES REFERENCES KEY_REFERENCE KEY_RESIDUES
+  Try 'pasv hmm --help' or 'pasv --help' for more information.
   [1]
 
 Negative ROI start (short option)
@@ -107,9 +107,9 @@ Negative ROI start (short option)
   $ rm -r "${OUTDIR}" pasv.tmp.* "${ACTUAL_SIGNATURES}" 2> /dev/null
   [1]
   $ pasv hmm -s -200 --outdir="${OUTDIR}" "${QUERIES}" "${REFS}" "${MAIN_REF}" "${RESIDUES}"
-  pasv: unknown option `-2'.
-  Usage: pasv hmm [OPTION]... QUERIES REFERENCES KEY_REFERENCE KEY_RESIDUES
-  Try `pasv hmm --help' or `pasv --help' for more information.
+  pasv: unknown option '-2'.
+  Usage: pasv hmm [OPTION]… QUERIES REFERENCES KEY_REFERENCE KEY_RESIDUES
+  Try 'pasv hmm --help' or 'pasv --help' for more information.
   [1]
 
 Negative ROI end (long, equals)
@@ -117,9 +117,9 @@ Negative ROI end (long, equals)
   $ rm -r "${OUTDIR}" pasv.tmp.* "${ACTUAL_SIGNATURES}" 2> /dev/null
   [1]
   $ pasv hmm --roi-end=-200 --outdir="${OUTDIR}" "${QUERIES}" "${REFS}" "${MAIN_REF}" "${RESIDUES}"
-  pasv: option `--roi-end': invalid value '-200', expected a number >= 1
-  Usage: pasv hmm [OPTION]... QUERIES REFERENCES KEY_REFERENCE KEY_RESIDUES
-  Try `pasv hmm --help' or `pasv --help' for more information.
+  pasv: option '--roi-end': invalid value '-200', expected a number >= 1
+  Usage: pasv hmm [OPTION]… QUERIES REFERENCES KEY_REFERENCE KEY_RESIDUES
+  Try 'pasv hmm --help' or 'pasv --help' for more information.
   [1]
 
 Negative ROI end (long, space)
@@ -127,9 +127,9 @@ Negative ROI end (long, space)
   $ rm -r "${OUTDIR}" pasv.tmp.* "${ACTUAL_SIGNATURES}" 2> /dev/null
   [1]
   $ pasv hmm --roi-end -200 --outdir="${OUTDIR}" "${QUERIES}" "${REFS}" "${MAIN_REF}" "${RESIDUES}"
-  pasv: unknown option `-2'.
-  Usage: pasv hmm [OPTION]... QUERIES REFERENCES KEY_REFERENCE KEY_RESIDUES
-  Try `pasv hmm --help' or `pasv --help' for more information.
+  pasv: unknown option '-2'.
+  Usage: pasv hmm [OPTION]… QUERIES REFERENCES KEY_REFERENCE KEY_RESIDUES
+  Try 'pasv hmm --help' or 'pasv --help' for more information.
   [1]
 
 Negative ROI end (short option)
@@ -137,9 +137,9 @@ Negative ROI end (short option)
   $ rm -r "${OUTDIR}" pasv.tmp.* "${ACTUAL_SIGNATURES}" 2> /dev/null
   [1]
   $ pasv hmm -e-200 --outdir="${OUTDIR}" "${QUERIES}" "${REFS}" "${MAIN_REF}" "${RESIDUES}"
-  pasv: option `-e': invalid value '-200', expected a number >= 1
-  Usage: pasv hmm [OPTION]... QUERIES REFERENCES KEY_REFERENCE KEY_RESIDUES
-  Try `pasv hmm --help' or `pasv --help' for more information.
+  pasv: option '-e': invalid value '-200', expected a number >= 1
+  Usage: pasv hmm [OPTION]… QUERIES REFERENCES KEY_REFERENCE KEY_RESIDUES
+  Try 'pasv hmm --help' or 'pasv --help' for more information.
   [1]
 
 Negative ROI end (short option)
@@ -147,9 +147,9 @@ Negative ROI end (short option)
   $ rm -r "${OUTDIR}" pasv.tmp.* "${ACTUAL_SIGNATURES}" 2> /dev/null
   [1]
   $ pasv hmm -e -200 --outdir="${OUTDIR}" "${QUERIES}" "${REFS}" "${MAIN_REF}" "${RESIDUES}"
-  pasv: unknown option `-2'.
-  Usage: pasv hmm [OPTION]... QUERIES REFERENCES KEY_REFERENCE KEY_RESIDUES
-  Try `pasv hmm --help' or `pasv --help' for more information.
+  pasv: unknown option '-2'.
+  Usage: pasv hmm [OPTION]… QUERIES REFERENCES KEY_REFERENCE KEY_RESIDUES
+  Try 'pasv hmm --help' or 'pasv --help' for more information.
   [1]
 
 ROI start equals ROI end gives error.

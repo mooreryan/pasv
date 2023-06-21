@@ -20,7 +20,7 @@ Help screen
          pasv-hmm - use hmm alignments
   
   SYNOPSIS
-         pasv hmm [OPTION]... QUERIES REFERENCES KEY_REFERENCE KEY_RESIDUES
+         pasv hmm [OPTION]… QUERIES REFERENCES KEY_REFERENCE KEY_RESIDUES
   
   DESCRIPTION
          Use the hmmalign to compute alignments.
@@ -63,9 +63,9 @@ Help screen
              If the outdir already exists, just keep going.
   
          --help[=FMT] (default=auto)
-             Show this help in format FMT. The value FMT must be one of `auto',
-             `pager', `groff' or `plain'. With `auto', the format is `pager` or
-             `plain' whenever the TERM env var is `dumb' or undefined.
+             Show this help in format FMT. The value FMT must be one of auto,
+             pager, groff or plain. With auto, the format is pager or plain
+             whenever the TERM env var is dumb or undefined.
   
          -o OUTDIR, --outdir=OUTDIR (absent=.)
              Out directory
@@ -93,6 +93,8 @@ Help screen
   
          If you use pasv, please cite our manuscript:
          https://doi.org/10.1101/2021.01.20.427478
+  
+         pasv(1)
   
   AUTHORS
          Ryan M. Moore <https://orcid.org/0000-0003-3337-8184>

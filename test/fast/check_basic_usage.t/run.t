@@ -23,7 +23,8 @@ Help screen
          pasv-check - use precomputed alignments
   
   SYNOPSIS
-         pasv check [OPTION]... ALIGNMENT KEY_RESIDUES
+         pasv check [--roi-end=ROI_END] [--roi-start=ROI_START] [OPTION]…
+         ALIGNMENT KEY_RESIDUES
   
   DESCRIPTION
          Use pasv-check when you already have an alignment file in which you
@@ -53,9 +54,9 @@ Help screen
              If the outdir already exists, just keep going.
   
          --help[=FMT] (default=auto)
-             Show this help in format FMT. The value FMT must be one of `auto',
-             `pager', `groff' or `plain'. With `auto', the format is `pager` or
-             `plain' whenever the TERM env var is `dumb' or undefined.
+             Show this help in format FMT. The value FMT must be one of auto,
+             pager, groff or plain. With auto, the format is pager or plain
+             whenever the TERM env var is dumb or undefined.
   
          -o OUTDIR, --outdir=OUTDIR (absent=.)
              Out directory
@@ -83,6 +84,8 @@ Help screen
   
          If you use pasv, please cite our manuscript:
          https://doi.org/10.1101/2021.01.20.427478
+  
+         pasv(1)
   
   AUTHORS
          Ryan M. Moore <https://orcid.org/0000-0003-3337-8184>
@@ -192,9 +195,9 @@ ROI start isn't a string
   $ pasv check --outdir="${OUTDIR}" --roi-start=apple "${ALN}" "${RESIDUES}" 2> err
   [1]
   $ "${SANITIZE_LOGS}" err
-  pasv: option `--roi-start': invalid value 'apple', expected a number >= 1
-  Usage: pasv check [OPTION]... ALIGNMENT KEY_RESIDUES
-  Try `pasv check --help' or `pasv --help' for more information.
+  pasv: option '--roi-start': invalid value 'apple', expected a number >= 1
+  Usage: pasv check [--roi-end=ROI_END] [--roi-start=ROI_START] [OPTION]… ALIGNMENT KEY_RESIDUES
+  Try 'pasv check --help' or 'pasv --help' for more information.
 
 ROI end isn't a string
 
@@ -203,9 +206,9 @@ ROI end isn't a string
   $ pasv check --outdir="${OUTDIR}" --roi-end=apple "${ALN}" "${RESIDUES}" 2> err
   [1]
   $ "${SANITIZE_LOGS}" err
-  pasv: option `--roi-end': invalid value 'apple', expected a number >= 1
-  Usage: pasv check [OPTION]... ALIGNMENT KEY_RESIDUES
-  Try `pasv check --help' or `pasv --help' for more information.
+  pasv: option '--roi-end': invalid value 'apple', expected a number >= 1
+  Usage: pasv check [--roi-end=ROI_END] [--roi-start=ROI_START] [OPTION]… ALIGNMENT KEY_RESIDUES
+  Try 'pasv check --help' or 'pasv --help' for more information.
 
 Check version.
 

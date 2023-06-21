@@ -30,7 +30,7 @@
   (core_kernel
    (= "v0.14.1"))
   (cmdliner
-   (= "1.0.4"))
+   (= "1.2.0"))
   (little_logger
    (= "0.2.0"))
   (ocaml
