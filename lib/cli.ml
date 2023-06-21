@@ -53,7 +53,7 @@ let outdir_term =
   let doc = "Out directory" in
   Arg.(
     value & opt string "."
-    & info ["o"; "outdir"] ~docv:"OUTDIR" ~doc ~docs:Manpage.s_common_options)
+    & info ["o"; "outdir"] ~docv:"OUTDIR" ~doc ~docs:Manpage.s_common_options )
 
 let force_term =
   let doc = "If the outdir already exists, just keep going." in
@@ -64,14 +64,14 @@ let roi_start_term =
   Arg.(
     value
     & opt (some Converter.counting_number) None
-    & info ["s"; "roi-start"] ~docv:"ROI_START" ~doc)
+    & info ["s"; "roi-start"] ~docv:"ROI_START" ~doc )
 
 let roi_end_term =
   let doc = "Region of interest end (ROI) (1-indexed)" in
   Arg.(
     value
     & opt (some Converter.counting_number) None
-    & info ["e"; "roi-end"] ~docv:"ROI_END" ~doc)
+    & info ["e"; "roi-end"] ~docv:"ROI_END" ~doc )
 
 let common_opts_term =
   let make_common_opts outdir force verbosity : Pasv.common_opts =
@@ -79,7 +79,7 @@ let common_opts_term =
   in
   Term.(
     const make_common_opts $ outdir_term $ force_term
-    $ Verbosity.log_level_term ~docs:Manpage.s_common_options ())
+    $ Verbosity.log_level_term ~docs:Manpage.s_common_options () )
 
 let common_man_sections =
   let common_opts =
@@ -125,14 +125,14 @@ module Command = struct
       Arg.(
         required
         & pos 0 (some non_dir_file) None
-        & info [] ~docv:"ALIGNMENT" ~doc)
+        & info [] ~docv:"ALIGNMENT" ~doc )
 
     let key_residues_term =
       let doc = "Key residues (comma separated)" in
       Arg.(
         required
         & pos 1 (some (list Converter.counting_number ~sep:',')) None
-        & info [] ~docv:"KEY_RESIDUES" ~doc)
+        & info [] ~docv:"KEY_RESIDUES" ~doc )
 
     let term =
       let opts_term =
@@ -145,7 +145,7 @@ module Command = struct
         in
         Term.(
           const make_check_opts $ alignment_file_term $ key_residues_term
-          $ roi_start_term $ roi_end_term)
+          $ roi_start_term $ roi_end_term )
       in
       let combine_terms common_opts opts : Pasv.common_opts * Pasv.specific_opts
           =
@@ -187,14 +187,14 @@ module Command = struct
       Arg.(
         required
         & pos 1 (some non_dir_file) None
-        & info [] ~docv:"REFERENCES" ~doc)
+        & info [] ~docv:"REFERENCES" ~doc )
 
     let key_reference_term =
       let doc = "Path to key reference sequence." in
       Arg.(
         required
         & pos 2 (some non_dir_file) None
-        & info [] ~docv:"KEY_REFERENCE" ~doc)
+        & info [] ~docv:"KEY_REFERENCE" ~doc )
 
     let hmmalign_term =
       let doc =
@@ -204,14 +204,14 @@ module Command = struct
       in
       Arg.(
         value & opt string "hmmalign"
-        & info ["h"; "hmmalign"] ~docv:"HMMALIGN" ~doc)
+        & info ["h"; "hmmalign"] ~docv:"HMMALIGN" ~doc )
 
     let key_residues_term =
       let doc = "Key residues (comma separated)" in
       Arg.(
         required
         & pos 3 (some (list Converter.counting_number ~sep:',')) None
-        & info [] ~docv:"KEY_RESIDUES" ~doc)
+        & info [] ~docv:"KEY_RESIDUES" ~doc )
 
     let term =
       let opts_term =
@@ -230,7 +230,7 @@ module Command = struct
           const make_hmm_opts $ queries_term $ references_hmm_term
           $ key_reference_term $ key_residues_term
           $ keep_intermediate_files_term $ hmmalign_term $ roi_start_term
-          $ roi_end_term)
+          $ roi_end_term )
       in
       let combine_terms common_opts opts : Pasv.common_opts * Pasv.specific_opts
           =
@@ -273,7 +273,7 @@ module Command = struct
       Arg.(
         required
         & pos 1 (some non_dir_file) None
-        & info [] ~docv:"REFERENCES" ~doc)
+        & info [] ~docv:"REFERENCES" ~doc )
 
     let aligner_other_params_term =
       let doc =
@@ -292,7 +292,7 @@ module Command = struct
       Arg.(
         value
         & opt string Utils.default_clustalo_other_aln_params
-        & info ["alignment-parameters"] ~docv:"ALIGNMENT_PARAMETERS" ~doc)
+        & info ["alignment-parameters"] ~docv:"ALIGNMENT_PARAMETERS" ~doc )
 
     let max_retries_term =
       let doc =
@@ -303,14 +303,14 @@ module Command = struct
       Arg.(
         value
         & opt Converter.positive_number 10
-        & info ["r"; "max-retries"] ~docv:"MAX_RETRIES" ~doc)
+        & info ["r"; "max-retries"] ~docv:"MAX_RETRIES" ~doc )
 
     let jobs_term =
       let doc = "Number of jobs to run." in
       Arg.(
         value
         & opt Converter.counting_number 1
-        & info ["j"; "jobs"] ~docv:"JOBS" ~doc)
+        & info ["j"; "jobs"] ~docv:"JOBS" ~doc )
 
     let aligner_term =
       let doc =
@@ -320,14 +320,14 @@ module Command = struct
       Arg.(
         value
         & opt Converter.aligner (Runners.Msa.Clustalo "clustalo")
-        & info ["a"; "aligner"] ~docv:"ALIGNER" ~doc)
+        & info ["a"; "aligner"] ~docv:"ALIGNER" ~doc )
 
     let key_residues_term =
       let doc = "Key residues (comma separated)" in
       Arg.(
         required
         & pos 2 (some (list Converter.counting_number ~sep:',')) None
-        & info [] ~docv:"KEY_RESIDUES" ~doc)
+        & info [] ~docv:"KEY_RESIDUES" ~doc )
 
     let term =
       let opts_term =
@@ -349,7 +349,7 @@ module Command = struct
           const make_msa_opts $ queries_term $ references_fasta_term
           $ key_residues_term $ keep_intermediate_files_term $ aligner_term
           $ aligner_other_params_term $ jobs_term $ max_retries_term
-          $ roi_start_term $ roi_end_term)
+          $ roi_start_term $ roi_end_term )
       in
       let combine_terms common_opts opts : Pasv.common_opts * Pasv.specific_opts
           =
@@ -409,14 +409,14 @@ module Command = struct
       Arg.(
         required
         & pos 1 (some non_dir_file) None
-        & info [] ~docv:"SIGNATURE_FILE" ~doc)
+        & info [] ~docv:"SIGNATURE_FILE" ~doc )
 
     let signature_list_term =
       let doc = "List of signatures to keep (comma separated)" in
       Arg.(
         required
         & pos 2 (some (list string ~sep:',')) None
-        & info [] ~docv:"SIGNATURES" ~doc)
+        & info [] ~docv:"SIGNATURES" ~doc )
 
     let reject_term =
       let doc =
@@ -441,7 +441,7 @@ module Command = struct
         in
         Term.(
           const make_select_opts $ queries_term $ signature_file_term
-          $ signature_list_term $ reject_term $ fixed_strings_term)
+          $ signature_list_term $ reject_term $ fixed_strings_term )
       in
       let combine_terms common_opts opts : Pasv.common_opts * Pasv.specific_opts
           =
