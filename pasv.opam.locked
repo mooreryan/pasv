@@ -23,7 +23,7 @@ depends: [
   "base_quickcheck" {= "v0.15.0"}
   "bin_prot" {= "v0.15.0"}
   "bio_io" {= "0.6.0"}
-  "bisect_ppx" {= "2.7.0"}
+  "bisect_ppx" {= "2.8.1"}
   "camlp-streams" {= "5.0.1"}
   "cmdliner" {= "1.2.0"}
   "conf-g++" {= "1.0"}
