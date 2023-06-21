@@ -42,7 +42,7 @@ jobs:
       - name: Download Clustal Omega (Linux)
         run: |
           \curl -L http://www.clustal.org/omega/clustalo-1.2.4-Ubuntu-x86_64 > "$CLUSTALO_EXE"
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-20.04'
 
       - name: Download Clustal Omega (MacOS)
         # 1.2.4 isn't available for MacOS
@@ -78,7 +78,7 @@ jobs:
 
       - name: Install OCaml deps (Ubuntu)
         run: opam update && opam install --locked . --deps-only --with-doc --with-test
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-20.04'
 
       - name: Install OCaml deps (MacOS)
         run: opam update && opam install --locked . --jobs 1 --deps-only --with-doc --with-test
@@ -86,7 +86,7 @@ jobs:
 
       - name: Test (Ubuntu)
         run: opam exec -- make test
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-20.04'
 
       - name: Test (MacOS)
         run: opam exec -- make test_mac
