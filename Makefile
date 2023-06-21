@@ -79,7 +79,7 @@ test: test_fast test_medium test_slow
 test_mac: test_fast_mac test_medium_mac test_slow_mac
 
 .PHONY: test_static
-test: test_fast_static test_medium_static test_slow_static
+test_static: test_fast_static test_medium_static test_slow_static
 
 .PHONY: test_coverage
 test_coverage:
