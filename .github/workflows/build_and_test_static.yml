@@ -3,11 +3,12 @@ name: Build and Test Static
 on:
   push:
     branches:
-      - 'master'
-      - 'staging'
+      - "master"
+      - "staging"
+      - "ci_build_test_static"
   pull_request:
     branches:
-      - '*'
+      - "*"
 
 env:
   PROGRAM_NAME: pasv
@@ -16,7 +17,7 @@ jobs:
   build_and_test_static:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/mooreryan/pasv_build_and_test_alpine:553acf9
+      image: ghcr.io/mooreryan/pasv_build_and_test_alpine:eae9a79
 
     steps:
       - name: Checkout code
