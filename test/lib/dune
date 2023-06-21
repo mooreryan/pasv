@@ -2,4 +2,5 @@
  (name test_pasv_lib)
  (libraries core pasv_lib re2)
  (inline_tests)
- (preprocess (pps ppx_inline_test ppx_expect ppx_sexp_conv)))
+ (preprocess
+  (pps ppx_inline_test ppx_expect ppx_sexp_conv)))

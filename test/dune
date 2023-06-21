@@ -1,7 +1,7 @@
 (cram
  (applies_to :whole_subtree)
  (deps
-   %{bin:pasv}
-   ./helpers/count_lines
-   ./helpers/does_file_exist
-   ./helpers/sanitize_logs))
+  %{bin:pasv}
+  ./helpers/count_lines
+  ./helpers/does_file_exist
+  ./helpers/sanitize_logs))

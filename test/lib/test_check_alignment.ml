@@ -7,7 +7,8 @@ let%expect_test "boundary missing in position map" =
   let boundary = Position.zero_raw_of_int 47 in
   let x = Check_alignment.map_roi_boundary map (Some boundary) in
   match x with
-  | Ok _ -> assert false
+  | Ok _ ->
+      assert false
   | Error err ->
-      print_endline @@ Error.to_string_hum err;
+      print_endline @@ Error.to_string_hum err ;
       [%expect {| ("key not found" 47) |}]

@@ -8,14 +8,15 @@ let assert_program_good_or_exit name_or_path cmd =
   (* TODO it would be nice to give the user a more specific reason for the
      program failing. *)
   match Unix.Exit_or_signal.or_error @@ Unix.system cmd with
-  | Ok () -> ()
+  | Ok () ->
+      ()
   | Error err ->
       Logger.fatal (fun () ->
           let err_msg = Error.to_string_hum err in
           [%string
             "'%{name_or_path}' doesn't look like an executable file.  Is it a \
              path to an executable file?  If not, is it a command on your \
-             PATH?  Error: %{err_msg}"]);
+             PATH?  Error: %{err_msg}"] ) ;
       exit 1
 
 module Msa = struct
@@ -29,8 +30,10 @@ module Msa = struct
         assert_program_good_or_exit name_or_path cmd
 
   let pp_aligner ppf = function
-    | Clustalo path -> Format.fprintf ppf "%s" path
-    | Mafft path -> Format.fprintf ppf "%s" path
+    | Clustalo path ->
+        Format.fprintf ppf "%s" path
+    | Mafft path ->
+        Format.fprintf ppf "%s" path
 
   let aligner_of_string s =
     let s' = String.lowercase s in
@@ -38,19 +41,11 @@ module Msa = struct
     else if String.is_substring s' ~substring:"mafft" then Some (Mafft s)
     else None
 
-  type opts = {
-    infile : string;
-    outfile : string;
-    other_parameters : string;
-    max_retries : int;
-  }
+  type opts =
+    {infile: string; outfile: string; other_parameters: string; max_retries: int}
 
-  type out = {
-    result : unit Or_error.t;
-    stdout : string;
-    stderr : string;
-    opts : opts;
-  }
+  type out =
+    {result: unit Or_error.t; stdout: string; stderr: string; opts: opts}
 
   let make_clustalo_args opts =
     (* There may be lots of other args, so just set them up in a single string,
@@ -103,18 +98,19 @@ module Msa = struct
     in
     let rec loop num_tries =
       match%bind Process.run ~prog ~args () with
-      | Ok stdout -> Deferred.Or_error.return stdout
+      | Ok stdout ->
+          Deferred.Or_error.return stdout
       | Error err ->
           if num_tries < max_retries then (
-            log_retryable_error prog args err;
+            log_retryable_error prog args err ;
             (* We want to give just a little bit of delay before retrying the
                job again. *)
             let%bind (_ : unit) = after delay in
-            loop (num_tries + 1))
+            loop (num_tries + 1) )
           else (
-            log_final_error prog args err;
+            log_final_error prog args err ;
             Deferred.Or_error.fail err
-            |> Deferred.Or_error.tag ~tag:"job failed after max-retries")
+            |> Deferred.Or_error.tag ~tag:"job failed after max-retries" )
     in
     loop 0
 
@@ -122,13 +118,13 @@ module Msa = struct
     let args = make_mafft_args opts in
     Logger.debug (fun () ->
         let cmd = cmd_to_string exe args in
-        "Running command: " ^ cmd);
+        "Running command: " ^ cmd ) ;
     match%bind run_until_succes_or_error exe args opts.max_retries with
     | Ok stdout ->
         (* stdout for mafft is the actual alignment *)
         let%bind (_ : unit) =
           Writer.with_file opts.outfile ~perm:0o644 ~f:(fun writer ->
-              Deferred.return @@ Writer.write_line writer stdout)
+              Deferred.return @@ Writer.write_line writer stdout )
         in
         (* The stdout gets written to the aln file. Stderr is lost this way...if
            you need it, you will need to change to a lower level function that
@@ -141,7 +137,7 @@ module Msa = struct
   let run_clustalo opts exe : string Deferred.Or_error.t =
     let args = make_clustalo_args opts in
     let cmd = cmd_to_string exe args in
-    Logger.debug (fun () -> "Running command: " ^ cmd);
+    Logger.debug (fun () -> "Running command: " ^ cmd) ;
     match%bind run_until_succes_or_error exe args opts.max_retries with
     | Ok stdout ->
         (* We double check the the outfile actually exists. *)
@@ -158,23 +154,17 @@ module Msa = struct
         |> Deferred.Or_error.tag ~tag:"clustalo failed"
 
   let run opts = function
-    | Clustalo exe -> run_clustalo opts exe
-    | Mafft exe -> run_mafft opts exe
+    | Clustalo exe ->
+        run_clustalo opts exe
+    | Mafft exe ->
+        run_mafft opts exe
 end
 
 module Hmmalign = struct
-  type opts = {
-    exe : string;
-    queries : string;
-    targets : string;
-    outfile : string;
-  }
-  type out = {
-    result : unit Or_error.t;
-    stdout : string;
-    stderr : string;
-    opts : opts;
-  }
+  type opts = {exe: string; queries: string; targets: string; outfile: string}
+
+  type out =
+    {result: unit Or_error.t; stdout: string; stderr: string; opts: opts}
 
   let assert_program_good_or_exit name_or_path =
     let cmd = [%string "%{name_or_path} -h >/dev/null 2>&1"] in
@@ -187,7 +177,7 @@ module Hmmalign = struct
         "%{opts.exe} --outformat=afa -o %{opts.outfile} %{opts.targets} \
          %{opts.queries}"]
     in
-    Logger.debug (fun () -> [%string "Running command: %{cmd}"]);
+    Logger.debug (fun () -> [%string "Running command: %{cmd}"]) ;
     (* Pass in the env explicitly to work with Alpine linux. *)
     let chan = Unix.open_process_full cmd ~env:(Unix.environment ()) in
     let stdout = In_channel.input_all chan.stdout in
@@ -201,10 +191,10 @@ module Hmmalign = struct
               "hmmalign succeeded, but the outfile (%s) does not exist!"
               opts.outfile
         in
-        { result; stdout; stderr; opts }
+        {result; stdout; stderr; opts}
     | Error err ->
         (* hmmalign failed, make sure the outfile is deleted *)
-        if Utils.is_file opts.outfile then Sys.remove opts.outfile;
+        if Utils.is_file opts.outfile then Sys.remove opts.outfile ;
         let result = Or_error.error "hmmalign failed" err Error.sexp_of_t in
-        { result; stdout; stderr; opts }
+        {result; stdout; stderr; opts}
 end

@@ -6,21 +6,24 @@ let log_level_term ?docs () =
     let doc =
       "Increase verbosity. Repeatable, but more than twice does not bring more."
     in
-    Arg.(value & flag_all & info [ "v"; "verbose" ] ~doc ?docs)
+    Arg.(value & flag_all & info ["v"; "verbose"] ~doc ?docs)
   in
   let quiet_term =
     let doc =
       "Silence all log messages. Takes over $(b,-v) and $(b,--verbosity)."
     in
-    Arg.(value & flag & info [ "q"; "quiet" ] ~doc ?docs)
+    Arg.(value & flag & info ["q"; "quiet"] ~doc ?docs)
   in
   let choose quiet verbosity =
     if quiet then Logger.Level.Silent
     else
       match List.length verbosity with
-      | 0 -> Logger.Level.Warning
-      | 1 -> Logger.Level.Info
-      | _ -> Logger.Level.Debug
+      | 0 ->
+          Logger.Level.Warning
+      | 1 ->
+          Logger.Level.Info
+      | _ ->
+          Logger.Level.Debug
   in
   Term.(const choose $ quiet_term $ verbosity_term)
 

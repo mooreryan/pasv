@@ -1,10 +1,9 @@
 open! Core
 open Little_logger
 open Mod
-
 module U = Utils
 
-type common_opts = { outdir : string; force : bool; verbosity : Logger.Level.t }
+type common_opts = {outdir: string; force: bool; verbosity: Logger.Level.t}
 
 exception Exn of string [@@deriving sexp]
 
@@ -20,19 +19,18 @@ let assert_roi_good_or_exit ~(roi_start : ('indexing, 'wrt) Position.t option)
         let end_ = Int.to_string @@ Position.to_int end_ in
         [%string
           "ROI start (%{start}) is should be strictly less than ROI end \
-           (%{end_})"]);
-    exit 1)
+           (%{end_})"] ) ;
+    exit 1 )
   else ()
 
 (* The pasv-select program opts and runner. *)
 module Select = struct
-  type opts = {
-    query_file : string;
-    signature_file : string;
-    signature_list : string list;
-    reject : bool;
-    fixed_strings : bool;
-  }
+  type opts =
+    { query_file: string
+    ; signature_file: string
+    ; signature_list: string list
+    ; reject: bool
+    ; fixed_strings: bool }
 
   (* Checks a bunch of stuff. Logs errors if things fail. Returns true if there
      were no failures, false if there was at least one failure. *)
@@ -47,7 +45,7 @@ module Select = struct
       if not is_good then
         Logger.error (fun () ->
             [%string
-              "Signature file should have 6 or more columns.  Got %{len#Int}."]);
+              "Signature file should have 6 or more columns.  Got %{len#Int}."] ) ;
       is_good
     in
     let check_name_col ary =
@@ -57,7 +55,7 @@ module Select = struct
         Logger.error (fun () ->
             [%string
               "The first column of the signature file should be 'name'.  Got \
-               '%{s}'."]);
+               '%{s}'."] ) ;
       is_good
     in
     let header = String.split line ~on:'\t' |> Array.of_list in
@@ -74,14 +72,12 @@ module Select = struct
       Sig_file_column.check header Sig_file_column.Signature
     in
     let checks =
-      [
-        length_good;
-        name_col_good;
-        spans_col_good;
-        spans_end_col_good;
-        spans_start_col_good;
-        signature_col_good;
-      ]
+      [ length_good
+      ; name_col_good
+      ; spans_col_good
+      ; spans_end_col_good
+      ; spans_start_col_good
+      ; signature_col_good ]
     in
     U.all_true checks
 
@@ -89,8 +85,10 @@ module Select = struct
      matching function. *)
   let make_match_fun ~fixed_strings ~reject =
     match (fixed_strings, reject) with
-    | true, true -> fun ~test ~actual -> String.(test <> actual)
-    | true, false -> fun ~test ~actual -> String.(test = actual)
+    | true, true ->
+        fun ~test ~actual -> String.(test <> actual)
+    | true, false ->
+        fun ~test ~actual -> String.(test = actual)
     | false, true ->
         (* TODO create rather than create_exn; make once rather than everytime
            this function is called. *)
@@ -105,17 +103,18 @@ module Select = struct
     let fold_fun = make_bool_fold_fun reject in
     fold_fun
     @@ List.map test_signatures ~f:(fun test_sig ->
-           match_fun ~test:test_sig ~actual:actual_signature)
+           match_fun ~test:test_sig ~actual:actual_signature )
 
   let add_or_exit map ~key ~data =
     match Map.add map ~key ~data with
-    | `Ok map -> map
+    | `Ok map ->
+        map
     | `Duplicate ->
         Logger.fatal (fun () ->
             [%string
               "Name %{key} was duplicated in the signatures file.  pasv does \
                not duplicate sequences in the signatures file.  Did you edit \
-               the file by hand?  If not, please submit a bug report."]);
+               the file by hand?  If not, please submit a bug report."] ) ;
         (* Technically we could check to see if the signature is the same even
            if the name is duplicated. *)
         exit 1
@@ -125,7 +124,7 @@ module Select = struct
     match In_channel.input_line chan with
     | None ->
         Logger.fatal (fun () ->
-            [%string "Signature file '%{signature_file_name}' has no lines!"]);
+            [%string "Signature file '%{signature_file_name}' has no lines!"] ) ;
         exit 1
     | Some header ->
         if check_sig_file_header header then
@@ -133,8 +132,8 @@ module Select = struct
         else (
           Logger.fatal (fun () ->
               [%string
-                "Signature file '%{signature_file_name}' has a bad header!"]);
-          exit 1)
+                "Signature file '%{signature_file_name}' has a bad header!"] ) ;
+          exit 1 )
 
   (* Returns a map of sequence ID -> signature. *)
   let get_queries_to_keep opts =
@@ -150,8 +149,8 @@ module Select = struct
               Logger.fatal (fun () ->
                   [%string
                     "Line '%{line}' had %{num_cols#Int} column(s) but should \
-                     have had %{expected_num_cols#Int} columns."]);
-              exit 1);
+                     have had %{expected_num_cols#Int} columns."] ) ;
+              exit 1 ) ;
             (* ok_exn okay here since we know the row has the correct number of
                columns. *)
             let signature =
@@ -166,7 +165,7 @@ module Select = struct
             if keep then
               let name = header.(0) in
               add_or_exit name_to_sig ~key:name ~data:signature
-            else name_to_sig))
+            else name_to_sig ) )
 
   let check_queries_to_keep common_opts opts keep_these_queries =
     if Map.length keep_these_queries < 1 then (
@@ -184,8 +183,8 @@ module Select = struct
           [%string
             "There were no sequence IDs to keep!  Outdir \
              '%{common_opts.outdir}' will be empty.  Check your signatures and \
-             make sure they're correct!%{reject_msg}%{fixed_strings_msg}"]);
-      exit 1)
+             make sure they're correct!%{reject_msg}%{fixed_strings_msg}"] ) ;
+      exit 1 )
 
   let make_partition_filename ~outdir ~signature =
     Filename.concat outdir [%string "signature_%{signature}.fa"]
@@ -193,7 +192,7 @@ module Select = struct
   let handle_write_queries_error err =
     Logger.fatal (fun () ->
         let msg = Error.to_string_hum err in
-        [%string "There was an error processing query file: %{msg}"]);
+        [%string "There was an error processing query file: %{msg}"] ) ;
     exit 1
 
   let write_good_queries_or_exit common_opts opts keep_these_queries =
@@ -210,7 +209,8 @@ module Select = struct
           let open Bio_io.Fasta_record in
           let id = id record in
           match Map.find keep_these_queries id with
-          | None -> num_printed
+          | None ->
+              num_printed
           | Some signature ->
               (* Make sure the signature has an outfile. *)
               let out_chan =
@@ -220,25 +220,28 @@ module Select = struct
                         ~signature
                     in
                     Logger.debug (fun () ->
-                        [%string "outfile file: %{filename}"]);
-                    Out_channel.create filename ~perm:0o644)
+                        [%string "outfile file: %{filename}"] ) ;
+                    Out_channel.create filename ~perm:0o644 )
               in
-              Out_channel.output_lines out_chan [ to_string record ];
-              num_printed + 1)
+              Out_channel.output_lines out_chan [to_string record] ;
+              num_printed + 1 )
     with
-    | Ok num_printed -> (num_printed, out_channels)
-    | Error err -> handle_write_queries_error err
+    | Ok num_printed ->
+        (num_printed, out_channels)
+    | Error err ->
+        handle_write_queries_error err
 
   let close_out_channels out_channels =
     Hashtbl.iteri out_channels ~f:(fun ~key:signature ~data:out_chan ->
         match U.try1 Out_channel.close out_chan with
-        | Ok _ -> ()
+        | Ok _ ->
+            ()
         | Error err ->
             Logger.warning (fun () ->
                 let msg = Error.to_string_hum err in
                 [%string
                   "Error closing out channel for signature %{signature}.  \
-                   Error: %{msg}."]))
+                   Error: %{msg}."] ) )
 
   let check_num_printed num_printed =
     if num_printed = 0 then
@@ -247,30 +250,29 @@ module Select = struct
          file match?"
 
   let run (common_opts : common_opts) (opts : opts) =
-    Logger.set_printer prerr_endline;
-    U.make_outdir_or_exit common_opts.outdir common_opts.force;
-    U.assert_looks_like_fasta_file_or_exit opts.query_file;
+    Logger.set_printer prerr_endline ;
+    U.make_outdir_or_exit common_opts.outdir common_opts.force ;
+    U.assert_looks_like_fasta_file_or_exit opts.query_file ;
     let keep_these_queries = get_queries_to_keep opts in
-    check_queries_to_keep common_opts opts keep_these_queries;
+    check_queries_to_keep common_opts opts keep_these_queries ;
     let num_printed, out_channels =
       write_good_queries_or_exit common_opts opts keep_these_queries
     in
-    check_num_printed num_printed;
+    check_num_printed num_printed ;
     close_out_channels out_channels
 end
 
 module Check = struct
-  type opts = {
-    alignment : string;
-    key_residues : (Position.one_indexed, Position.raw) Position.List.t;
-    roi_start : Position.one_indexed_raw option;
-    roi_end : Position.one_indexed_raw option;
-  }
+  type opts =
+    { alignment: string
+    ; key_residues: (Position.one_indexed, Position.raw) Position.List.t
+    ; roi_start: Position.one_indexed_raw option
+    ; roi_end: Position.one_indexed_raw option }
 
   let run (common_opts : common_opts) (opts : opts) =
-    Logger.set_printer prerr_endline;
-    U.assert_looks_like_fasta_file_or_exit opts.alignment;
-    U.make_outdir_or_exit common_opts.outdir common_opts.force;
+    Logger.set_printer prerr_endline ;
+    U.assert_looks_like_fasta_file_or_exit opts.alignment ;
+    U.make_outdir_or_exit common_opts.outdir common_opts.force ;
     let signatures_filename =
       U.make_signatures_filename ~infile:opts.alignment
         ~outdir:common_opts.outdir
@@ -290,21 +292,20 @@ module Check = struct
     | Error err ->
         Logger.fatal (fun () ->
             "\n" ^ Error.to_string_hum
-            @@ Error.tag err ~tag:"Error running pasv check");
+            @@ Error.tag err ~tag:"Error running pasv check" ) ;
         exit 1
 end
 
 module Hmm = struct
-  type opts = {
-    queries : string;
-    references : string;
-    key_reference : string;
-    key_residues : (Position.one_indexed, Position.raw) Position.List.t;
-    keep_intermediate_files : bool;
-    hmmalign : string;
-    roi_start : Position.one_indexed_raw option;
-    roi_end : Position.one_indexed_raw option;
-  }
+  type opts =
+    { queries: string
+    ; references: string
+    ; key_reference: string
+    ; key_residues: (Position.one_indexed, Position.raw) Position.List.t
+    ; keep_intermediate_files: bool
+    ; hmmalign: string
+    ; roi_start: Position.one_indexed_raw option
+    ; roi_end: Position.one_indexed_raw option }
 
   let handle_hmmalign_error (out : Runners.Hmmalign.out) err =
     Logger.fatal (fun () ->
@@ -318,7 +319,7 @@ module Hmm = struct
            %{stdout_header}\n\
            %{out.stdout}\n\
            %{stderr_header}\n\
-           %{out.stderr}"])
+           %{out.stderr}"] )
 
   let make_queries_temp_file in_dir =
     let prefix = "pasv" in
@@ -331,8 +332,10 @@ module Hmm = struct
     let open Bio_io.Fasta_record in
     with_file_exn filename ~f:(fun chan ->
         match input_record_exn chan with
-        | Some record -> with_desc None record |> with_id U.key_reference_id
-        | None -> raise (Exn "No fasta records in key_reference file"))
+        | Some record ->
+            with_desc None record |> with_id U.key_reference_id
+        | None ->
+            raise (Exn "No fasta records in key_reference file") )
 
   let output_record chan record =
     Out_channel.output_string chan (Bio_io.Fasta_record.to_string record ^ "\n")
@@ -340,7 +343,7 @@ module Hmm = struct
   let cat_records_exn in_filename out_chan =
     let open Bio_io in
     Fasta_in_channel.with_file_iter_records_exn in_filename ~f:(fun record ->
-        output_record out_chan record)
+        output_record out_chan record )
 
   (* We need to add the key reference sequence to the top of the the queries
      file, then run that. Also, need to give the thing a special name so we can
@@ -352,8 +355,8 @@ module Hmm = struct
     let key_sequence = get_key_ref_seq_exn opts.key_reference in
     let tempfile_name = make_queries_temp_file common_opts.outdir in
     Out_channel.with_file tempfile_name ~f:(fun out_chan ->
-        output_record out_chan key_sequence;
-        cat_records_exn opts.queries out_chan);
+        output_record out_chan key_sequence ;
+        cat_records_exn opts.queries out_chan ) ;
     tempfile_name
 
   let make_aln_filename ~infile ~outdir =
@@ -363,12 +366,12 @@ module Hmm = struct
     filename
 
   let run (common_opts : common_opts) (opts : opts) =
-    Logger.set_printer prerr_endline;
-    U.assert_looks_like_hmm_file_or_exit opts.references;
-    U.assert_looks_like_fasta_file_or_exit opts.queries;
-    U.assert_looks_like_fasta_file_or_exit opts.key_reference;
-    Runners.Hmmalign.assert_program_good_or_exit opts.hmmalign;
-    U.make_outdir_or_exit common_opts.outdir common_opts.force;
+    Logger.set_printer prerr_endline ;
+    U.assert_looks_like_hmm_file_or_exit opts.references ;
+    U.assert_looks_like_fasta_file_or_exit opts.queries ;
+    U.assert_looks_like_fasta_file_or_exit opts.key_reference ;
+    Runners.Hmmalign.assert_program_good_or_exit opts.hmmalign ;
+    U.make_outdir_or_exit common_opts.outdir common_opts.force ;
     let hmmalign_filename =
       make_aln_filename ~infile:opts.queries ~outdir:common_opts.outdir
     in
@@ -378,12 +381,10 @@ module Hmm = struct
     let queries_filename = make_queries_file_exn common_opts opts in
     let hmmalign_out =
       Runners.Hmmalign.run
-        {
-          exe = opts.hmmalign;
-          queries = queries_filename;
-          targets = opts.references;
-          outfile = hmmalign_filename;
-        }
+        { exe= opts.hmmalign
+        ; queries= queries_filename
+        ; targets= opts.references
+        ; outfile= hmmalign_filename }
     in
     let () =
       match hmmalign_out.result with
@@ -404,29 +405,27 @@ module Hmm = struct
           | Error err ->
               Logger.fatal (fun () ->
                   "\n" ^ Error.to_string_hum
-                  @@ Error.tag err ~tag:"Error running pasv hmm");
-              exit 1)
+                  @@ Error.tag err ~tag:"Error running pasv hmm" ) ;
+              exit 1 )
       | Error err ->
-          handle_hmmalign_error hmmalign_out err;
+          handle_hmmalign_error hmmalign_out err ;
           exit 1
     in
-    U.clean_up opts.keep_intermediate_files
-      [ hmmalign_filename; queries_filename ]
+    U.clean_up opts.keep_intermediate_files [hmmalign_filename; queries_filename]
 end
 
 module Msa = struct
-  type opts = {
-    queries : string;
-    references : string;
-    key_residues : (Position.one_indexed, Position.raw) Position.List.t;
-    keep_intermediate_files : bool;
-    aligner : Runners.Msa.aligner;
-    other_parameters : string;
-    jobs : int;
-    max_retries : int;
-    roi_start : Position.one_indexed_raw option;
-    roi_end : Position.one_indexed_raw option;
-  }
+  type opts =
+    { queries: string
+    ; references: string
+    ; key_residues: (Position.one_indexed, Position.raw) Position.List.t
+    ; keep_intermediate_files: bool
+    ; aligner: Runners.Msa.aligner
+    ; other_parameters: string
+    ; jobs: int
+    ; max_retries: int
+    ; roi_start: Position.one_indexed_raw option
+    ; roi_end: Position.one_indexed_raw option }
 
   let get_signature msa_out outfile (opts : opts) =
     match msa_out with
@@ -441,8 +440,10 @@ module Msa = struct
             ~infile:(Check_alignment.With_pasv_refs outfile) ~roi_start ~roi_end
         in
         match Array.length signatures with
-        | 1 -> Or_error.return @@ signatures.(0)
-        | n -> Or_error.errorf "Expected to find 1 signature, but got %d." n)
+        | 1 ->
+            Or_error.return @@ signatures.(0)
+        | n ->
+            Or_error.errorf "Expected to find 1 signature, but got %d." n )
     | Error err ->
         Or_error.errorf "Error running msa: %s" (Error.to_string_hum err)
 
@@ -453,12 +454,12 @@ module Msa = struct
           let id =
             if Int.(i = 0) then U.key_reference_id else U.make_reference_id i
           in
-          reference |> with_desc None |> with_id id |> to_string)
+          reference |> with_desc None |> with_id id |> to_string )
     in
     Out_channel.with_file filename ~f:(fun chan ->
-        Out_channel.output_lines chan refs;
+        Out_channel.output_lines chan refs ;
         Out_channel.output_string chan
-          (Bio_io.Fasta_record.to_string query ^ "\n"))
+          (Bio_io.Fasta_record.to_string query ^ "\n") )
 
   let make_msa_filenames outdir i =
     let infile =
@@ -478,20 +479,16 @@ module Msa = struct
     let () = write_msa_infile msa_infile_name references query in
     let%bind msa_out =
       let msa_opts : Runners.Msa.opts =
-        {
-          infile = msa_infile_name;
-          outfile = msa_outfile_name;
-          other_parameters = opts.other_parameters;
-          max_retries = opts.max_retries;
-        }
+        { infile= msa_infile_name
+        ; outfile= msa_outfile_name
+        ; other_parameters= opts.other_parameters
+        ; max_retries= opts.max_retries }
       in
       Runners.Msa.run msa_opts opts.aligner
     in
-
     let signature = get_signature msa_out msa_outfile_name opts in
     let () =
-      U.clean_up opts.keep_intermediate_files
-        [ msa_infile_name; msa_outfile_name ]
+      U.clean_up opts.keep_intermediate_files [msa_infile_name; msa_outfile_name]
     in
     Async.Deferred.return signature
 
@@ -499,10 +496,10 @@ module Msa = struct
   let write_query_signature query_signature writer =
     match query_signature with
     | Ok signature ->
-        Async.Writer.write_line writer signature;
+        Async.Writer.write_line writer signature ;
         Async.Deferred.return 1
     | Error err ->
-        Logger.error (fun () -> Error.to_string_hum err);
+        Logger.error (fun () -> Error.to_string_hum err) ;
         Async.Deferred.return 0
 
   (* Get the signature then write the output as it is available. This way if the
@@ -510,13 +507,13 @@ module Msa = struct
      examine. *)
   let get_and_write_sig signature_filename common_opts (opts : opts) references
       query_i query =
-    Logger.info (fun () -> sprintf "Working on query %d" (query_i + 1));
+    Logger.info (fun () -> sprintf "Working on query %d" (query_i + 1)) ;
     let signature =
       get_msa_query_signature common_opts opts references query_i query
     in
     Async.Deferred.bind signature ~f:(fun signature ->
         Async.Writer.with_file signature_filename ~append:true
-          ~f:(write_query_signature signature))
+          ~f:(write_query_signature signature) )
 
   let sig_file_write_results_good results =
     let sum = List.fold results ~init:0 ~f:( + ) in
@@ -525,14 +522,15 @@ module Msa = struct
   (* Check for common problem when setting alignment parameters. *)
   let fix_aln_params opts =
     match opts.aligner with
-    | Clustalo _path -> Or_error.return opts
+    | Clustalo _path ->
+        Or_error.return opts
     | Mafft _path ->
         if String.(opts.other_parameters = U.default_clustalo_other_aln_params)
         then
           (* The user kept the default clustal options even though we're using
              mafft. Fix the option to work with mafft default. *)
           Or_error.return
-            { opts with other_parameters = U.default_mafft_other_aln_params }
+            {opts with other_parameters= U.default_mafft_other_aln_params}
         else if String.is_substring opts.other_parameters ~substring:"--threads"
         then
           (* The args contain --threads but that only works with clustalo. So
@@ -546,19 +544,20 @@ module Msa = struct
         else Or_error.return opts
 
   let run common_opts opts : unit Async.Deferred.Or_error.t =
-    Logger.set_printer prerr_endline;
-    U.assert_looks_like_fasta_file_or_exit opts.references;
-    U.assert_looks_like_fasta_file_or_exit opts.queries;
-    Runners.Msa.assert_program_good_or_exit opts.aligner;
+    Logger.set_printer prerr_endline ;
+    U.assert_looks_like_fasta_file_or_exit opts.references ;
+    U.assert_looks_like_fasta_file_or_exit opts.queries ;
+    Runners.Msa.assert_program_good_or_exit opts.aligner ;
     let opts =
       match fix_aln_params opts with
-      | Ok opts -> opts
+      | Ok opts ->
+          opts
       | Error err ->
-          Logger.fatal (fun () -> Error.to_string_hum err);
+          Logger.fatal (fun () -> Error.to_string_hum err) ;
           exit 1
     in
     let f () =
-      U.make_outdir_or_exit common_opts.outdir common_opts.force;
+      U.make_outdir_or_exit common_opts.outdir common_opts.force ;
       let signatures_filename =
         U.make_signatures_filename ~infile:opts.queries
           ~outdir:common_opts.outdir
@@ -571,11 +570,11 @@ module Msa = struct
       in
       let open Async in
       (* Now that we're in async world, make sure the logger is async. *)
-      Logger.set_printer Async.prerr_endline;
+      Logger.set_printer Async.prerr_endline ;
       let%bind (_ignore : unit) =
         Writer.with_file signatures_filename ~f:(fun writer ->
             Deferred.return @@ Writer.write_line writer
-            @@ Check_alignment.make_signature_file_header opts.key_residues)
+            @@ Check_alignment.make_signature_file_header opts.key_residues )
       in
       let%bind (query_sig_write_results : int list) =
         Deferred.List.mapi queries ~how:(`Max_concurrent_jobs opts.jobs)
@@ -600,11 +599,12 @@ module Msa = struct
            don't_wait_for
              (Deferred.map result ~f:(fun result ->
                   match result with
-                  | Ok () -> shutdown 0
+                  | Ok () ->
+                      shutdown 0
                   | Error err ->
-                      Logger.fatal (fun () -> Error.to_string_hum err);
-                      shutdown 1)))
-         ())
+                      Logger.fatal (fun () -> Error.to_string_hum err) ;
+                      shutdown 1 ) ) )
+         () )
 end
 
 (* Some options are specific to the subcommand. *)
@@ -616,7 +616,11 @@ type specific_opts =
 
 let run (common_opts : common_opts) (opts : specific_opts) =
   match opts with
-  | Check_opts opts -> Check.run common_opts opts
-  | Hmm_opts opts -> Hmm.run common_opts opts
-  | Msa_opts opts -> Msa.run_wrapper common_opts opts
-  | Select_opts opts -> Select.run common_opts opts
+  | Check_opts opts ->
+      Check.run common_opts opts
+  | Hmm_opts opts ->
+      Hmm.run common_opts opts
+  | Msa_opts opts ->
+      Msa.run_wrapper common_opts opts
+  | Select_opts opts ->
+      Select.run common_opts opts
