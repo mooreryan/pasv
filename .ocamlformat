@@ -1,0 +1,7 @@
+ocaml-version = 4.14
+version = 0.20.1
+profile = ocamlformat
+parse-docstrings = true
+wrap-comments = true
+margin = 80
+# module-item-spacing = preserve

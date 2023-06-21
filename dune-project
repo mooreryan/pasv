@@ -35,6 +35,8 @@
    (= "0.2.0"))
   (ocaml
    (= "4.12.0"))
+  (ocamlformat
+   (= "0.20.1"))
   (ppx_deriving
    (= "5.2.1"))
   (ppx_jane
