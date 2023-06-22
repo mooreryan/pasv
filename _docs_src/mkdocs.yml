@@ -1,32 +1,32 @@
 site_name: PASV -- Protein Active Site Validation
 site_url: https://mooreryan.github.io/pasv/
 repo_url: https://github.com/mooreryan/pasv
-edit_uri: edit/master/_docs_src/src
+edit_uri: edit/main/_docs_src/src
 site_description: Documentation for installing and using PASV, a program for post-homology search validation and partitioning of sequences by specific residues (active sites, conserved residues, etc).
 site_author: Ryan Moore
 nav:
   - PASV: index.md
   - Overview:
-    - Getting Started: getting-started.md
-    - PASV Use Cases: pasv-use-cases.md
-    - Definitions & Jargon: jargon.md
-    - Bibliography: bibliography.md
+      - Getting Started: getting-started.md
+      - PASV Use Cases: pasv-use-cases.md
+      - Definitions & Jargon: jargon.md
+      - Bibliography: bibliography.md
   - Installation:
-    - Installing External Software Dependencies: installing-external-dependencies.md
-    - Installing Precompiled Binaries: installing-precompiled-binaries.md
-    - Installing With Docker: installing-with-docker.md
-    - Installing From Source: installing-from-source.md
+      - Installing External Software Dependencies: installing-external-dependencies.md
+      - Installing Precompiled Binaries: installing-precompiled-binaries.md
+      - Installing With Docker: installing-with-docker.md
+      - Installing From Source: installing-from-source.md
   - Usage:
-    - Command Line Interface: cli.md
-    - PASV Output: pasv-output.md
-    - Picking References and Residues: picking-refs-and-residues.md
+      - Command Line Interface: cli.md
+      - PASV Output: pasv-output.md
+      - Picking References and Residues: picking-refs-and-residues.md
   - Examples:
-    - Tons of Examples: tons-of-examples.md
-    - pasv-check: examples-pasv-check.md
-    - pasv-hmm: examples-pasv-hmm.md
-    - pasv-msa: examples-pasv-msa.md
-    - pasv-select: examples-pasv-select.md
-    - AOX/PTOX Example: examples-aox-ptox.md
+      - Tons of Examples: tons-of-examples.md
+      - pasv-check: examples-pasv-check.md
+      - pasv-hmm: examples-pasv-hmm.md
+      - pasv-msa: examples-pasv-msa.md
+      - pasv-select: examples-pasv-select.md
+      - AOX/PTOX Example: examples-aox-ptox.md
 theme:
   name: readthedocs
   custom_dir: custom_theme

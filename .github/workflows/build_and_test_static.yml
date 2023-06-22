@@ -3,7 +3,7 @@ name: Build and Test Static
 on:
   push:
     branches:
-      - "master"
+      - "main"
       - "staging"
       - "ci_build_test_static"
   pull_request:
