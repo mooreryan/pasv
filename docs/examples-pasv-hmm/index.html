@@ -154,7 +154,7 @@
           <li>Examples &raquo;</li>
       <li>pasv-hmm</li>
     <li class="wy-breadcrumbs-aside">
-          <a href="https://github.com/mooreryan/pasv/edit/master/_docs_src/src/examples-pasv-hmm.md" class="icon icon-github"> Edit on GitHub</a>
+          <a href="https://github.com/mooreryan/pasv/edit/main/_docs_src/src/examples-pasv-hmm.md" class="icon icon-github"> Edit on GitHub</a>
     </li>
   </ul>
   <hr/>
@@ -169,13 +169,13 @@
 <p><code>pasv hmm</code> has four required arguments:</p>
 <ul>
 <li><a href="../jargon/#queries-query-sequences">queries</a>: the query sequences</li>
-<li><a href="../jargon/#references-reference-sequences">references</a>: the reference HMM.  This should be the output of HMMER's <code>hmmbuild</code> program</li>
+<li><a href="../jargon/#references-reference-sequences">references</a>: the reference HMM. This should be the output of HMMER's <code>hmmbuild</code> program</li>
 <li><a href="../jargon/#key-reference-sequences-positions-residues">key reference sequence</a>: a fasta file with the key reference sequence</li>
 <li><a href="../jargon/#key-reference-sequences-positions-residues">key residues positions</a>: a comma-separated list of key positions to check</li>
 </ul>
 <p>For full CLI usage info, run <code>pasv hmm --help</code>.</p>
 <h2 id="set-up-environment-variables">Set up environment variables</h2>
-<p>These are some environment variables that we will use in the example scripts. I am assuming you are running this from the following directory with respect to the <code>pasv</code> source directory: <code>./_examples/pasv_hmm</code>. (If you are not, you can download the data files on <a href="https://github.com/mooreryan/pasv/tree/master/_examples/pasv_hmm">GitHub</a>.)</p>
+<p>These are some environment variables that we will use in the example scripts. I am assuming you are running this from the following directory with respect to the <code>pasv</code> source directory: <code>./_examples/pasv_hmm</code>. (If you are not, you can download the data files on <a href="https://github.com/mooreryan/pasv/tree/main/_examples/pasv_hmm">GitHub</a>.)</p>
 <pre><code>$ export QUERIES=amk_queries.fa
 $ export REFS=P00582.refs.aln.hmm
 $ export MAIN_REF=amk_main_ref.fa
@@ -189,7 +189,7 @@ $ [ -d &quot;${OUTDIR}&quot; ] &amp;&amp; rm -r &quot;${OUTDIR}&quot;
 # Run pasv-hmm.
 $ pasv hmm --outdir=&quot;${OUTDIR}&quot; &quot;${QUERIES}&quot; &quot;${REFS}&quot; &quot;${MAIN_REF}&quot; &quot;${RESIDUES}&quot;
 </code></pre>
-<p>The output file will be <code>apple/amk_queries.pasv_signatures.tsv</code>.  Here are the contents.</p>
+<p>The output file will be <code>apple/amk_queries.pasv_signatures.tsv</code>. Here are the contents.</p>
 <table>
 <thead>
 <tr>
@@ -448,7 +448,7 @@ $ pasv hmm --outdir=&quot;${OUTDIR}&quot; &quot;${QUERIES}&quot; &quot;${REFS}&q
 </table>
 <p><br></p>
 <p>For a detailed explanation of this file's format, see <a href="../pasv-output/">here</a>.</p>
-<p>One thing to note is that there are a lot of <code>NA</code> values present in the output.  This is because we didn't provide a region of interest.  Let's see how to do that.</p>
+<p>One thing to note is that there are a lot of <code>NA</code> values present in the output. This is because we didn't provide a region of interest. Let's see how to do that.</p>
 <h2 id="with-region-of-interest">With region of interest</h2>
 <p>You can also use <code>pasv</code> to check if query sequences span a <a href="../jargon/#region-of-interest">region of interest</a> with respect to the key reference sequence.</p>
 <pre><code># Clean up outdir if it exists.
@@ -464,7 +464,7 @@ $ pasv hmm \
     &quot;${MAIN_REF}&quot; \
     &quot;${RESIDUES}&quot;
 </code></pre>
-<p>The output file will be here: <code>"${OUTDIR}/aln.pasv_signatures.tsv"</code>.  Here are the contents:</p>
+<p>The output file will be here: <code>"${OUTDIR}/aln.pasv_signatures.tsv"</code>. Here are the contents:</p>
 <table>
 <thead>
 <tr>

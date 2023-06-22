@@ -158,7 +158,7 @@
           <li>Examples &raquo;</li>
       <li>pasv-check</li>
     <li class="wy-breadcrumbs-aside">
-          <a href="https://github.com/mooreryan/pasv/edit/master/_docs_src/src/examples-pasv-check.md" class="icon icon-github"> Edit on GitHub</a>
+          <a href="https://github.com/mooreryan/pasv/edit/main/_docs_src/src/examples-pasv-check.md" class="icon icon-github"> Edit on GitHub</a>
     </li>
   </ul>
   <hr/>
@@ -176,7 +176,7 @@
 <p>The first sequence in the alignment file is treated as the <a href="../jargon/#key-reference-sequences-positions-residues">key reference sequence</a>.</p>
 <p>You can download the <code>aln.fa</code> file from <a href="https://raw.githubusercontent.com/mooreryan/pasv/12a37d5aa863e8cee6a0f4c3a583eee78dbfca61/_examples/pasv_check/aln.fa">GitHub</a>.</p>
 <h2 id="set-up-environment-variables">Set up environment variables</h2>
-<p>These are some environment variables that we will use in the example scripts. I am assuming you are running this from the following directory with respect to the <code>pasv</code> source directory: <code>./_examples/pasv_check</code>. (If you are not, you can download the data files on <a href="https://github.com/mooreryan/pasv/tree/master/_examples/pasv_check">GitHub</a>.)</p>
+<p>These are some environment variables that we will use in the example scripts. I am assuming you are running this from the following directory with respect to the <code>pasv</code> source directory: <code>./_examples/pasv_check</code>. (If you are not, you can download the data files on <a href="https://github.com/mooreryan/pasv/tree/main/_examples/pasv_check">GitHub</a>.)</p>
 <pre><code>$ export ALN=aln.fa
 $ export OUTDIR=apple
 </code></pre>
@@ -187,7 +187,7 @@ $ [ -d &quot;${OUTDIR}&quot; ] &amp;&amp; rm -r &quot;${OUTDIR}&quot;
 # Run pasv-check.
 $ pasv check --outdir=&quot;${OUTDIR}&quot; &quot;${ALN}&quot; 50,52,54
 </code></pre>
-<p>The output file will be here: <code>"${OUTDIR}/aln.pasv_signatures.tsv"</code>.  Here are the contents:</p>
+<p>The output file will be here: <code>"${OUTDIR}/aln.pasv_signatures.tsv"</code>. Here are the contents:</p>
 <table>
 <thead>
 <tr>
@@ -445,7 +445,7 @@ $ pasv check --outdir=&quot;${OUTDIR}&quot; &quot;${ALN}&quot; 50,52,54
 </tbody>
 </table>
 <p>For a detailed explanation of this file's format, see <a href="../pasv-output/">here</a>.</p>
-<p>One thing to note is that there are a lot of <code>NA</code> values present in the output.  This is because we didn't provide a region of interest.  Let's see how to do that.</p>
+<p>One thing to note is that there are a lot of <code>NA</code> values present in the output. This is because we didn't provide a region of interest. Let's see how to do that.</p>
 <h2 id="with-region-of-interest">With region of interest</h2>
 <p>You can also use <code>pasv</code> to check if query sequences span a <a href="../jargon/#region-of-interest">region of interest</a> with respect to the key reference sequence.</p>
 <pre><code># Clean up outdir if it exists.
@@ -459,7 +459,7 @@ $ pasv check \
     &quot;${ALN}&quot; \
     50,52,54
 </code></pre>
-<p>The output file will be here: <code>"${OUTDIR}/aln.pasv_signatures.tsv"</code>.  Here are the contents:</p>
+<p>The output file will be here: <code>"${OUTDIR}/aln.pasv_signatures.tsv"</code>. Here are the contents:</p>
 <table>
 <thead>
 <tr>
